@@ -44,25 +44,22 @@ class AppRouter {
     redirect: (context, state) {
       // Avoid redirect loops on splash and let SplashScreen decide where to go
       final loc = state.uri.path;
-      final atSplash = loc == '/';
-      if (atSplash) return null;
+      if (loc == '/') return null; // always allow splash
+      if (loc == '/boarding') return null; // always allow boarding per UX
 
-      final atBoarding = loc == '/boarding';
       final atAuth = loc == '/signin' || loc == '/signup';
 
+      // If not onboarded yet and trying to access other routes, send to boarding
       if (!appState.hasOnboarded) {
-        return atBoarding ? null : '/boarding';
+        return '/boarding';
       }
 
+      // If not logged in, allow auth routes, otherwise go to signin
       if (!appState.isLoggedIn) {
         return atAuth ? null : '/signin';
       }
 
-      // If authenticated and onboarded, prevent going back to auth/boarding
-      if (atBoarding || atAuth) {
-        return '/home';
-      }
-
+      // Logged in: allow everything, including boarding if user navigates back intentionally
       return null;
     },
   );

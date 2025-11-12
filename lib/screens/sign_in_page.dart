@@ -28,9 +28,16 @@ class _SignInPageState extends State<SignInPage> {
     final size = MediaQuery.of(context).size;
   // Padding handled by AppScaffold
 
-    return AppScaffold(
-      showBack: true,
-      body: Column(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (context.mounted) context.go('/boarding');
+      },
+      child: AppScaffold(
+        showBack: true,
+        onBack: () => context.go('/boarding'),
+        body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(height: size.height * 0.14),
@@ -66,6 +73,7 @@ class _SignInPageState extends State<SignInPage> {
           ),
           const SizedBox(height: 24),
         ],
+        ),
       ),
     );
   }

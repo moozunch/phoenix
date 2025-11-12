@@ -17,8 +17,8 @@ class _SplashScreenState extends State<SplashScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.delayed(const Duration(milliseconds: 150));
       if (!mounted) return;
-      // Navigate to home; router redirect will route correctly based on AppState
-      context.go('/home');
+      // After splash, go to Boarding first as requested
+      context.go('/boarding');
     });
   }
 

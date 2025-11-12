@@ -10,6 +10,8 @@ class AppScaffold extends StatelessWidget {
     this.showBack = false,
     this.scrollable = true,
     this.headerHeight,
+    this.background,
+    this.onBack,
   });
 
   final Widget body;
@@ -17,6 +19,8 @@ class AppScaffold extends StatelessWidget {
   final bool showBack;
   final bool scrollable;
   final double? headerHeight;
+  final Widget? background;
+  final VoidCallback? onBack;
 
   EdgeInsets _horizontalPadding(BuildContext context) {
     final w = MediaQuery.of(context).size.width;
@@ -48,7 +52,8 @@ class AppScaffold extends StatelessWidget {
         leading: showBack
             ? IconButton(
                 icon: const Icon(Icons.arrow_back),
-                onPressed: () => context.canPop() ? context.pop() : context.go('/'),
+                onPressed: onBack ??
+                    () => context.canPop() ? context.pop() : context.go('/'),
               )
             : null,
         title: title == null
@@ -61,7 +66,7 @@ class AppScaffold extends StatelessWidget {
             Positioned.fill(
               child: Align(
                 alignment: Alignment.topCenter,
-                child: AppBackground(height: headerHeight),
+                child: background ?? AppBackground(height: headerHeight),
               ),
             ),
             // Foreground page content
