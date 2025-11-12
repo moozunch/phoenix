@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:phoenix/core/app_state.dart';
 import 'package:phoenix/router/app_router.dart';
+import 'package:phoenix/styles/app_palette.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final baseTheme = ThemeData(
-      colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFFF5A1F)),
+      colorScheme: ColorScheme.fromSeed(seedColor: AppPalette.primary),
       useMaterial3: true,
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(

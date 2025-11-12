@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phoenix/styles/app_palette.dart';
 
 class AppBackground extends StatelessWidget {
   const AppBackground({super.key, this.height});
@@ -16,11 +17,16 @@ class AppBackground extends StatelessWidget {
       child: ClipPath(
         clipper: _BottomCurveClipper(),
         child: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFFFF5A1F), Color(0xFFFF8A50)],
+              colors: [
+                AppPalette.primary,
+                HSLColor.fromColor(AppPalette.primary)
+                    .withLightness((HSLColor.fromColor(AppPalette.primary).lightness + 0.25).clamp(0.0, 1.0))
+                    .toColor(),
+              ],
             ),
           ),
         ),
