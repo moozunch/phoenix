@@ -1,26 +1,63 @@
-import 'package:phoenix/screens/splashScreen.dart';
-import 'package:phoenix/screens/HomePage.dart';
 import 'package:flutter/material.dart';
+import 'package:phoenix/core/app_state.dart';
+import 'package:phoenix/router/app_router.dart';
+import 'package:phoenix/styles/app_palette.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final appState = await AppState.create();
+  runApp(MyApp(appState: appState));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({super.key, this.appState});
+
+  final AppState? appState;
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'phoenix',
-      theme: ThemeData(
+    final baseTheme = ThemeData(
+      colorScheme: ColorScheme.fromSeed(seedColor: AppPalette.primary),
+      useMaterial3: true,
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
       ),
-      initialRoute: '/',
-            routes: {
-        '/': (context) => const SplashScreen(),
-        '/home': (context) => const HomePage(),
+      inputDecorationTheme: const InputDecorationTheme(
+        border: OutlineInputBorder(),
+      ),
+    );
+
+    if (appState != null) {
+      final router = AppRouter(appState!).router;
+      return MaterialApp.router(
+        title: 'phoenix',
+        theme: baseTheme,
+        routerConfig: router,
+        debugShowCheckedModeBanner: false,
+      );
+    }
+
+    return FutureBuilder<AppState>(
+      future: AppState.create(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: baseTheme,
+            home: const SizedBox.shrink(),
+          );
+        }
+        final router = AppRouter(snapshot.data!).router;
+        return MaterialApp.router(
+          title: 'phoenix',
+          theme: baseTheme,
+          routerConfig: router,
+          debugShowCheckedModeBanner: false,
+        );
       },
-      debugShowCheckedModeBanner: false,
     );
   }
 }
