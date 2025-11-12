@@ -15,11 +15,25 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final baseTheme = ThemeData(
+      colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFFF5A1F)),
+      useMaterial3: true,
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
+      inputDecorationTheme: const InputDecorationTheme(
+        border: OutlineInputBorder(),
+      ),
+    );
+
     if (appState != null) {
       final router = AppRouter(appState!).router;
       return MaterialApp.router(
         title: 'phoenix',
-        theme: ThemeData(),
+        theme: baseTheme,
         routerConfig: router,
         debugShowCheckedModeBanner: false,
       );
@@ -29,15 +43,16 @@ class MyApp extends StatelessWidget {
       future: AppState.create(),
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
-          return const MaterialApp(
+          return MaterialApp(
             debugShowCheckedModeBanner: false,
-            home: SizedBox.shrink(),
+            theme: baseTheme,
+            home: const SizedBox.shrink(),
           );
         }
         final router = AppRouter(snapshot.data!).router;
         return MaterialApp.router(
           title: 'phoenix',
-          theme: ThemeData(),
+          theme: baseTheme,
           routerConfig: router,
           debugShowCheckedModeBanner: false,
         );

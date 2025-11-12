@@ -34,6 +34,9 @@ class AppButton extends StatelessWidget {
       constraints: BoxConstraints(minHeight: h),
       child: FilledButton(
         onPressed: onPressed,
+        style: FilledButton.styleFrom(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
         child: child,
       ),
     );

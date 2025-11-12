@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:phoenix/core/app_state.dart';
 import 'package:phoenix/widgets/app_button.dart';
 import 'package:phoenix/widgets/app_text_field.dart';
+import 'package:phoenix/widgets/app_scaffold.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -25,43 +26,46 @@ class _SignInPageState extends State<SignInPage> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final pad = EdgeInsets.symmetric(horizontal: size.width * 0.08);
+  // Padding handled by AppScaffold
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Sign In')),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: pad.add(const EdgeInsets.symmetric(vertical: 24)),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 520),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SizedBox(height: size.height * 0.02),
-                  AppTextField(controller: _email, label: 'Email', keyboardType: TextInputType.emailAddress),
-                  const SizedBox(height: 16),
-                  AppTextField(controller: _password, label: 'Password', obscure: true),
-                  const SizedBox(height: 24),
-                  AppButton(
-                    label: 'Sign In',
-                    onPressed: () async {
-                      // TODO: Replace with real auth later.
-                      final state = await AppState.create();
-                      await state.setLoggedIn(true);
-                      if (context.mounted) context.go('/home');
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  TextButton(
-                    onPressed: () => context.go('/signup'),
-                    child: const Text("Don't have an account? Sign up"),
-                  ),
-                ],
-              ),
+    return AppScaffold(
+      showBack: true,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(height: size.height * 0.14),
+          Text(
+            'Welcome back!',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 16),
+          AppTextField(controller: _email, label: 'Email', keyboardType: TextInputType.emailAddress),
+          const SizedBox(height: 16),
+          AppTextField(controller: _password, label: 'Password', obscure: true),
+          const SizedBox(height: 16),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: () {},
+              child: const Text('Forgot Password?'),
             ),
           ),
-        ),
+          const SizedBox(height: 8),
+          AppButton(
+            label: 'Sign In',
+            onPressed: () async {
+              final state = await AppState.create();
+              await state.setLoggedIn(true);
+              if (context.mounted) context.go('/home');
+            },
+          ),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: () => context.go('/signup'),
+            child: const Text("Don't have an account? Sign up"),
+          ),
+          const SizedBox(height: 24),
+        ],
       ),
     );
   }
