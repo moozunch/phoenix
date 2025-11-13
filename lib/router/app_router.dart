@@ -5,6 +5,7 @@ import 'package:phoenix/screens/sign_in_page.dart';
 import 'package:phoenix/screens/sign_up_page.dart';
 import 'package:phoenix/screens/splash_screen.dart';
 import 'package:phoenix/screens/home.dart';
+import 'package:phoenix/screens/onboarding/routine_selection.dart';
 
 class AppRouter {
   AppRouter(this.appState);
@@ -39,6 +40,10 @@ class AppRouter {
         path: '/home',
         name: 'home',
         builder: (context, state) => const HomePage(),
+      ),
+      GoRoute(
+        path: '/routine_selection',
+        builder: (context, state) => const RoutineSelection(),
       ),
     ],
     redirect: (context, state) {
