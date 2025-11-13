@@ -5,7 +5,6 @@ import 'package:phoenix/screens/sign_in_page.dart';
 import 'package:phoenix/screens/sign_up_page.dart';
 import 'package:phoenix/screens/splash_screen.dart';
 import 'package:phoenix/screens/home.dart';
-import 'package:phoenix/screens/onboarding/routine_selection.dart';
 
 class AppRouter {
   AppRouter(this.appState);
@@ -41,18 +40,10 @@ class AppRouter {
         name: 'home',
         builder: (context, state) => const HomePage(),
       ),
-      GoRoute(
-        path: '/routine_selection',
-        name: 'routine_selection',
-        builder: (context, state) => const RoutineSelection(),
-      ),
     ],
-
     redirect: (context, state) {
-      bool isNewUser = false;
       // Avoid redirect loops on splash and let SplashScreen decide where to go
       final loc = state.uri.path;
-
       if (loc == '/') return null; // always allow splash
       if (loc == '/boarding') return null; // always allow boarding per UX
 
@@ -66,15 +57,6 @@ class AppRouter {
       // If not logged in, allow auth routes, otherwise go to signin
       if (!appState.isLoggedIn) {
         return atAuth ? null : '/signin';
-      }
-
-      if (appState.isNewUser && loc != '/routine_selection' && loc != '/') {
-        return '/routine_selection';
-      }
-
-
-      if (!appState.isNewUser && loc != '/home' && loc != '/routine_selection') {
-        return '/home';
       }
 
       // Logged in: allow everything, including boarding if user navigates back intentionally
