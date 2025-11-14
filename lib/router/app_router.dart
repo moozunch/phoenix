@@ -1,12 +1,14 @@
 import 'package:go_router/go_router.dart';
 import 'package:phoenix/core/app_state.dart';
 import 'package:phoenix/screens/boarding_screen.dart';
+import 'package:phoenix/screens/onboarding/weekly_setup.dart';
 import 'package:phoenix/screens/sign_in_page.dart';
 import 'package:phoenix/screens/sign_up_page.dart';
 import 'package:phoenix/screens/splash_screen.dart';
 import 'package:phoenix/screens/home.dart';
 import 'package:phoenix/screens/onboarding/routine_selection.dart';
 import 'package:phoenix/screens/onboarding/daily_setup.dart';
+import 'package:phoenix/screens/onboarding/weekly_setup.dart';
 
 class AppRouter {
   AppRouter(this.appState);
@@ -51,6 +53,10 @@ class AppRouter {
         path: '/daily_setup',
         builder: (context, state) => const DailySetup(),
       ),
+      GoRoute(
+        path: '/weekly_setup',
+        builder: (context, state) => const WeeklySetup(),
+      ),
     ],
 
     redirect: (context, state) {
@@ -71,7 +77,7 @@ class AppRouter {
       }
 
       if (appState.isNewUser) {
-        if (loc != '/routine_selection' && loc != '/daily_setup' && loc != '/signup') {
+        if (loc != '/routine_selection' && loc != '/daily_setup' && loc != '/signup' && loc!= '/weekly_setup') {
           return '/routine_selection';
         }
         return null;

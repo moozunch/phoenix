@@ -70,9 +70,7 @@ class _RoutineSelectionState extends State<RoutineSelection> {
                     if (selectedOption == "Daily") {
                       context.go('/daily_setup');
                     } else if (selectedOption == "Weekly") {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Weekly flow not implemented yet')),
-                      );
+                      context.go('/weekly_setup');
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Please select one option')),

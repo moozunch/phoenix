@@ -4,17 +4,25 @@ class TimePicker extends StatelessWidget {
   final String timeLabel;
   final VoidCallback onTap;
 
+  // ⬇️ Added optional color parameters
+  final Color? primaryColor;
+  final Color? surfaceColor;
+  final Color? textColor;
+
   const TimePicker({
     super.key,
     required this.timeLabel,
     required this.onTap,
+    this.primaryColor,
+    this.surfaceColor,
+    this.textColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: GestureDetector(
-        onTap: onTap,
+        onTap: onTap,   // ⬅️ You will handle the themed picker HERE
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           decoration: BoxDecoration(
@@ -23,10 +31,10 @@ class TimePicker extends StatelessWidget {
           ),
           child: Text(
             timeLabel,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w500,
-              color: Colors.black87,
+              color: textColor ?? Colors.black87, // ⬅️ apply text color if provided
             ),
           ),
         ),
