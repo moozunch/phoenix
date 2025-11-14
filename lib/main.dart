@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:phoenix/core/app_state.dart';
 import 'package:phoenix/router/app_router.dart';
 import 'package:phoenix/styles/app_palette.dart';
-import 'screens/onboarding/routine_selection.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

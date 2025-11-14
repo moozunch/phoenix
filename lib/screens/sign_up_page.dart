@@ -4,7 +4,6 @@ import 'package:phoenix/core/app_state.dart';
 import 'package:phoenix/widgets/app_button.dart';
 import 'package:phoenix/widgets/app_text_field.dart';
 import 'package:phoenix/widgets/app_scaffold.dart';
-import 'package:phoenix/screens/onboarding/routine_selection.dart';
 
 
 class SignUpPage extends StatefulWidget {

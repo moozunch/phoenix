@@ -445,6 +445,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.6"
+  time_picker_with_timezone:
+    dependency: "direct main"
+    description:
+      name: time_picker_with_timezone
+      sha256: "649b4ca1e6722d415349295b0e729970a21fd1af33a8eda15efea8d049412d04"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
+  timezone:
+    dependency: transitive
+    description:
+      name: timezone
+      sha256: dd14a3b83cfd7cb19e7888f1cbc20f258b8d71b54c06f79ac585f14093a287d1
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.10.1"
   typed_data:
     dependency: transitive
     description:

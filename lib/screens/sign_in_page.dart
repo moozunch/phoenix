@@ -63,6 +63,7 @@ class _SignInPageState extends State<SignInPage> {
             onPressed: () async {
               final state = await AppState.create();
               await state.setLoggedIn(true);
+              await state.setIsNewUser(false);
               if (context.mounted) context.go('/home');
             },
           ),
