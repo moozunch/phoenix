@@ -13,9 +13,11 @@ class AppLinkButton extends StatelessWidget {
       onPressed: onPressed,
       style: TextButton.styleFrom(
         foregroundColor: AppPalette.primary,
-        textStyle: const TextStyle(fontWeight: FontWeight.w600),
       ),
-      child: Text(text),
+      child: Text(
+        text,
+        style: const TextStyle(fontWeight: FontWeight.w600),
+      ),
     );
   }
 }
