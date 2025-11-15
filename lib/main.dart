@@ -1,63 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:phoenix/core/app_state.dart';
 import 'package:phoenix/router/app_router.dart';
-import 'package:phoenix/styles/app_palette.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final appState = await AppState.create();
-  runApp(MyApp(appState: appState));
+  final appRouter = AppRouter(appState);
+  runApp(MyApp(router: appRouter.router));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key, this.appState});
+  const MyApp({super.key, required this.router});
 
-  final AppState? appState;
+  final GoRouter router;
 
   @override
   Widget build(BuildContext context) {
-    final baseTheme = ThemeData(
-      colorScheme: ColorScheme.fromSeed(seedColor: AppPalette.primary),
+    final base = ThemeData(
       useMaterial3: true,
-      filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      ),
-      inputDecorationTheme: const InputDecorationTheme(
-        border: OutlineInputBorder(),
-      ),
+      fontFamily: 'PlusJakartaSans',
     );
-
-    if (appState != null) {
-      final router = AppRouter(appState!).router;
-      return MaterialApp.router(
-        title: 'phoenix',
-        theme: baseTheme,
-        routerConfig: router,
-        debugShowCheckedModeBanner: false,
-      );
-    }
-
-    return FutureBuilder<AppState>(
-      future: AppState.create(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
-          return MaterialApp(
-            debugShowCheckedModeBanner: false,
-            theme: baseTheme,
-            home: const SizedBox.shrink(),
-          );
-        }
-        final router = AppRouter(snapshot.data!).router;
-        return MaterialApp.router(
-          title: 'phoenix',
-          theme: baseTheme,
-          routerConfig: router,
-          debugShowCheckedModeBanner: false,
-        );
-      },
+    return MaterialApp.router(
+      title: 'phoenix',
+      theme: base.copyWith(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
+      ),
+      routerConfig: router,
+      debugShowCheckedModeBanner: false,
     );
   }
 }

@@ -8,7 +8,7 @@ import 'package:phoenix/screens/splash_screen.dart';
 import 'package:phoenix/screens/home.dart';
 import 'package:phoenix/screens/onboarding/routine_selection.dart';
 import 'package:phoenix/screens/onboarding/daily_setup.dart';
-import 'package:phoenix/screens/onboarding/weekly_setup.dart';
+
 
 class AppRouter {
   AppRouter(this.appState);
