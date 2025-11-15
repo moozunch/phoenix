@@ -23,7 +23,6 @@ class BoardingScreen extends StatelessWidget {
     return AppScaffold(
       scrollable: true,
       headerHeight: headerH,
-      background: const SizedBox.shrink(),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

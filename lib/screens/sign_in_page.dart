@@ -18,6 +18,7 @@ class SignInPage extends StatefulWidget {
 class _SignInPageState extends State<SignInPage> {
   final _email = TextEditingController();
   final _password = TextEditingController();
+  bool _showPassword = false;
 
   @override
   void dispose() {
@@ -49,9 +50,24 @@ class _SignInPageState extends State<SignInPage> {
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 16),
-          AppTextField(controller: _email, label: 'Email', keyboardType: TextInputType.emailAddress),
+          AppTextField(
+            controller: _email,
+            label: 'Email',
+            keyboardType: TextInputType.emailAddress,
+            prefixIcon: const Icon(Icons.email_outlined, color: Colors.black54),
+          ),
           const SizedBox(height: 16),
-          AppTextField(controller: _password, label: 'Password', obscure: true),
+          AppTextField(
+            controller: _password,
+            label: 'Password',
+            obscure: !_showPassword,
+            prefixIcon: const Icon(Icons.lock_outline, color: Colors.black54),
+            suffixIcon: IconButton(
+              onPressed: () => setState(() => _showPassword = !_showPassword),
+              icon: Icon(_showPassword ? Icons.visibility_off : Icons.visibility),
+              color: Colors.black54,
+            ),
+          ),
           const SizedBox(height: 16),
           Align(
             alignment: Alignment.centerRight,

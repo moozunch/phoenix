@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'phoenix',
       theme: base.copyWith(
-        colorScheme: ColorScheme.fromSeed(seedColor: AppPalette.primary,),
+        colorScheme: ColorScheme.fromSeed(seedColor: AppPalette.primary,)
       ),
       routerConfig: router,
       debugShowCheckedModeBanner: false,

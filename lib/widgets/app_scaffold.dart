@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:phoenix/widgets/app_background.dart';
 
 class AppScaffold extends StatelessWidget {
 	const AppScaffold({
@@ -67,11 +68,8 @@ class AppScaffold extends StatelessWidget {
 			),
 			body: Stack(
 				children: [
-					Positioned.fill(
-						child: Align(
-							alignment: Alignment.topCenter,
-						),
-					),
+					// Use provided background or default brand-tinted background
+					background ?? const Background(),
 					SafeArea(child: bodyWidget),
 				],
 			),
