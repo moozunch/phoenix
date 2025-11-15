@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'progress_row.dart';
+import 'package:phoenix/styles/app_palette.dart';
 
 class OnboardingFooter extends StatelessWidget {
   final VoidCallback onSkip;
@@ -34,7 +35,7 @@ class OnboardingFooter extends StatelessWidget {
         ProgressRow(activeIndex: activeIndex, total: total),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.deepOrange,
+            backgroundColor: AppPalette.primary,
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),

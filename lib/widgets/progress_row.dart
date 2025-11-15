@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phoenix/styles/app_palette.dart';
 
 class ProgressRow extends StatelessWidget {
   final int activeIndex;
@@ -21,7 +22,7 @@ class ProgressRow extends StatelessWidget {
       height: dotHeight,
       width: isActive ? activeWidth : inactiveWidth,
       decoration: BoxDecoration(
-        color: isActive ? Colors.deepOrange : Colors.grey.shade300,
+        color: isActive ? AppPalette.primary : Colors.grey.shade300,
         borderRadius: BorderRadius.circular(4),
       ),
     );
