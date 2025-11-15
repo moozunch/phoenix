@@ -4,6 +4,7 @@ import 'package:phoenix/widgets/bottom_rounded_container.dart';
 import 'package:phoenix/widgets/time_picker.dart';
 import 'package:phoenix/widgets/label_switch.dart';
 import 'package:phoenix/widgets/onboarding_footer.dart';
+import 'package:phoenix/styles/app_palette.dart';
 
 class DailySetup extends StatefulWidget {
   const DailySetup({super.key});
@@ -25,13 +26,13 @@ class _DailySetupState extends State<DailySetup> {
           data: Theme.of(context).copyWith(
             timePickerTheme: const TimePickerThemeData(
               dialBackgroundColor: Colors.white,
-              dialHandColor: Colors.deepOrange,
-              entryModeIconColor: Colors.deepOrange,
+              dialHandColor: AppPalette.primary,
+              entryModeIconColor: AppPalette.primary,
               hourMinuteTextColor: Colors.black,
               helpTextStyle: TextStyle(color: Colors.black54),
             ),
             colorScheme: const ColorScheme.light(
-              primary: Colors.deepOrange,
+              primary: AppPalette.primary,
               onSurface: Colors.black87,
             ),
           ),
@@ -93,7 +94,7 @@ class _DailySetupState extends State<DailySetup> {
                     Navigator.of(context).maybePop();
                   },
                   onNext: () {
-                    // Next logic - finish onboarding or navigate
+                    GoRouter.of(context).go('/success_screen? from = daily_setup');
                   },
                 ),
               ],

@@ -57,6 +57,13 @@ class AppRouter {
         path: '/weekly_setup',
         builder: (context, state) => const WeeklySetup(),
       ),
+      GoRoute(
+        path: '/success_screen',
+        builder: (context, state) {
+          final from = state.uri.queryParameters['from'] ?? 'daily_setup';
+          return SuccessScreen(from: from);
+        },
+      ),
     ],
 
     redirect: (context, state) {
@@ -77,7 +84,7 @@ class AppRouter {
       }
 
       if (appState.isNewUser) {
-        if (loc != '/routine_selection' && loc != '/daily_setup' && loc != '/signup' && loc!= '/weekly_setup') {
+        if (loc != '/routine_selection' && loc != '/daily_setup' && loc != '/signup' && loc!= '/weekly_setup' && loc!='/success_screen' && loc!='/home') {
           return '/routine_selection';
         }
         return null;

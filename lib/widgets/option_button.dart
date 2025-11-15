@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phoenix/styles/app_palette.dart';
 
 class OptionButton extends StatelessWidget {
   final String text;
@@ -17,7 +18,7 @@ class OptionButton extends StatelessWidget {
     return OutlinedButton(
       style: OutlinedButton.styleFrom(
         side: BorderSide(
-          color: selected ? Colors.deepOrange : Colors.grey.shade400,
+          color: selected ? AppPalette.primary : Colors.grey.shade400,
         ),
         backgroundColor: selected ? Colors.deepOrange.withOpacity(0.08) : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -27,7 +28,7 @@ class OptionButton extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          color: selected ? Colors.deepOrange : Colors.black87,
+          color: selected ? AppPalette.primary : Colors.black87,
           fontWeight: FontWeight.w500,
         ),
       ),
