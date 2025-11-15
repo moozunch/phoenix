@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:phoenix/widgets/bottom_rounded_container.dart';
 import 'package:phoenix/widgets/time_picker.dart';
 import 'package:phoenix/widgets/onboarding_footer.dart';
+import 'package:phoenix/styles/app_palette.dart';
 
 class WeeklySetup extends StatefulWidget {
   const WeeklySetup({super.key});
@@ -27,13 +28,13 @@ class _WeeklySetupState extends State<WeeklySetup> {
           data: Theme.of(context).copyWith(
             timePickerTheme: const TimePickerThemeData(
               dialBackgroundColor: Colors.white,
-              dialHandColor: Colors.deepOrange,
-              entryModeIconColor: Colors.deepOrange,
+              dialHandColor: AppPalette.primary,
+              entryModeIconColor: AppPalette.primary,
               hourMinuteTextColor: Colors.black,
               helpTextStyle: TextStyle(color: Colors.black54),
             ),
             colorScheme: const ColorScheme.light(
-              primary: Colors.deepOrange,
+              primary: AppPalette.primary,
               onSurface: Colors.black87,
             ),
           ),
@@ -113,11 +114,11 @@ class _WeeklySetupState extends State<WeeklySetup> {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(6),
                               border: Border.all(
-                                color: Colors.deepOrange,
+                                color: AppPalette.primary,
                                 width: 1.5,
                               ),
                               color: isSelected
-                                  ? Colors.deepOrange
+                                  ? AppPalette.primary
                                   : Colors.white,
                             ),
                             child: isSelected
@@ -176,7 +177,7 @@ class _WeeklySetupState extends State<WeeklySetup> {
                       );
                       return;
                     }
-
+                    GoRouter.of(context).go('/success_screen?from = weekly_setup');
                     // Next logic here
                   },
                 ),

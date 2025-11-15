@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:phoenix/styles/app_palette.dart';
 class LabelSwitch extends StatelessWidget {
   final String label;
   final bool value;
@@ -22,8 +22,8 @@ class LabelSwitch extends StatelessWidget {
           value: value,
           onChanged: onChanged,
           activeColor: Colors.white,
-          activeTrackColor: Colors.deepOrange,
-          inactiveThumbColor: Colors.deepOrange,
+          activeTrackColor: AppPalette.primary,
+          inactiveThumbColor: AppPalette.primary,
           inactiveTrackColor: Colors.grey.shade300,
         ),
       ],

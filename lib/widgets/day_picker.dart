@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phoenix/styles/app_palette.dart';
 
 class DayPicker extends StatelessWidget{
   final Map<String, bool> selectedDays;
@@ -25,14 +26,14 @@ class DayPicker extends StatelessWidget{
                 height: 28,
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: isSelected ? Colors.deepOrange : Colors.deepOrange,
+                    color: isSelected ? AppPalette.primary :AppPalette.primary,
                     width: 2,
                   ),
                   borderRadius: BorderRadius.circular(6),
-                  color: isSelected ? Colors.deepOrange.withOpacity(0.1) : Colors.white,
+                  color: isSelected ? AppPalette.primary.withOpacity(0.1) : Colors.white,
                 ),
                 child: isSelected
-                    ? const Icon(Icons.check, size: 18, color: Colors.deepOrange)
+                    ? const Icon(Icons.check, size: 18, color: AppPalette.primary)
                     : null,
               ),
               const SizedBox(width: 8),

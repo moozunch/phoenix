@@ -57,9 +57,14 @@ class AppRouter {
         path: '/weekly_setup',
         builder: (context, state) => const WeeklySetup(),
       ),
-      
+            GoRoute(
+        path: '/success_screen',
+        builder: (context, state) {
+          final from = state.uri.queryParameters['from'] ?? 'daily_setup';
+          return SuccessScreen(from: from);
+        },
+      ),
     ],
-    
 
     redirect: (context, state) {
       final loc = state.uri.path;

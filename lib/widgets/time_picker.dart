@@ -20,7 +20,8 @@ class TimePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return Align(
+      alignment: Alignment.centerLeft,
       child: GestureDetector(
         onTap: onTap,   // ⬅️ You will handle the themed picker HERE
         child: Container(
