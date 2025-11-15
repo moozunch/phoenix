@@ -8,7 +8,7 @@ import 'package:phoenix/screens/splash_screen.dart';
 import 'package:phoenix/screens/home.dart';
 import 'package:phoenix/screens/onboarding/routine_selection.dart';
 import 'package:phoenix/screens/onboarding/daily_setup.dart';
-
+import 'package:phoenix/screens/onboarding/success_screen.dart';
 
 class AppRouter {
   AppRouter(this.appState);
@@ -57,7 +57,9 @@ class AppRouter {
         path: '/weekly_setup',
         builder: (context, state) => const WeeklySetup(),
       ),
+      
     ],
+    
 
     redirect: (context, state) {
       final loc = state.uri.path;
@@ -77,7 +79,7 @@ class AppRouter {
       }
 
       if (appState.isNewUser) {
-        if (loc != '/routine_selection' && loc != '/daily_setup' && loc != '/signup' && loc!= '/weekly_setup') {
+        if (loc != '/routine_selection' && loc != '/daily_setup' && loc != '/signup' && loc!= '/weekly_setup' && loc!='/success_screen' && loc!='/home') {
           return '/routine_selection';
         }
         return null;
