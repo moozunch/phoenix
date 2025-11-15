@@ -23,7 +23,6 @@ class BoardingScreen extends StatelessWidget {
     return AppScaffold(
       scrollable: true,
       headerHeight: headerH,
-      // Remove default orange gradient background
       background: const SizedBox.shrink(),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -65,7 +64,7 @@ class BoardingScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Track your thoughts, celebrate small victories, and begin seeing yourself with compassion. You\'re not alone, and you\'re not broken. You\'re becoming. Let this be the start of your healing.',
+                  'Soft light finds you. No angles, no filters, just a face learning kindness. Worth lives in small moments, confidence returns gently, one little step at a time.',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),

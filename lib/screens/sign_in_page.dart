@@ -4,6 +4,9 @@ import 'package:phoenix/core/app_state.dart';
 import 'package:phoenix/widgets/app_button.dart';
 import 'package:phoenix/widgets/app_text_field.dart';
 import 'package:phoenix/widgets/app_scaffold.dart';
+import 'package:phoenix/widgets/lined_label.dart';
+import 'package:phoenix/widgets/app_link_button.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -52,10 +55,7 @@ class _SignInPageState extends State<SignInPage> {
           const SizedBox(height: 16),
           Align(
             alignment: Alignment.centerRight,
-            child: TextButton(
-              onPressed: () {},
-              child: const Text('Forgot Password?'),
-            ),
+            child: AppLinkButton(onPressed: () {}, text: 'Forgot Password?'),
           ),
           const SizedBox(height: 8),
           AppButton(
@@ -68,9 +68,28 @@ class _SignInPageState extends State<SignInPage> {
             },
           ),
           const SizedBox(height: 12),
-          TextButton(
-            onPressed: () => context.go('/signup'),
-            child: const Text("Don't have an account? Sign up"),
+          const LinedLabel('or sign in with'),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                'assets/images/icon/google_logo_bw.svg',
+                height: 30,
+                width: 30,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text("Don't have an account? "),
+              AppLinkButton(
+                onPressed: () => context.go('/signup'),
+                text: 'Sign Up',
+              ),
+            ],
           ),
           const SizedBox(height: 24),
         ],

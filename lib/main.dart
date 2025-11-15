@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phoenix/core/app_state.dart';
 import 'package:phoenix/router/app_router.dart';
+import 'package:phoenix/styles/app_palette.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'phoenix',
       theme: base.copyWith(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
+        colorScheme: ColorScheme.fromSeed(seedColor: AppPalette.primary,),
       ),
       routerConfig: router,
       debugShowCheckedModeBanner: false,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:phoenix/widgets/app_background.dart';
 
 class AppScaffold extends StatelessWidget {
 	const AppScaffold({
@@ -71,7 +70,6 @@ class AppScaffold extends StatelessWidget {
 					Positioned.fill(
 						child: Align(
 							alignment: Alignment.topCenter,
-							child: background ?? AppBackground(height: headerHeight),
 						),
 					),
 					SafeArea(child: bodyWidget),

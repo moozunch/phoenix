@@ -1,9 +1,16 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phoenix/core/app_state.dart';
+import 'package:phoenix/styles/app_palette.dart';
 import 'package:phoenix/widgets/app_button.dart';
 import 'package:phoenix/widgets/app_text_field.dart';
 import 'package:phoenix/widgets/app_scaffold.dart';
+import 'package:phoenix/widgets/lined_label.dart';
+// Removed SocialIconButton in favor of direct SVG icon.
+import 'package:phoenix/widgets/app_checkbox.dart';
+import 'package:phoenix/widgets/app_link_button.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 
 class SignUpPage extends StatefulWidget {
@@ -16,13 +23,12 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   final _email = TextEditingController();
   final _password = TextEditingController();
-  final _confirm = TextEditingController();
+  bool _agree = false;
 
   @override
   void dispose() {
     _email.dispose();
     _password.dispose();
-    _confirm.dispose();
     super.dispose();
   }
 
@@ -53,18 +59,34 @@ class _SignUpPageState extends State<SignUpPage> {
           const SizedBox(height: 16),
           AppTextField(controller: _password, label: 'Password', obscure: true),
           const SizedBox(height: 16),
-          AppTextField(controller: _confirm, label: 'Confirm Password', obscure: true),
-          const SizedBox(height: 16),
           Row(
             children: [
-              Checkbox(value: true, onChanged: (_) {}),
-              const Expanded(child: Text('I agree to the terms and services')),
+              AppCheckbox(
+                value: _agree,
+                onChanged: (v) => setState(() => _agree = v ?? false),
+              ),
+              Expanded(
+                child: RichText(
+                  text: TextSpan(
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    children: [
+                      const TextSpan(text: 'I agree to the '),
+                      TextSpan(
+                        text: 'terms and services',
+                        style: const TextStyle(color: AppPalette.primary, fontWeight: FontWeight.w600, decoration: TextDecoration.underline),
+                        recognizer: TapGestureRecognizer()..onTap = () {/* open terms */},
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 8),
           AppButton(
-            label: 'Sign up',
+            label: 'Sign-Up',
             onPressed: () async {
+              if (!_agree) return;
               final state = await AppState.create();
               await state.setHasOnboarded(true);
               await state.setLoggedIn(true);
@@ -73,9 +95,28 @@ class _SignUpPageState extends State<SignUpPage> {
             },
           ),
           const SizedBox(height: 12),
-          TextButton(
-            onPressed: () => context.go('/signin'),
-            child: const Text('Already have an account? Sign in'),
+          const LinedLabel('or sign up with'),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                'assets/images/icon/google_logo_bw.svg',
+                height: 30,
+                width: 30,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('Already have an account? '),
+              AppLinkButton(
+                onPressed: () => context.go('/signin'),
+                text: 'Sign in',
+              ),
+            ],
           ),
           const SizedBox(height: 24),
         ],
