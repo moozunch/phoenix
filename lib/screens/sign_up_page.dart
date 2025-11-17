@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phoenix/core/app_state.dart';
 import 'package:phoenix/styles/app_palette.dart';
+import 'package:phoenix/services/auth_service.dart';
 import 'package:phoenix/widgets/app_button.dart';
 import 'package:phoenix/widgets/app_text_field.dart';
 import 'package:phoenix/widgets/app_scaffold.dart';
@@ -103,25 +104,57 @@ class _SignUpPageState extends State<SignUpPage> {
             label: 'Sign-Up',
             onPressed: () async {
               if (!_agree) return;
-              final state = await AppState.create();
-              await state.setHasOnboarded(true);
-              await state.setLoggedIn(true);
-              await state.setIsNewUser(true);
-              if (context.mounted) context.go('/routine_selection');
+              final email = _email.text.trim();
+              final pass = _password.text;
+              if (email.isEmpty || pass.isEmpty) return;
+              try {
+                final user = await AuthService.instance.signUpEmail(email, pass);
+                if (user != null) {
+                  final state = await AppState.create();
+                  await state.setHasOnboarded(true);
+                  await state.setLoggedIn(true);
+                  await state.setIsNewUser(true);
+                  if (mounted) context.go('/routine_selection');
+                }
+              } catch (e) {
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Sign up failed: ${e.toString()}')),
+                );
+              }
             },
           ),
           const SizedBox(height: 12),
           const LinedLabel('or sign up with'),
           const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SvgPicture.asset(
-                'assets/images/icon/google_logo_bw.svg',
-                height: 30,
-                width: 30,
-              ),
-            ],
+          GestureDetector(
+            onTap: () async {
+              try {
+                final user = await AuthService.instance.signInGoogle();
+                if (user != null) {
+                  final state = await AppState.create();
+                  await state.setHasOnboarded(true); // treat google sign-up as onboarded
+                  await state.setLoggedIn(true);
+                  await state.setIsNewUser(true);
+                  if (mounted) context.go('/routine_selection');
+                }
+              } catch (e) {
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Google sign-in failed: ${e.toString()}')),
+                );
+              }
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SvgPicture.asset(
+                  'assets/images/icon/google_logo_bw.svg',
+                  height: 30,
+                  width: 30,
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 16),
           Row(

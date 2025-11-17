@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "575176127704",
+    "project_id": "phoenix-68fc5",
+    "storage_bucket": "phoenix-68fc5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:575176127704:android:f0cb11fc1c461ca24ad3ad",
+        "android_client_info": {
+          "package_name": "app.weesabi.phoenix"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "575176127704-u72v2681bj15sv379h1u7vbu47c2aon3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.weesabi.phoenix",
+            "certificate_hash": "e30a19ee7ce477fdde870afd9a691368aa3c9617"
+          }
+        },
+        {
+          "client_id": "575176127704-hg1grpmkq5oa3kh00hbbib28u6molhn0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7P1LObgNN2oCZjsxY3HSiCY79m_A9NAA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "575176127704-hg1grpmkq5oa3kh00hbbib28u6molhn0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "575176127704-945hvuu97d6ab91u24lhioh1ctamosrk.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.phoenix"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
