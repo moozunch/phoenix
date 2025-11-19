@@ -44,3 +44,41 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# --- Added (Firebase & Android signing hygiene) ---
+# Do NOT commit local.properties (contains local SDK paths)
+android/local.properties
+
+# Gradle local cache directory
+.gradle/
+
+# Android signing keys & properties (add your actual release keystore outside repo)
+android/app/key.properties
+*.keystore
+*.jks
+*.pem
+
+# Firebase CLI debug log (if generated)
+firebase-debug.log
+
+# Crash / stack trace logs
+hs_err_pid*
+
+# --- Secrets & env files (do NOT commit) ---
+# Firebase Admin SDK service accounts (downloaded from Firebase Console)
+**/serviceAccount*.json
+**/*-adminsdk-*.json
+**/*-firebase-adminsdk-*.json
+
+# Environment files
+.env
+.env.*
+
+# Apple / misc private keys
+*.p12
+*.p8
+
+# Optional: CocoaPods (Flutter can regenerate; keep Podfile & Podfile.lock if you prefer reproducible builds)
+ios/Pods/
+macos/Pods/
+
