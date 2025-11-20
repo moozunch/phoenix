@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:flutter/material.dart';
 import 'package:phoenix/core/app_state.dart';
 import 'package:phoenix/core/debug_log.dart';
 import 'package:phoenix/screens/boarding_screen.dart';
@@ -11,6 +12,8 @@ import 'package:phoenix/screens/onboarding/routine_selection.dart';
 import 'package:phoenix/screens/onboarding/daily_setup.dart';
 import 'package:phoenix/screens/onboarding/success_screen.dart';
 import 'package:phoenix/screens/upload_reflection_page.dart';
+import 'package:phoenix/screens/settings_page.dart';
+import 'package:phoenix/screens/tab_scaffold.dart';
 import 'package:phoenix/screens/verify_email_page.dart';
 import 'package:phoenix/screens/forgot_password_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -50,11 +53,6 @@ class AppRouter {
         builder: (context, state) => const SignUpPage(),
       ),
       GoRoute(
-        path: '/home',
-        name: 'home',
-        builder: (context, state) => const HomePage(),
-      ),
-      GoRoute(
         path: '/routine_selection',
         name: 'routine_selection',
         builder: (context, state) => const RoutineSelection(),
@@ -79,10 +77,50 @@ class AppRouter {
           return SuccessScreen(from: from);
         },
       ),
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) => TabScaffold(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: '/home',
+              name: 'home',
+              builder: (context, state) => const HomePage(),
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: '/settings',
+              name: 'settings',
+              builder: (context, state) => const SettingsPage(),
+            ),
+          ]),
+        ],
+      ),
+      // Standalone upload page (no bottom navigation shell)
       GoRoute(
         path: '/upload_reflection',
-        builder: (context, state) => const UploadReflectionPage(),
-      )
+        name: 'upload_reflection',
+        pageBuilder: (context, state) {
+          return CustomTransitionPage<void>(
+            key: state.pageKey,
+            child: const UploadReflectionPage(),
+            barrierDismissible: false,
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              final curved = CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 1),
+                  end: Offset.zero,
+                ).animate(curved),
+                child: FadeTransition(
+                  opacity: Tween<double>(begin: 0, end: 1).animate(curved),
+                  child: child,
+                ),
+              );
+            },
+          );
+        },
+      ),
     ],
 
     redirect: (context, state) {
@@ -149,12 +187,17 @@ class AppRouter {
           DebugLog.d('Router', 'LoggedIn redirect $loc -> $target');
           return target;
         }
-        if (loc != '/home') {
+        const allowedLoggedIn = {
+          '/home',
+          '/upload_reflection',
+          '/settings'
+        };
+        if (!allowedLoggedIn.contains(loc)) {
           target = '/home';
-          DebugLog.d('Router', 'LoggedIn force-home $loc -> $target');
+          DebugLog.d('Router', 'LoggedIn restrict $loc -> $target');
           return target;
         }
-        DebugLog.d('Router', 'LoggedIn stay $loc');
+        DebugLog.d('Router', 'LoggedIn allow $loc');
         return null;
       }
 
