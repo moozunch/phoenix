@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phoenix/core/app_state.dart';
 import 'package:phoenix/styles/app_palette.dart';
+import 'package:phoenix/core/password_policy.dart';
 import 'package:phoenix/services/auth_service.dart';
 import 'package:phoenix/widgets/app_button.dart';
 import 'package:phoenix/widgets/app_text_field.dart';
@@ -12,6 +13,8 @@ import 'package:phoenix/widgets/lined_label.dart';
 import 'package:phoenix/widgets/app_checkbox.dart';
 import 'package:phoenix/widgets/app_link_button.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:phoenix/core/auth_error_mapper.dart';
 
 
 class SignUpPage extends StatefulWidget {
@@ -26,6 +29,7 @@ class _SignUpPageState extends State<SignUpPage> {
   final _password = TextEditingController();
   bool _agree = false;
   bool _showPassword = false;
+  bool _loading = false;
 
   @override
   void dispose() {
@@ -101,26 +105,69 @@ class _SignUpPageState extends State<SignUpPage> {
           ),
           const SizedBox(height: 8),
           AppButton(
-            label: 'Sign-Up',
-            onPressed: () async {
-              if (!_agree) return;
+            label: _loading ? 'Signing Up...' : 'Sign-Up',
+            onPressed: _loading ? null : () async {
+              final ctx = context; // capture before async gaps
+              final router = GoRouter.of(ctx);
+              final messenger = ScaffoldMessenger.of(ctx);
+              if (!_agree) {
+                messenger.showSnackBar(
+                  const SnackBar(content: Text('You must accept the terms & conditions.')),
+                );
+                return;
+              }
               final email = _email.text.trim();
               final pass = _password.text;
-              if (email.isEmpty || pass.isEmpty) return;
+              if (email.isEmpty || pass.isEmpty) {
+                messenger.showSnackBar(
+                  const SnackBar(content: Text('Email and password are required.')),
+                );
+                return;
+              }
+              final policyError = PasswordPolicy.validate(pass);
+              if (policyError != null) {
+                messenger.showSnackBar(
+                  SnackBar(content: Text(policyError)),
+                );
+                return;
+              }
+              setState(() => _loading = true);
               try {
                 final user = await AuthService.instance.signUpEmail(email, pass);
-                if (user != null) {
-                  final state = await AppState.create();
-                  await state.setHasOnboarded(true);
-                  await state.setLoggedIn(true);
-                  await state.setIsNewUser(true);
-                  if (mounted) context.go('/routine_selection');
-                }
-              } catch (e) {
                 if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Sign up failed: ${e.toString()}')),
+                if (user != null) {
+                  // Kirim email verifikasi jika belum diverifikasi
+                  if (!user.emailVerified) {
+                    await user.sendEmailVerification();
+                    if (!mounted) return;
+                    messenger.showSnackBar(
+                      const SnackBar(content: Text('Verification email sent. Please check your inbox.')),
+                    );
+                  }
+                  final state = await AppState.create();
+                  if (!mounted) return;
+                  state.setHasOnboarded(true);
+                  state.setLoggedIn(true);
+                  state.setIsNewUser(true);
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (!mounted) return;
+                    router.go('/verify_email');
+                  });
+                } else {
+                  messenger.showSnackBar(
+                    const SnackBar(content: Text('Registration failed.')),);
+                }
+              } on FirebaseAuthException catch (e) {
+                if (!mounted) return;
+                final msg = AuthErrorMapper.map(e, AuthContext.signUp);
+                messenger.showSnackBar(SnackBar(content: Text(msg)));
+              } catch (_) {
+                if (!mounted) return;
+                messenger.showSnackBar(
+                  const SnackBar(content: Text('An internal error occurred.')),
                 );
+              } finally {
+                if (mounted) setState(() => _loading = false);
               }
             },
           ),
@@ -128,21 +175,40 @@ class _SignUpPageState extends State<SignUpPage> {
           const LinedLabel('or sign up with'),
           const SizedBox(height: 12),
           GestureDetector(
-            onTap: () async {
+            onTap: _loading ? null : () async {
+              final ctx = context;
+              final router = GoRouter.of(ctx);
+              final messenger = ScaffoldMessenger.of(ctx);
+              setState(() => _loading = true);
               try {
                 final user = await AuthService.instance.signInGoogle();
+                if (!mounted) return;
                 if (user != null) {
                   final state = await AppState.create();
-                  await state.setHasOnboarded(true); // treat google sign-up as onboarded
-                  await state.setLoggedIn(true);
-                  await state.setIsNewUser(true);
-                  if (mounted) context.go('/routine_selection');
+                  if (!mounted) return;
+                  state.setHasOnboarded(true);
+                  state.setLoggedIn(true);
+                  state.setIsNewUser(true);
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (!mounted) return;
+                    router.go('/routine_selection');
+                  });
+                } else {
+                  messenger.showSnackBar(
+                    const SnackBar(content: Text('Google Sign-In failed.')),
+                  );
                 }
-              } catch (e) {
+              } on FirebaseAuthException catch (e) {
                 if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Google sign-in failed: ${e.toString()}')),
+                final msg = AuthErrorMapper.map(e, AuthContext.google);
+                messenger.showSnackBar(SnackBar(content: Text(msg)));
+              } catch (_) {
+                if (!mounted) return;
+                messenger.showSnackBar(
+                  const SnackBar(content: Text('An error occurred during Google Sign-In.')),
                 );
+              } finally {
+                if (mounted) setState(() => _loading = false);
               }
             },
             child: Row(
