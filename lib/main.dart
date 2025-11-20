@@ -4,6 +4,8 @@ import 'package:phoenix/core/app_state.dart';
 import 'package:phoenix/router/app_router.dart';
 import 'package:phoenix/styles/app_palette.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:flutter/foundation.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -11,6 +13,14 @@ void main() async {
   // Initialize Firebase with generated options for each platform
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
+  );
+  // App Check activation (stub). Enable in console first for services you use.
+  // Uses debug provider in debug builds, and integrity provider in release.
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
+    // Use App Attest in production, debug provider in debug builds. If App Attest unsupported it will internally fall back.
+    appleProvider: kDebugMode ? AppleProvider.debug : AppleProvider.appAttest,
+    // Web provider omitted for now; add reCAPTCHA when deploying web version.
   );
   final appState = await AppState.create();
   final appRouter = AppRouter(appState);

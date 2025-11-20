@@ -11,6 +11,9 @@ import 'package:phoenix/screens/onboarding/routine_selection.dart';
 import 'package:phoenix/screens/onboarding/daily_setup.dart';
 import 'package:phoenix/screens/onboarding/success_screen.dart';
 import 'package:phoenix/screens/upload_reflection_page.dart';
+import 'package:phoenix/screens/verify_email_page.dart';
+import 'package:phoenix/screens/forgot_password_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AppRouter {
   AppRouter(this.appState);
@@ -37,6 +40,11 @@ class AppRouter {
         builder: (context, state) => const SignInPage(),
       ),
       GoRoute(
+        path: '/forgot_password',
+        name: 'forgot_password',
+        builder: (context, state) => const ForgotPasswordPage(),
+      ),
+      GoRoute(
         path: '/signup',
         name: 'signup',
         builder: (context, state) => const SignUpPage(),
@@ -50,6 +58,11 @@ class AppRouter {
         path: '/routine_selection',
         name: 'routine_selection',
         builder: (context, state) => const RoutineSelection(),
+      ),
+      GoRoute(
+        path: '/verify_email',
+        name: 'verify_email',
+        builder: (context, state) => const VerifyEmailPage(),
       ),
       GoRoute(
         path: '/daily_setup',
@@ -74,7 +87,9 @@ class AppRouter {
 
     redirect: (context, state) {
       final loc = state.uri.path;
-      final atAuth = loc == '/signin' || loc == '/signup';
+      final atAuth = loc == '/signin' || loc == '/signup' || loc == '/forgot_password';
+      final user = FirebaseAuth.instance.currentUser;
+      final loggedIn = user != null; // authoritative source (instead of appState.isLoggedIn)
       String? target;
 
       // If user not onboarded yet, always go to boarding (except splash root which will redirect below)
@@ -89,10 +104,21 @@ class AppRouter {
         return target;
       }
 
-      // Logged in flows
-      if (appState.isLoggedIn) {
+      // Logged in flows (using FirebaseAuth directly)
+      if (loggedIn) {
         // New user still completing routine setup
         if (appState.isNewUser) {
+          final verified = user.emailVerified;
+          // If email not verified, force user to stay on verify email page until verified
+          if (!verified) {
+            if (loc != '/verify_email' && loc != '/') {
+              target = '/verify_email';
+              DebugLog.d('Router', 'Email not verified redirect $loc -> $target');
+              return target;
+            }
+            DebugLog.d('Router', 'Email not verified allow $loc');
+            return null;
+          }
           // Prevent navigating back to auth or boarding or splash
           if (loc == '/' || loc == '/boarding' || atAuth) {
             target = '/routine_selection';
@@ -133,7 +159,7 @@ class AppRouter {
       }
 
       // Not logged in but onboarded: allow auth pages; block others.
-      if (!appState.isLoggedIn) {
+      if (!loggedIn) {
         // Allow boarding even after user previously onboarded (marketing / info screen revisit)
         if (loc == '/boarding') {
           DebugLog.d('Router', 'NotLoggedIn allow boarding');

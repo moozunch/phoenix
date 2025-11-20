@@ -8,6 +8,8 @@ import 'package:phoenix/widgets/app_scaffold.dart';
 import 'package:phoenix/widgets/lined_label.dart';
 import 'package:phoenix/widgets/app_link_button.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:phoenix/core/auth_error_mapper.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -20,6 +22,38 @@ class _SignInPageState extends State<SignInPage> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   bool _showPassword = false;
+  bool _loading = false;
+  int _failCount = 0; // consecutive failures (resets on success)
+  DateTime? _lockUntil; // when user can attempt again
+
+  static const List<int> _delaysSeconds = [0, 2, 4, 8, 16, 32, 60]; // capped exponential
+
+  bool get _isLocked {
+    if (_lockUntil == null) return false;
+    return DateTime.now().isBefore(_lockUntil!);
+  }
+
+  int get _remainingLockSeconds {
+    if (!_isLocked) return 0;
+    return _lockUntil!.difference(DateTime.now()).inSeconds + 1;
+  }
+
+  void _registerFailure(ScaffoldMessengerState messenger) {
+    _failCount++;
+    final idx = _failCount.clamp(0, _delaysSeconds.length - 1);
+    final delay = _delaysSeconds[idx];
+    if (delay > 0) {
+      _lockUntil = DateTime.now().add(Duration(seconds: delay));
+      messenger.showSnackBar(
+        SnackBar(content: Text('Too many failed attempts. Please wait $delay seconds.')),
+      );
+    }
+  }
+
+  void _resetFailures() {
+    _failCount = 0;
+    _lockUntil = null;
+  }
 
   @override
   void dispose() {
@@ -72,35 +106,67 @@ class _SignInPageState extends State<SignInPage> {
           const SizedBox(height: 16),
           Align(
             alignment: Alignment.centerRight,
-            child: AppLinkButton(onPressed: () {}, text: 'Forgot Password?'),
+            child: AppLinkButton(
+              onPressed: () => context.go('/forgot_password'),
+              text: 'Forgot Password?',
+            ),
           ),
           const SizedBox(height: 8),
           AppButton(
-            label: 'Sign In',
-            onPressed: () async {
+            label: _loading
+                ? 'Signing In...'
+                : _isLocked
+                    ? 'Locked (${_remainingLockSeconds}s)'
+                    : 'Sign In',
+            onPressed: _loading || _isLocked
+                ? null
+                : () async {
+              final ctx = context; // capture before async gaps
+              final router = GoRouter.of(ctx);
+              final messenger = ScaffoldMessenger.of(ctx);
               final email = _email.text.trim();
               final pass = _password.text;
-              if (email.isEmpty || pass.isEmpty) return;
+              if (email.isEmpty || pass.isEmpty) {
+                messenger.showSnackBar(
+                  const SnackBar(content: Text('Email and password are required.')),
+                );
+                return;
+              }
+              setState(() => _loading = true);
               try {
                 final user = await AuthService.instance.signInEmail(email, pass);
-                if (!mounted) return; // check immediately after first async gap
+                if (!mounted) return; // ensure state still active
                 if (user != null) {
                   final state = await AppState.create();
-                  if (!mounted) return; // second async gap guard
-                  // Fire-and-forget persistence; navigation occurs without further awaits.
-                  // ignore: unawaited_futures
-                  state.setLoggedIn(true); // keep legacy flag for router
-                  // ignore: unawaited_futures
+                  if (!mounted) return;
+                  // Fire-and-forget persistence
+                  state.setLoggedIn(true);
                   state.setIsNewUser(false);
-                  // ignore: use_build_context_synchronously
-                  context.go('/home');
+                  _resetFailures();
+                  // Navigasi ditunda ke frame berikut supaya aman dari lint async context
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (!mounted) return;
+                    router.go('/home');
+                  });
+                } else {
+                  messenger.showSnackBar(
+                    const SnackBar(content: Text('Authentication failed. Please check your credentials.')),
+                  );
+                  _registerFailure(messenger);
                 }
+              } on FirebaseAuthException catch (e) {
+                if (!mounted) return;
+                final msg = AuthErrorMapper.map(e, AuthContext.signIn);
+                messenger.showSnackBar(SnackBar(content: Text(msg)));
+                _registerFailure(messenger);
               } catch (e) {
                 if (!mounted) return;
-                // ignore: use_build_context_synchronously
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Sign in failed: ${e.toString()}')),
+                messenger.showSnackBar(
+                  const SnackBar(content: Text('An internal error occurred.')),
                 );
+                _registerFailure(messenger);
+              } finally {
+                if (mounted) setState(() => _loading = false);
               }
             },
           ),
@@ -108,26 +174,43 @@ class _SignInPageState extends State<SignInPage> {
           const LinedLabel('or sign in with'),
           const SizedBox(height: 12),
           GestureDetector(
-            onTap: () async {
+            onTap: _loading || _isLocked ? null : () async {
+              final ctx = context; // capture BuildContext synchronously
+              final router = GoRouter.of(ctx);
+              final messenger = ScaffoldMessenger.of(ctx);
+              setState(() => _loading = true);
               try {
                 final user = await AuthService.instance.signInGoogle();
-                if (!mounted) return; // guard after first async
+                if (!mounted) return;
                 if (user != null) {
                   final state = await AppState.create();
-                  if (!mounted) return; // guard after second async
-                  // ignore: unawaited_futures
+                  if (!mounted) return;
                   state.setLoggedIn(true);
-                  // ignore: unawaited_futures
                   state.setIsNewUser(false);
-                  // ignore: use_build_context_synchronously
-                  context.go('/home');
+                  _resetFailures();
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (!mounted) return;
+                    router.go('/home');
+                  });
+                } else {
+                  messenger.showSnackBar(
+                    const SnackBar(content: Text('Google Sign-In failed.')),
+                  );
+                  _registerFailure(messenger);
                 }
-              } catch (e) {
+              } on FirebaseAuthException catch (e) {
                 if (!mounted) return;
-                // ignore: use_build_context_synchronously
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Google sign-in failed: ${e.toString()}')),
+                final msg = AuthErrorMapper.map(e, AuthContext.google);
+                messenger.showSnackBar(SnackBar(content: Text(msg)));
+                _registerFailure(messenger);
+              } catch (_) {
+                if (!mounted) return;
+                messenger.showSnackBar(
+                  const SnackBar(content: Text('An error occurred during Google Sign-In.')),
                 );
+                _registerFailure(messenger);
+              } finally {
+                if (mounted) setState(() => _loading = false);
               }
             },
             child: Row(
