@@ -5,14 +5,14 @@ import 'package:phoenix/widgets/upload/mood_picker_dialog.dart';
 import 'package:phoenix/widgets/upload/photo_picker_sheet.dart';
 import 'package:phoenix/styles/app_palette.dart';
 
-class DailyReflectionScreen extends StatefulWidget {
-  const DailyReflectionScreen({super.key});
+class UploadReflectionPage extends StatefulWidget {
+  const UploadReflectionPage({super.key});
 
   @override
-  State<DailyReflectionScreen> createState() => _DailyReflectionScreenState();
+  State<UploadReflectionPage> createState() => _UploadReflectionPageState();
 }
 
-class _DailyReflectionScreenState extends State<DailyReflectionScreen> {
+class _UploadReflectionPageState extends State<UploadReflectionPage> {
   final TextEditingController headlineCtrl = TextEditingController();
   final TextEditingController journalCtrl = TextEditingController();
 
@@ -64,13 +64,25 @@ class _DailyReflectionScreenState extends State<DailyReflectionScreen> {
                     decoration: InputDecoration(
                       hintText: "Please insert your day’s headline…",
                       filled: true,
-                      fillColor: Colors.grey.shade100,
-                      border: OutlineInputBorder(
+                      fillColor: const Color(0xFFF8F8F8),
+                      enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
+                        borderSide:  BorderSide(
+                          color: Colors.grey.shade400,
+                          width: 1,
+                        ),
                       ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: AppPalette.primary, // stays black when focused
+                          width: 1,
+                        ),
+                      ),
+                      counterText: '', // optional: hide default counter if you manage it manually
                     ),
                   ),
+
 
                   const SizedBox(height: 20),
 
@@ -78,7 +90,7 @@ class _DailyReflectionScreenState extends State<DailyReflectionScreen> {
                   Row(
                     children: [
                       GestureDetector(
-                        onTap: () => showMoodPicker(context, (color) {
+                        onTap: () => MoodPickerDialog.showMoodPicker(context, (color) {
                           setState(() => selectedEmotion = color);
                         }),
                         child: CircleAvatar(
@@ -108,17 +120,27 @@ class _DailyReflectionScreenState extends State<DailyReflectionScreen> {
                     maxLines: 10,
                     onChanged: (_) => setState(() {}),
                     decoration: InputDecoration(
-                      hintText:
-                      "It’s okay to be honest, this space is for you…",
+                      hintText: "It’s okay to be honest, this space is for you…",
                       alignLabelWithHint: true,
                       filled: true,
-                      fillColor: Colors.grey.shade100,
-                      border: OutlineInputBorder(
+                      fillColor: const Color(0xFFF8F8F8),
+                      enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
+                        borderSide:  BorderSide(
+                          color: Colors.grey.shade400, // black stroke
+                          width: 1,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: AppPalette.primary, // same black
+                          width: 1,
+                        ),
                       ),
                     ),
                   ),
+
 
                   const SizedBox(height: 80),
                 ],
@@ -166,7 +188,7 @@ class _DailyReflectionScreenState extends State<DailyReflectionScreen> {
               },
               child: const Text(
                 "Log",
-                style: TextStyle(fontSize: 16, color: Colors.white),
+                style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.w700),
               ),
             ),
           ),
@@ -175,3 +197,4 @@ class _DailyReflectionScreenState extends State<DailyReflectionScreen> {
     );
   }
 }
+
