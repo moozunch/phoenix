@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:phoenix/widgets/onboarding_footer.dart';
 import 'package:phoenix/widgets/bottom_rounded_container.dart';
 import 'package:phoenix/styles/app_palette.dart';
+import 'package:phoenix/core/app_state.dart';
 
 class SuccessScreen extends StatelessWidget {
   final String from;
@@ -95,6 +96,10 @@ class SuccessScreen extends StatelessWidget {
                     Navigator.of(context).maybePop();
                   },
                   onNext: () {
+                    // Mark onboarding/setup complete so routing no longer treats user as new.
+                    AppState.create().then((state) {
+                      state.setIsNewUser(false);
+                    });
                     GoRouter.of(context).go('/home');
                   },
                 ),

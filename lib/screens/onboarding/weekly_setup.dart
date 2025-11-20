@@ -177,7 +177,7 @@ class _WeeklySetupState extends State<WeeklySetup> {
                       );
                       return;
                     }
-                    GoRouter.of(context).go('/success_screen?from = weekly_setup');
+                    GoRouter.of(context).go('/success_screen?from=weekly');
                     // Next logic here
                   },
                 ),

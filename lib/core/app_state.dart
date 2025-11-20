@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'debug_log.dart';
 
 class AppState extends ChangeNotifier {
   AppState._(
@@ -34,6 +35,7 @@ class AppState extends ChangeNotifier {
     final isLoggedIn = prefs.getBool(_kIsLoggedIn) ?? false;
     final isNewUser = prefs.getBool(_kIsNewUser) ?? false;
     _instance = AppState._(prefs, hasOnboarded: hasOnboarded, isLoggedIn: isLoggedIn,  isNewUser: isNewUser,);
+    DebugLog.d('AppState', 'Loaded prefs => hasOnboarded=$hasOnboarded, isLoggedIn=$isLoggedIn, isNewUser=$isNewUser');
     return _instance!;
   }
 
@@ -59,6 +61,7 @@ class AppState extends ChangeNotifier {
     if (_isNewUser == value) return;
     _isNewUser = value;
     await _prefs.setBool(_kIsNewUser, value);
+    DebugLog.d('AppState', 'setIsNewUser($value)');
     notifyListeners();
   }
 }

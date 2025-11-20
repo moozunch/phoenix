@@ -109,15 +109,23 @@ class _SignUpPageState extends State<SignUpPage> {
               if (email.isEmpty || pass.isEmpty) return;
               try {
                 final user = await AuthService.instance.signUpEmail(email, pass);
+                if (!mounted) return; // guard after first async gap
                 if (user != null) {
                   final state = await AppState.create();
-                  await state.setHasOnboarded(true);
-                  await state.setLoggedIn(true);
-                  await state.setIsNewUser(true);
-                  if (mounted) context.go('/routine_selection');
+                  if (!mounted) return; // guard after second async gap
+                  // Fire-and-forget persistence; navigation first.
+                  // ignore: unawaited_futures
+                  state.setHasOnboarded(true);
+                  // ignore: unawaited_futures
+                  state.setLoggedIn(true);
+                  // ignore: unawaited_futures
+                  state.setIsNewUser(true);
+                  // ignore: use_build_context_synchronously
+                  context.go('/routine_selection');
                 }
               } catch (e) {
                 if (!mounted) return;
+                // ignore: use_build_context_synchronously
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Sign up failed: ${e.toString()}')),
                 );
@@ -131,15 +139,22 @@ class _SignUpPageState extends State<SignUpPage> {
             onTap: () async {
               try {
                 final user = await AuthService.instance.signInGoogle();
+                if (!mounted) return; // guard after first async gap
                 if (user != null) {
                   final state = await AppState.create();
-                  await state.setHasOnboarded(true); // treat google sign-up as onboarded
-                  await state.setLoggedIn(true);
-                  await state.setIsNewUser(true);
-                  if (mounted) context.go('/routine_selection');
+                  if (!mounted) return; // guard after second async gap
+                  // ignore: unawaited_futures
+                  state.setHasOnboarded(true); // treat google sign-up as onboarded
+                  // ignore: unawaited_futures
+                  state.setLoggedIn(true);
+                  // ignore: unawaited_futures
+                  state.setIsNewUser(true);
+                  // ignore: use_build_context_synchronously
+                  context.go('/routine_selection');
                 }
               } catch (e) {
                 if (!mounted) return;
+                // ignore: use_build_context_synchronously
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Google sign-in failed: ${e.toString()}')),
                 );

@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:phoenix/core/app_state.dart';
+import 'package:phoenix/core/debug_log.dart';
 import 'package:phoenix/screens/boarding_screen.dart';
 import 'package:phoenix/screens/onboarding/weekly_setup.dart';
 import 'package:phoenix/screens/sign_in_page.dart';
@@ -73,39 +74,88 @@ class AppRouter {
 
     redirect: (context, state) {
       final loc = state.uri.path;
-
-      if (loc == '/') return null;
-      if (loc == '/boarding') return null;
-
       final atAuth = loc == '/signin' || loc == '/signup';
+      String? target;
 
+      // If user not onboarded yet, always go to boarding (except splash root which will redirect below)
       if (!appState.hasOnboarded) {
-        return '/boarding';
-      }
-
-      if (!appState.isLoggedIn) {
-        // allow signin and signup
-        return atAuth ? null : '/signin';
-      }
-
-      if (appState.isNewUser) {
-        if (loc != '/routine_selection' &&
-            loc != '/daily_setup' &&
-            loc != '/signup' &&
-            loc != '/weekly_setup' &&
-            loc !='/success_screen' &&
-            loc !='/home' &&
-            loc !='/upload_reflection') {
-          return '/routine_selection';
+        // Allow splash ('/') to fall through so splash screen itself can handle timing, but block other screens.
+        if (loc == '/' || loc == '/boarding') {
+          DebugLog.d('Router', 'Unauth onboard=false allow $loc');
+          return null; // let splash / boarding render
         }
+        target = '/boarding';
+        DebugLog.d('Router', 'Redirect $loc -> $target (not onboarded)');
+        return target;
+      }
+
+      // Logged in flows
+      if (appState.isLoggedIn) {
+        // New user still completing routine setup
+        if (appState.isNewUser) {
+          // Prevent navigating back to auth or boarding or splash
+          if (loc == '/' || loc == '/boarding' || atAuth) {
+            target = '/routine_selection';
+            DebugLog.d('Router', 'NewUser redirect $loc -> $target');
+            return target;
+          }
+          // Allow defined onboarding pages + home + upload_reflection
+          const allowed = {
+            '/routine_selection',
+            '/daily_setup',
+            '/weekly_setup',
+            '/success_screen',
+            '/home',
+            '/upload_reflection'
+          };
+          if (!allowed.contains(loc)) {
+            target = '/routine_selection';
+            DebugLog.d('Router', 'NewUser restrict $loc -> $target');
+            return target;
+          }
+          DebugLog.d('Router', 'NewUser allow $loc');
+          return null;
+        }
+
+        // Fully onboarded user: never show splash/boarding/auth again; send to home if accessing them.
+        if (loc == '/' || loc == '/boarding' || atAuth) {
+          target = '/home';
+          DebugLog.d('Router', 'LoggedIn redirect $loc -> $target');
+          return target;
+        }
+        if (loc != '/home') {
+          target = '/home';
+          DebugLog.d('Router', 'LoggedIn force-home $loc -> $target');
+          return target;
+        }
+        DebugLog.d('Router', 'LoggedIn stay $loc');
         return null;
       }
 
-      if (!appState.isNewUser && loc != '/home') {
-        return '/home';
+      // Not logged in but onboarded: allow auth pages; block others.
+      if (!appState.isLoggedIn) {
+        // Allow boarding even after user previously onboarded (marketing / info screen revisit)
+        if (loc == '/boarding') {
+          DebugLog.d('Router', 'NotLoggedIn allow boarding');
+          return null;
+        }
+        if (atAuth) {
+          DebugLog.d('Router', 'Auth screen allowed: $loc');
+          return null;
+        }
+        if (loc == '/') {
+          target = '/boarding';
+          DebugLog.d('Router', 'Root redirect (not logged in) -> $target');
+          return target;
+        }
+        // Any other route force to signin
+        target = '/signin';
+        DebugLog.d('Router', 'NotLoggedIn redirect $loc -> $target');
+        return target;
       }
 
-      return null;
+      DebugLog.d('Router', 'Fall-through allow $loc');
+      return null; // default fall-through
     },
   );
 }

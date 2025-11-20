@@ -83,14 +83,21 @@ class _SignInPageState extends State<SignInPage> {
               if (email.isEmpty || pass.isEmpty) return;
               try {
                 final user = await AuthService.instance.signInEmail(email, pass);
+                if (!mounted) return; // check immediately after first async gap
                 if (user != null) {
                   final state = await AppState.create();
-                  await state.setLoggedIn(true); // keep legacy flag for router
-                  await state.setIsNewUser(false);
-                  if (mounted) context.go('/home');
+                  if (!mounted) return; // second async gap guard
+                  // Fire-and-forget persistence; navigation occurs without further awaits.
+                  // ignore: unawaited_futures
+                  state.setLoggedIn(true); // keep legacy flag for router
+                  // ignore: unawaited_futures
+                  state.setIsNewUser(false);
+                  // ignore: use_build_context_synchronously
+                  context.go('/home');
                 }
               } catch (e) {
                 if (!mounted) return;
+                // ignore: use_build_context_synchronously
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Sign in failed: ${e.toString()}')),
                 );
@@ -104,14 +111,20 @@ class _SignInPageState extends State<SignInPage> {
             onTap: () async {
               try {
                 final user = await AuthService.instance.signInGoogle();
+                if (!mounted) return; // guard after first async
                 if (user != null) {
                   final state = await AppState.create();
-                  await state.setLoggedIn(true);
-                  await state.setIsNewUser(false);
-                  if (mounted) context.go('/home');
+                  if (!mounted) return; // guard after second async
+                  // ignore: unawaited_futures
+                  state.setLoggedIn(true);
+                  // ignore: unawaited_futures
+                  state.setIsNewUser(false);
+                  // ignore: use_build_context_synchronously
+                  context.go('/home');
                 }
               } catch (e) {
                 if (!mounted) return;
+                // ignore: use_build_context_synchronously
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('Google sign-in failed: ${e.toString()}')),
                 );
