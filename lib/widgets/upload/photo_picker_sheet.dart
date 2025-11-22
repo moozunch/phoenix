@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:phoenix/styles/app_palette.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 
-void showPhotoPicker(BuildContext context) {
-  showModalBottomSheet(
+Future<XFile?> photoPickerSheet(BuildContext context) async {
+  final ImagePicker picker = ImagePicker();
+
+  return showModalBottomSheet<XFile?>(
     context: context,
     backgroundColor: Colors.white,
     shape: const RoundedRectangleBorder(
@@ -34,7 +38,12 @@ void showPhotoPicker(BuildContext context) {
           _pickerTile(
             icon: Icons.camera_alt,
             text: "Take a Photo",
-            onTap: () {},
+            onTap: () async {
+              final picker = ImagePicker();
+              final XFile ? photo =
+                  await picker.pickImage(source: ImageSource.camera);
+              Navigator.pop(context, photo);
+            },
           ),
           _divider(),
 
@@ -42,7 +51,13 @@ void showPhotoPicker(BuildContext context) {
           _pickerTile(
             icon: Icons.photo_library,
             text: "Add from Photo Library",
-            onTap: () {},
+            onTap: () async {
+              final picker = ImagePicker();
+              final XFile? image =
+                  await picker.pickImage(source: ImageSource.gallery);
+
+              Navigator.pop(context, image);
+            },
           ),
           _divider(),
 
@@ -50,7 +65,20 @@ void showPhotoPicker(BuildContext context) {
           _pickerTile(
             icon: Icons.insert_drive_file,
             text: "Select Existing File",
-            onTap: () {},
+            onTap: () async {
+              final result = await FilePicker.platform.pickFiles(
+                type: FileType.image,
+              );
+
+              if (result != null && result.files.first.path != null){
+                Navigator.pop(
+                  context,
+                  XFile(result.files.first.path!),
+                );
+              } else {
+                Navigator.pop(context, null);
+              }
+            },
           ),
 
           const SizedBox(height: 20),

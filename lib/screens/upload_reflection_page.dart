@@ -1,9 +1,11 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phoenix/widgets/upload/dashed_upload_box.dart';
 import 'package:phoenix/widgets/upload/mood_picker_dialog.dart';
 import 'package:phoenix/widgets/upload/photo_picker_sheet.dart';
 import 'package:phoenix/styles/app_palette.dart';
+import 'package:image_picker/image_picker.dart';
 
 class UploadReflectionPage extends StatefulWidget {
   const UploadReflectionPage({super.key});
@@ -17,6 +19,8 @@ class _UploadReflectionPageState extends State<UploadReflectionPage> {
   final TextEditingController journalCtrl = TextEditingController();
 
   Color? selectedEmotion;
+
+  XFile? selectedImage;
 
   @override
   Widget build(BuildContext context) {
@@ -34,8 +38,26 @@ class _UploadReflectionPageState extends State<UploadReflectionPage> {
                 children: [
                   //upload box
                   GestureDetector(
-                    onTap: () => showPhotoPicker(context),
-                    child: const DashedUploadBox(),
+                    onTap: () async {
+                      final file = await photoPickerSheet(context);  // << THIS PART UPDATED
+                      if (file != null) {
+                        setState(() {
+                          selectedImage = file;
+                        });
+                      }
+                    },
+                    child: selectedImage == null
+                        ? const DashedUploadBox()
+                        : ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.file(
+                        File(selectedImage!.path),
+                        width: double.infinity,
+                        height: 220,
+                        fit: BoxFit.cover,
+                      ),
+
+                    ),
                   ),
 
                   const SizedBox(height: 30),
