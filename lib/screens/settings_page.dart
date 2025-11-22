@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phoenix/core/app_state.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class SettingsPage extends StatefulWidget {
+  const SettingsPage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _HomePageState extends State<HomePage>{
+class _SettingsPageState extends State<SettingsPage>{
 
   Future<void> _logout(BuildContext context) async {
     final state = await AppState.create();
@@ -21,7 +21,7 @@ class _HomePageState extends State<HomePage>{
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: const Text('Settings'),
         actions: [
           IconButton(
             tooltip: 'Logout',
@@ -38,6 +38,7 @@ class _HomePageState extends State<HomePage>{
         ),
       ),
 
+      //bottom nav bar
       // Nav handled by shell
     );
   }

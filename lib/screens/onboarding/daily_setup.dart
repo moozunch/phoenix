@@ -94,7 +94,7 @@ class _DailySetupState extends State<DailySetup> {
                     Navigator.of(context).maybePop();
                   },
                   onNext: () {
-                    GoRouter.of(context).go('/success_screen? from = daily_setup');
+                    GoRouter.of(context).go('/success_screen?from=daily');
                   },
                 ),
               ],
