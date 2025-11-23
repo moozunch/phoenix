@@ -17,6 +17,8 @@ import 'package:phoenix/screens/tab_scaffold.dart';
 import 'package:phoenix/screens/verify_email_page.dart';
 import 'package:phoenix/screens/forgot_password_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:phoenix/screens/success_upload.dart';
+import 'package:phoenix/screens/settingprofile/setting_profile.dart';
 
 class AppRouter {
   AppRouter(this.appState);
@@ -71,6 +73,14 @@ class AppRouter {
         builder: (context, state) => const WeeklySetup(),
       ),
       GoRoute(
+        path: '/success_upload',
+        builder: (context, state) => const SuccessUploadPage(),
+      ),
+      // GoRoute(
+      //   path: '/setting_profile',
+      //   builder: (context, state) => const SettingProfile(),
+      // ),
+      GoRoute(
         path: '/success_screen',
         builder: (context, state) {
           final from = state.uri.queryParameters['from'] ?? 'daily_setup';
@@ -80,6 +90,7 @@ class AppRouter {
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) => TabScaffold(navigationShell: navigationShell),
         branches: [
+          //index ke-0
           StatefulShellBranch(routes: [
             GoRoute(
               path: '/home',
@@ -89,9 +100,15 @@ class AppRouter {
           ]),
           StatefulShellBranch(routes: [
             GoRoute(
-              path: '/settings',
-              name: 'settings',
-              builder: (context, state) => const SettingsPage(),
+              path: '/dummy-upload-tab', // Dummy route (never used)
+              builder: (context, state) => const SizedBox.shrink(),
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
+              path: '/setting_profile',
+              name: 'setting_profile',
+              builder: (context, state) => const SettingProfile(),
             ),
           ]),
         ],
@@ -171,6 +188,7 @@ class AppRouter {
             '/success_screen',
             '/home',
             '/upload_reflection'
+                '/setting_profile',
           };
           if (!allowed.contains(loc)) {
             target = '/routine_selection';
@@ -190,7 +208,7 @@ class AppRouter {
         const allowedLoggedIn = {
           '/home',
           '/upload_reflection',
-          '/settings'
+          '/setting_profile'
         };
         if (!allowedLoggedIn.contains(loc)) {
           target = '/home';

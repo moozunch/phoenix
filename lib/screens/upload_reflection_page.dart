@@ -206,7 +206,7 @@ class _UploadReflectionPageState extends State<UploadReflectionPage> {
                     borderRadius: BorderRadius.circular(12)),
               ),
               onPressed: () {
-                // TODO: Save logic here
+               context.go('success_upload');
               },
               child: const Text(
                 "Log",

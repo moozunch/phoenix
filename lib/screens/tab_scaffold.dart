@@ -15,13 +15,16 @@ class TabScaffold extends StatelessWidget {
       // Middle button opens standalone upload page without shell
       context.push('/upload_reflection');
     } else if (index == 2) {
-      navigationShell.goBranch(1, initialLocation: navigationShell.currentIndex == 1);
+      navigationShell.goBranch(2, initialLocation: navigationShell.currentIndex == 2);
+      // navigationShell.goBranch(1, initialLocation: navigationShell.currentIndex == 1);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final selectedIndex = navigationShell.currentIndex == 0 ? 0 : 2;
+    // final selectedIndex = navigationShell.currentIndex == 0 ? 0 : 2;
+    final selectedIndex = navigationShell.currentIndex;
+
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: SafeArea(
