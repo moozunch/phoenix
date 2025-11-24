@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:phoenix/styles/app_palette.dart';
 import 'package:phoenix/widgets/app_button.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
+import 'package:go_router/go_router.dart';
 
 class SettingProfile extends StatelessWidget {
   const SettingProfile({super.key});
@@ -64,20 +64,13 @@ class SettingProfile extends StatelessWidget {
                   label: 'Edit Profile',
                   fullWidth: false,
                   minHeight: 36,
-                  onPressed: () {},
+                  onPressed: () {
+                    context.push('/edit_profile');
+                  },
                 ),
               ),
 
               const SizedBox(height: 22),
-
-              // Stats Section
-              // Row(
-              //   children: [
-              //     _infoCard(iconPath: 'assets/images/icon/entry_journal.svg', title: 'Daily Entry', quantity: '133 journals'),
-              //     _infoCard(iconPath: 'assets/images/icon/photos.svg', title: 'Photos', quantity: '133 uploaded'),
-              //     _infoCard(iconPath: 'assets/images/icon/join.svg', title: 'Since Joined', quantity: '133 days'),
-              //   ],
-              // ),
 
               Row(
                 children: [
@@ -92,8 +85,8 @@ class SettingProfile extends StatelessWidget {
               const SizedBox(height: 26),
 
               // Menu List
-              _menuItem(Icons.person_outline, 'Account'),
-              _menuItem(Icons.desktop_windows_outlined, 'Display'),
+              _menuItem(Icons.person_outline, 'Account', onTap: ()  => context.push('/account_setting')),
+              _menuItem(Icons.desktop_windows_outlined, 'Display', onTap:() => context.push('/display')),
               _menuItem(Icons.notifications_none, 'Announcements'),
               _menuItem(Icons.info_outline, 'Information'),
 
@@ -169,7 +162,7 @@ class SettingProfile extends StatelessWidget {
     );
   }
 
-  Widget _menuItem(IconData icon, String title) {
+  Widget _menuItem(IconData icon, String title, {Function()? onTap}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       child: ClipRRect(
@@ -181,7 +174,7 @@ class SettingProfile extends StatelessWidget {
             title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-            onTap: () {},
+              onTap: onTap,
           ),
         ),
       ),

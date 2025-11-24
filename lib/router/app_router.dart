@@ -12,13 +12,15 @@ import 'package:phoenix/screens/onboarding/routine_selection.dart';
 import 'package:phoenix/screens/onboarding/daily_setup.dart';
 import 'package:phoenix/screens/onboarding/success_screen.dart';
 import 'package:phoenix/screens/upload_reflection_page.dart';
-import 'package:phoenix/screens/settings_page.dart';
 import 'package:phoenix/screens/tab_scaffold.dart';
 import 'package:phoenix/screens/verify_email_page.dart';
 import 'package:phoenix/screens/forgot_password_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:phoenix/screens/success_upload.dart';
 import 'package:phoenix/screens/settingprofile/setting_profile.dart';
+import 'package:phoenix/screens/settingprofile/edit_profile.dart';
+import 'package:phoenix/screens/settingprofile/display.dart';
+import 'package:phoenix/screens/settingprofile/account_setting.dart';
 
 class AppRouter {
   AppRouter(this.appState);
@@ -76,10 +78,18 @@ class AppRouter {
         path: '/success_upload',
         builder: (context, state) => const SuccessUploadPage(),
       ),
-      // GoRoute(
-      //   path: '/setting_profile',
-      //   builder: (context, state) => const SettingProfile(),
-      // ),
+      GoRoute(
+        path: '/edit_profile',
+        builder: (context, state) => const EditProfilePage(),
+      ),
+      GoRoute(
+        path: '/account_setting',
+        builder: (context, state) => const AccountSettingPage(),
+      ),
+      GoRoute(
+        path: '/display',
+        builder: (context, state) => const DisplayPage(),
+      ),
       GoRoute(
         path: '/success_screen',
         builder: (context, state) {
@@ -189,7 +199,11 @@ class AppRouter {
             '/home',
             '/upload_reflection'
                 '/setting_profile',
+            '/edit_profile',
+            '/account_setting',
+            '/display',
           };
+
           if (!allowed.contains(loc)) {
             target = '/routine_selection';
             DebugLog.d('Router', 'NewUser restrict $loc -> $target');
@@ -208,7 +222,10 @@ class AppRouter {
         const allowedLoggedIn = {
           '/home',
           '/upload_reflection',
-          '/setting_profile'
+          '/setting_profile',
+          '/edit_profile',
+          '/account_setting',
+          '/display',
         };
         if (!allowedLoggedIn.contains(loc)) {
           target = '/home';
