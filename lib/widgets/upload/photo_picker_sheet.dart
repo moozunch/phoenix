@@ -39,10 +39,8 @@ Future<XFile?> photoPickerSheet(BuildContext context) async {
             icon: Icons.camera_alt,
             text: "Take a Photo",
             onTap: () async {
-              final picker = ImagePicker();
-              final XFile ? photo =
-                  await picker.pickImage(source: ImageSource.camera);
-              Navigator.pop(context, photo);
+              final XFile? photo = await picker.pickImage(source: ImageSource.camera);
+              if (context.mounted) Navigator.pop(context, photo);
             },
           ),
           _divider(),
@@ -52,11 +50,8 @@ Future<XFile?> photoPickerSheet(BuildContext context) async {
             icon: Icons.photo_library,
             text: "Add from Photo Library",
             onTap: () async {
-              final picker = ImagePicker();
-              final XFile? image =
-                  await picker.pickImage(source: ImageSource.gallery);
-
-              Navigator.pop(context, image);
+              final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+              if (context.mounted) Navigator.pop(context, image);
             },
           ),
           _divider(),
@@ -69,14 +64,15 @@ Future<XFile?> photoPickerSheet(BuildContext context) async {
               final result = await FilePicker.platform.pickFiles(
                 type: FileType.image,
               );
-
-              if (result != null && result.files.first.path != null){
-                Navigator.pop(
-                  context,
-                  XFile(result.files.first.path!),
-                );
-              } else {
-                Navigator.pop(context, null);
+              if (context.mounted) {
+                if (result != null && result.files.first.path != null){
+                  Navigator.pop(
+                    context,
+                    XFile(result.files.first.path!),
+                  );
+                } else {
+                  Navigator.pop(context, null);
+                }
               }
             },
           ),

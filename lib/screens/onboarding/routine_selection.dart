@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:phoenix/widgets/bottom_rounded_container.dart';
 import 'package:phoenix/widgets/option_button.dart';
 import 'package:phoenix/widgets/onboarding_footer.dart';
+import 'package:phoenix/services/supabase_user_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RoutineSelection extends StatefulWidget {
   const RoutineSelection({super.key});
@@ -66,15 +68,27 @@ class _RoutineSelectionState extends State<RoutineSelection> {
                   onSkip: () {
                     Navigator.of(context).maybePop();
                   },
-                  onNext: () {
-                    if (selectedOption == "Daily") {
-                      context.go('/daily_setup');
-                    } else if (selectedOption == "Weekly") {
-                      context.go('/weekly_setup');
+                  onNext: () async {
+                    if (selectedOption == "Daily" || selectedOption == "Weekly") {
+                      final user = FirebaseAuth.instance.currentUser;
+                      if (user != null) {
+                        await SupabaseUserService().updateUser(user.uid, {
+                          'routine': selectedOption!.toLowerCase(),
+                        });
+                      }
+                      if (context.mounted) {
+                        if (selectedOption == "Daily") {
+                          context.go('/daily_setup');
+                        } else {
+                          context.go('/weekly_setup');
+                        }
+                      }
                     } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Please select one option')),
-                      );
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Please select one option')),
+                        );
+                      }
                     }
                   },
                 ),

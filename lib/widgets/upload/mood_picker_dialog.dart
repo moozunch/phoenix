@@ -84,7 +84,7 @@ class MoodPickerDialog {
                                 ),
                             ],
                           );
-                        }).toList(),
+                        }),
                       ],
                     ),
                   ),

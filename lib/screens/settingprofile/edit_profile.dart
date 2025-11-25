@@ -1,20 +1,98 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phoenix/styles/app_palette.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:phoenix/services/supabase_user_service.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:phoenix/widgets/upload/photo_picker_sheet.dart';
+import 'package:phoenix/services/storage_service.dart';
 
-class EditProfilePage extends StatelessWidget{
+class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
 
   @override
-  Widget build(BuildContext context){
+  State<EditProfilePage> createState() => _EditProfilePageState();
+}
+
+class _EditProfilePageState extends State<EditProfilePage> {
+    XFile? selectedProfileImage;
+    bool isUploadingProfilePic = false;
+    // ...existing code...
+  final nameCtrl = TextEditingController();
+  final usernameCtrl = TextEditingController();
+  final emailCtrl = TextEditingController();
+  final descCtrl = TextEditingController();
+  bool loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUser();
+  }
+
+  Future<void> _fetchUser() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final fetched = await SupabaseUserService().getUser(user.uid);
+      if (fetched != null) {
+        nameCtrl.text = fetched.name;
+        usernameCtrl.text = fetched.username;
+        emailCtrl.text = user.email ?? '';
+        descCtrl.text = '';
+      }
+    }
+      if (context.mounted) setState(() => loading = false);
+  }
+
+  Future<void> _updateProfile() async {
+        // If profile image is picked, upload and update profile
+        if (selectedProfileImage != null) {
+          final user = FirebaseAuth.instance.currentUser;
+          if (user != null) {
+            if (context.mounted) setState(() => isUploadingProfilePic = true);
+            try {
+              final photoUrl = await StorageService().uploadImageToSupabase(
+                File(selectedProfileImage!.path),
+                'profile_picture',
+                user.uid,
+              );
+              await SupabaseUserService().updateProfilePic(user.uid, photoUrl);
+            } catch (e) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to upload profile picture: $e')),
+                );
+              }
+            }
+            if (context.mounted) setState(() => isUploadingProfilePic = false);
+          }
+        }
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    await SupabaseUserService().updateUser(user.uid, {
+      'name': nameCtrl.text,
+      'username': usernameCtrl.text,
+      // add other fields if needed
+    });
+    if (context.mounted) {
+      // Use GoRouter to reload the page for latest info
+      context.go('/setting_profile');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        child: loading
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
               //header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -25,13 +103,9 @@ class EditProfilePage extends StatelessWidget{
                   ),
                   const Text(
                     "Edit Profile",
-                    style: TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.bold)
-                  ),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   GestureDetector(
-                    onTap: (){
-                      //confirmation
-                    },
+                    onTap: _updateProfile,
                     child: Icon(
                       Icons.check,
                       size: 28,
@@ -48,26 +122,56 @@ class EditProfilePage extends StatelessWidget{
                 child: Stack(
                   alignment: Alignment.bottomRight,
                   children: [
-                    Container(
-                      width: 130,
-                      height: 130,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: const DecorationImage(
-                          fit: BoxFit.cover,
-                          //ganti profile
-                          image: AssetImage("assets/profile.png"),
-                        ),
+                    GestureDetector(
+                      onTap: () async {
+                        final file = await photoPickerSheet(context);
+                        if (file != null) {
+                          setState(() {
+                            selectedProfileImage = file;
+                          });
+                        }
+                      },
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(65),
+                        child: selectedProfileImage != null
+                            ? Image.file(
+                                File(selectedProfileImage!.path),
+                                width: 130,
+                                height: 130,
+                                fit: BoxFit.cover,
+                              )
+                            : Image.asset(
+                                "assets/images/no_profile_picture.png",
+                                width: 130,
+                                height: 130,
+                                fit: BoxFit.cover,
+                              ),
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(40),
-                        border: Border.all(color: Colors.black26),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: GestureDetector(
+                        onTap: () async {
+                          final file = await photoPickerSheet(context);
+                          if (file != null) {
+                            setState(() {
+                              selectedProfileImage = file;
+                            });
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(40),
+                            border: Border.all(color: Colors.black26),
+                          ),
+                          child: isUploadingProfilePic
+                              ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                              : const Icon(Icons.camera_alt, size: 18),
+                        ),
                       ),
-                      child: const Icon(Icons.camera_alt, size: 18),
                     ),
                   ],
                 ),
@@ -90,6 +194,7 @@ class EditProfilePage extends StatelessWidget{
                       fontSize: 15, fontWeight: FontWeight.w600)),
               const SizedBox(height: 6),
               _inputField(
+                controller: nameCtrl,
                 hint: "Udin",
                 icon: Icons.badge_outlined,
               ),
@@ -106,6 +211,7 @@ class EditProfilePage extends StatelessWidget{
                       fontSize: 15, fontWeight: FontWeight.w600)),
               const SizedBox(height: 6),
               _inputField(
+                controller: usernameCtrl,
                 hint: "@walidudin",
                 icon: Icons.alternate_email,
               ),
@@ -118,8 +224,10 @@ class EditProfilePage extends StatelessWidget{
                       fontSize: 15, fontWeight: FontWeight.w600)),
               const SizedBox(height: 6),
               _inputField(
+                controller: emailCtrl,
                 hint: "walid@gmail.com",
                 icon: Icons.email_outlined,
+                enabled: false,
               ),
 
               const SizedBox(height: 18),
@@ -129,6 +237,7 @@ class EditProfilePage extends StatelessWidget{
                       fontSize: 15, fontWeight: FontWeight.w600)),
               const SizedBox(height: 6),
               _inputField(
+                controller: descCtrl,
                 hint: "miaw miaw miaw nyan",
                 icon: Icons.edit_note,
               ),
@@ -141,7 +250,7 @@ class EditProfilePage extends StatelessWidget{
     );
   }
 
-  Widget _inputField({required String hint, required IconData icon}) {
+  Widget _inputField({required TextEditingController controller, required String hint, required IconData icon, bool enabled = true}) {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFF8F8F8),
@@ -149,12 +258,14 @@ class EditProfilePage extends StatelessWidget{
         border: Border.all(color: Colors.black26, width: 1),
       ),
       child: TextField(
+        controller: controller,
+        enabled: enabled,
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: const TextStyle(fontSize: 15),
           border: InputBorder.none,
           contentPadding:
-          const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
           suffixIcon: Icon(icon, size: 20),
         ),
       ),

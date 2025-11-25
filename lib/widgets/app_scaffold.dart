@@ -76,7 +76,6 @@ class AppScaffold extends StatelessWidget {
 			bottomNavigationBar: bottomBar == null
 					? null
 					: SafeArea(
-							minimum: const EdgeInsets.only(bottom: 16),
 							child: Center(
 								child: ConstrainedBox(
 									constraints: const BoxConstraints(maxWidth: 560),

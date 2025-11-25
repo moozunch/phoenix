@@ -30,7 +30,7 @@ class DayPicker extends StatelessWidget{
                     width: 2,
                   ),
                   borderRadius: BorderRadius.circular(6),
-                  color: isSelected ? AppPalette.primary.withOpacity(0.1) : Colors.white,
+                  color: isSelected ? AppPalette.primary.withAlpha((0.1 * 255).toInt()) : Colors.white,
                 ),
                 child: isSelected
                     ? const Icon(Icons.check, size: 18, color: AppPalette.primary)
