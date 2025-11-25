@@ -20,7 +20,7 @@ class OptionButton extends StatelessWidget {
         side: BorderSide(
           color: selected ? AppPalette.primary : Colors.grey.shade400,
         ),
-        backgroundColor: selected ? Colors.deepOrange.withOpacity(0.08) : Colors.white,
+        backgroundColor: selected ? Colors.deepOrange.withAlpha((0.08 * 255).toInt()) : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         padding: const EdgeInsets.symmetric(vertical: 14),
       ),

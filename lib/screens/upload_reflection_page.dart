@@ -6,6 +6,9 @@ import 'package:phoenix/widgets/upload/mood_picker_dialog.dart';
 import 'package:phoenix/widgets/upload/photo_picker_sheet.dart';
 import 'package:phoenix/styles/app_palette.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:phoenix/services/supabase_journal_service.dart';
+import 'package:phoenix/services/storage_service.dart';
 
 class UploadReflectionPage extends StatefulWidget {
   const UploadReflectionPage({super.key});
@@ -15,6 +18,7 @@ class UploadReflectionPage extends StatefulWidget {
 }
 
 class _UploadReflectionPageState extends State<UploadReflectionPage> {
+    bool isUploading = false;
   final TextEditingController headlineCtrl = TextEditingController();
   final TextEditingController journalCtrl = TextEditingController();
 
@@ -200,18 +204,68 @@ class _UploadReflectionPageState extends State<UploadReflectionPage> {
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppPalette.primary,
-                padding:
-                const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              onPressed: () {
-               context.go('success_upload');
+              onPressed: isUploading ? null : () async {
+                final user = FirebaseAuth.instance.currentUser;
+                if (user == null) return;
+                if (headlineCtrl.text.isEmpty && journalCtrl.text.isEmpty && selectedImage == null) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Please enter a headline, journal, or photo.')),
+                    );
+                  }
+                  return;
+                }
+                if (context.mounted) setState(() => isUploading = true);
+                String? photoUrl;
+                dynamic result;
+                try {
+                  if (selectedImage != null) {
+                    // Use Supabase Storage for image upload
+                    photoUrl = await StorageService().uploadImageToSupabase(
+                      File(selectedImage!.path),
+                      'user_uploads', // Supabase bucket name
+                      user.uid,
+                    );
+                  }
+                  // Save journal to Supabase using Firebase UID
+                  result = await SupabaseJournalService().createJournal(
+                    uid: user.uid,
+                    headline: headlineCtrl.text,
+                    body: journalCtrl.text,
+                    mood: selectedEmotion == null ? '' : '${selectedEmotion!.r},${selectedEmotion!.g},${selectedEmotion!.b}',
+                    photoUrl: photoUrl,
+                    date: DateTime.now(),
+                  );
+                  if (context.mounted) setState(() => isUploading = false);
+                  // Only show error if result is a Map and contains 'error' key
+                  if (result is Map && result.containsKey('error')) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Upload failed: ${result['error']}')),
+                      );
+                    }
+                  } else {
+                    // Success: go to home (same as back button)
+                    if (context.mounted) GoRouter.of(context).go('/home');
+                  }
+                } catch (e) {
+                  if (context.mounted) setState(() => isUploading = false);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Upload failed: $e')),
+                    );
+                  }
+                }
               },
-              child: const Text(
-                "Log",
-                style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.w700),
-              ),
+              child: isUploading
+                  ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  : const Text(
+                      "Log",
+                      style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.w700),
+                    ),
             ),
           ),
         ],

@@ -7,20 +7,23 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter/foundation.dart';
 import 'firebase_options.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Initialize Firebase with generated options for each platform
+  // Initialize Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  // Initialize Supabase
+  await Supabase.initialize(
+    url: 'https://uvsqahwelajbwtclahzj.supabase.co',
+    anonKey: 'sb_publishable_iueVZL8L2y2tIpzjriVEJw_raDjwSiR',
+  );
   // App Check activation (stub). Enable in console first for services you use.
-  // Uses debug provider in debug builds, and integrity provider in release.
   await FirebaseAppCheck.instance.activate(
     androidProvider: kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
-    // Use App Attest in production, debug provider in debug builds. If App Attest unsupported it will internally fall back.
     appleProvider: kDebugMode ? AppleProvider.debug : AppleProvider.appAttest,
-    // Web provider omitted for now; add reCAPTCHA when deploying web version.
   );
   final appState = await AppState.create();
   final appRouter = AppRouter(appState);

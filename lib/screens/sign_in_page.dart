@@ -10,6 +10,8 @@ import 'package:phoenix/widgets/app_link_button.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:phoenix/core/auth_error_mapper.dart';
+import 'package:phoenix/services/supabase_user_service.dart';
+import 'package:phoenix/models/user_model.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -137,6 +139,21 @@ class _SignInPageState extends State<SignInPage> {
                 final user = await AuthService.instance.signInEmail(email, pass);
                 if (!mounted) return; // ensure state still active
                 if (user != null) {
+                  // Insert user to Supabase if not exists
+                  final supaUser = await SupabaseUserService().getUser(user.uid);
+                  if (supaUser == null) {
+                    await SupabaseUserService().createUser(UserModel(
+                      uid: user.uid,
+                      name: '',
+                      username: '',
+                      profilePicUrl: '',
+                      joinedAt: DateTime.now(),
+                      routine: 'daily',
+                      journalCount: 0,
+                      photoCount: 0,
+                      daysActive: 0,
+                    ));
+                  }
                   final state = await AppState.create();
                   if (!mounted) return;
                   // Fire-and-forget persistence
@@ -183,6 +200,21 @@ class _SignInPageState extends State<SignInPage> {
                 final user = await AuthService.instance.signInGoogle();
                 if (!mounted) return;
                 if (user != null) {
+                  // Insert user to Supabase if not exists
+                  final supaUser = await SupabaseUserService().getUser(user.uid);
+                  if (supaUser == null) {
+                    await SupabaseUserService().createUser(UserModel(
+                      uid: user.uid,
+                      name: user.displayName ?? '',
+                      username: '',
+                      profilePicUrl: user.photoURL ?? '',
+                      joinedAt: DateTime.now(),
+                      routine: 'daily',
+                      journalCount: 0,
+                      photoCount: 0,
+                      daysActive: 0,
+                    ));
+                  }
                   final state = await AppState.create();
                   if (!mounted) return;
                   state.setLoggedIn(true);
