@@ -25,7 +25,11 @@ class JournalList extends StatelessWidget {
       separatorBuilder: (_, __) => const SizedBox(height: 8),
       itemBuilder: (context, i) => JournalCard(
         date: entries[i].date,
-        text: entries[i].text,
+        headline: entries[i].headline ?? '',
+        body: entries[i].body ?? '',
+        mood: entries[i].mood ?? '',
+        tag: entries[i].tag ?? '',
+        onDetail: () => onTapEntry?.call(entries[i]),
       ),
     );
   }
@@ -33,7 +37,17 @@ class JournalList extends StatelessWidget {
 
 class JournalEntry {
   final DateTime date;
-  final String text;
+  final String headline;
+  final String body;
+  final String mood;
+  final String tag;
   final String? imageUrl;
-  JournalEntry({required this.date, required this.text, this.imageUrl});
+  JournalEntry({
+    required this.date,
+    required this.headline,
+    required this.body,
+    required this.mood,
+    required this.tag,
+    this.imageUrl,
+  });
 }

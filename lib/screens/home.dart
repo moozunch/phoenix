@@ -8,6 +8,7 @@ import 'package:phoenix/widgets/home/calendar_day_cell.dart';
 import 'package:phoenix/widgets/home/journal_card.dart';
 import 'package:phoenix/widgets/home/upload_button.dart';
 import 'package:phoenix/widgets/home/today_entry_card.dart';
+import 'package:phoenix/screens/today_entry_detail_page.dart';
 import 'package:phoenix/services/supabase_journal_service.dart';
 import 'package:phoenix/services/supabase_user_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -22,6 +23,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+    bool _isLoadingMore = false;
+    bool _hasMoreJournals = true;
+    int _journalPage = 0;
+    final int _journalPageSize = 10;
   RealtimeChannel? _journalSubscription;
     Future<void> _fetchProfileAndJournals() async {
     final user = FirebaseAuth.instance.currentUser;
@@ -47,6 +52,10 @@ class _HomePageState extends State<HomePage> {
       // Fetch journals
       final journalMaps = await SupabaseJournalService().fetchJournals(user.uid);
       final journals = journalMaps.map<JournalModel>((data) => JournalModel.fromSupabase(data)).toList();
+      // For lazy loading, only show first page
+      _journalPage = 1;
+      _hasMoreJournals = journals.length > _journalPageSize;
+      _journals = journals.take(_journalPageSize).toList();
       // Update loggedDays and photoDays
       final logged = <DateTime>{};
       final photoDays = <DateTime>{};
@@ -248,13 +257,76 @@ class _HomePageState extends State<HomePage> {
             style: TextStyle(fontSize: 12, color: Colors.black54),
           ),
           const SizedBox(height: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              journal.photoUrl!,
-              height: 160,
-              width: double.infinity,
-              fit: BoxFit.cover,
+          GestureDetector(
+            onTap: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (ctx) => TodayEntryDetailPage(
+                  headline: journal.headline,
+                  body: journal.body,
+                  mood: journal.mood,
+                  date: journal.date,
+                  photoUrl: journal.photoUrl ?? '',
+                ),
+              );
+            },
+            child: Stack(
+              children: [
+                Container(
+                  height: 180,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.grey.shade200,
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      journal.photoUrl ?? '',
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: PopupMenuButton<String>(
+                    icon: const Icon(Icons.more_horiz, color: Colors.black, size: 20),
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 'delete',
+                        child: Text('Delete Journal'),
+                      ),
+                    ],
+                    onSelected: (value) async {
+                      if (value == 'delete') {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text('Delete Journal'),
+                            content: const Text('Are you sure you want to delete this journal?'),
+                            actions: [
+                              TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+                              TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Delete')),
+                            ],
+                          ),
+                        );
+                        if (confirm == true) {
+                          await SupabaseJournalService().deleteJournal(journal.journalId);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Journal deleted.')));
+                            _fetchProfileAndJournals();
+                          }
+                        }
+                      }
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
           Row(
@@ -300,11 +372,84 @@ class _HomePageState extends State<HomePage> {
     if (_journals.isEmpty) {
       return const Center(child: Text('No journal entries yet.', style: TextStyle(color: Colors.black38)));
     }
-    return Column(
-      children: _journals.map((j) => JournalCard(
-        date: j.date,
-        text: j.headline.isNotEmpty ? j.headline : j.body,
-      )).toList(),
+    // Lazy loading: show initial batch, load more on scroll
+      Future<void> _loadMoreJournals() async {
+        if (_isLoadingMore || !_hasMoreJournals) return;
+        setState(() => _isLoadingMore = true);
+        final user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          final journalMaps = await SupabaseJournalService().fetchJournals(user.uid);
+          final allJournals = journalMaps.map<JournalModel>((data) => JournalModel.fromSupabase(data)).toList();
+          final nextPage = allJournals.skip(_journalPage * _journalPageSize).take(_journalPageSize).toList();
+          setState(() {
+            _journals.addAll(nextPage);
+            _journalPage++;
+            _hasMoreJournals = allJournals.length > _journalPage * _journalPageSize;
+            _isLoadingMore = false;
+          });
+        } else {
+          setState(() => _isLoadingMore = false);
+        }
+      }
+    return NotificationListener<ScrollNotification>(
+      onNotification: (scrollInfo) {
+        if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 100 && !_isLoadingMore && _hasMoreJournals) {
+          _loadMoreJournals();
+        }
+        return false;
+      },
+      child: Column(
+        children: _journals
+          .where((j) => j.photoUrl == null || j.photoUrl!.isEmpty || DateTime(j.date.year, j.date.month, j.date.day) != DateTime.now())
+          .map((j) => Stack(
+            children: [
+              JournalCard(
+                date: j.date,
+                headline: j.headline,
+                body: j.body,
+                mood: j.mood,
+                tag: 'Adventures', // Example tag, replace with actual if available
+                onDetail: () {}, // Implement detail navigation if needed
+              ),
+              Positioned(
+                top: 10,
+                right: 10,
+                child: PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_horiz, color: Colors.black, size: 20),
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: Text('Delete Journal'),
+                    ),
+                  ],
+                  onSelected: (value) async {
+                    if (value == 'delete') {
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('Delete Journal'),
+                          content: const Text('Are you sure you want to delete this journal?'),
+                          actions: [
+                            TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+                            TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Delete')),
+                          ],
+                        ),
+                      );
+                      if (confirm == true) {
+                        await SupabaseJournalService().deleteJournal(j.journalId);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Journal deleted.')));
+                          _fetchProfileAndJournals();
+                        }
+                      }
+                    }
+                  },
+                ),
+              ),
+            ],
+          ))
+          .toList(),
+      ),
     );
   }
 

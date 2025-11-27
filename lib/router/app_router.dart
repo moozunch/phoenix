@@ -1,3 +1,4 @@
+import 'package:phoenix/screens/settingprofile/photo_archive_page.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:phoenix/core/app_state.dart';
@@ -31,6 +32,11 @@ class AppRouter {
     initialLocation: '/',
     refreshListenable: appState,
     routes: [
+      GoRoute(
+        path: '/photo_archive',
+        name: 'photo_archive',
+        builder: (context, state) => const PhotoArchivePage(),
+      ),
       GoRoute(
         path: '/',
         name: 'splash',

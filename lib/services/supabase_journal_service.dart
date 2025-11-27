@@ -2,6 +2,15 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:developer' as developer;
 
 class SupabaseJournalService {
+    // Delete photo (set photo_url to empty for a journal)
+    Future<void> deletePhoto(String journalId) async {
+      await _supabase.from('journals').update({'photo_url': ''}).eq('id', journalId);
+    }
+
+    // Delete journal (remove journal entry)
+    Future<void> deleteJournal(String journalId) async {
+      await _supabase.from('journals').delete().eq('id', journalId);
+    }
   final _supabase = Supabase.instance.client;
 
   // Create journal

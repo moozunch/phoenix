@@ -43,8 +43,27 @@ class _UploadReflectionPageState extends State<UploadReflectionPage> {
                   //upload box
                   GestureDetector(
                     onTap: () async {
-                      final file = await photoPickerSheet(context);  // << THIS PART UPDATED
+                      final file = await photoPickerSheet(context);
                       if (file != null) {
+                        final allowedTypes = ['jpg', 'jpeg', 'png'];
+                        final ext = file.name.split('.').last.toLowerCase();
+                        final fileSize = await File(file.path).length();
+                        if (!allowedTypes.contains(ext)) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Only JPG, JPEG, or PNG images are allowed.')),
+                            );
+                          }
+                          return;
+                        }
+                        if (fileSize > 5 * 1024 * 1024) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Image size must be less than 5MB.')),
+                            );
+                          }
+                          return;
+                        }
                         setState(() {
                           selectedImage = file;
                         });

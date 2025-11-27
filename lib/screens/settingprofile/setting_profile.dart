@@ -5,6 +5,8 @@ import 'package:phoenix/services/supabase_user_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:phoenix/models/user_model.dart';
+import 'package:phoenix/services/supabase_journal_service.dart';
+import 'package:phoenix/screens/settingprofile/photo_archive_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class SettingProfile extends StatefulWidget {
@@ -28,8 +30,26 @@ class _SettingProfileState extends State<SettingProfile> {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       final fetched = await SupabaseUserService().getUser(user.uid);
+      if (fetched != null) {
+        final journalMaps = await SupabaseJournalService().fetchJournals(user.uid);
+        final journalCount = journalMaps.length;
+        final photoCount = journalMaps.where((j) => j['photo_url'] != null && (j['photo_url'] as String).isNotEmpty).length;
+        final daysActive = DateTime.now().difference(fetched.joinedAt).inDays + 1;
+        userModel = UserModel(
+          uid: fetched.uid,
+          name: fetched.name,
+          username: fetched.username,
+          profilePicUrl: fetched.profilePicUrl,
+          joinedAt: fetched.joinedAt,
+          routine: fetched.routine,
+          journalCount: journalCount,
+          photoCount: photoCount,
+          daysActive: daysActive,
+        );
+      } else {
+        userModel = null;
+      }
       setState(() {
-        userModel = fetched;
         loading = false;
       });
     } else {
@@ -96,7 +116,26 @@ class _SettingProfileState extends State<SettingProfile> {
                           children: [
                             Expanded(child: _infoCard(iconPath: 'assets/images/icon/entry_journal.svg', title: 'Daily Entry', quantity: '${userModel!.journalCount} journal')),
                             const SizedBox(width: 8),
-                            Expanded(child: _infoCard(iconPath: 'assets/images/icon/photos.svg', title: 'Photos', quantity: '${userModel!.photoCount} uploaded')),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    isScrollControlled: true,
+                                    backgroundColor: Colors.transparent,
+                                    builder: (_) => SizedBox(
+                                      height: MediaQuery.of(context).size.height * 0.95,
+                                      child: const PhotoArchivePage(),
+                                    ),
+                                  );
+                                },
+                                child: _infoCard(
+                                  iconPath: 'assets/images/icon/photos.svg',
+                                  title: 'Photos',
+                                  quantity: '${userModel!.photoCount} uploaded',
+                                ),
+                              ),
+                            ),
                             const SizedBox(width: 8),
                             Expanded(child: _infoCard(iconPath: 'assets/images/icon/join.svg', title: 'Since Joined', quantity: '${userModel!.daysActive} days')),
                           ],

@@ -81,6 +81,7 @@ flutter:
     - assets/json/
     - assets/images/
     - assets/images/icon/
+    - assets/images/feelings/
     - assets/fonts/
   # Register custom PlusJakartaSans font family
   fonts:
