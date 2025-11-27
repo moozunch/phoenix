@@ -7,6 +7,7 @@ class CalendarDayCell extends StatelessWidget {
   final bool isToday;
   final bool isSelected;
   final bool isLogged;
+  final bool hasPhoto;
   final VoidCallback? onTap;
   const CalendarDayCell({
     super.key,
@@ -15,6 +16,7 @@ class CalendarDayCell extends StatelessWidget {
     required this.isToday,
     required this.isSelected,
     required this.isLogged,
+    this.hasPhoto = false,
     this.onTap,
   });
 
@@ -26,8 +28,11 @@ class CalendarDayCell extends StatelessWidget {
     if (isOutside) {
       bg = Colors.white;
       textColor = Colors.black26;
-    } else if (isLogged) {
+    } else if (hasPhoto) {
       bg = AppPalette.primary;
+      textColor = Colors.white;
+    } else if (isLogged) {
+      bg = AppPalette.secondary;
       textColor = Colors.white;
     } else if (isToday) {
       bg = const Color(0xFFFFF4F0);

@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 class JournalCard extends StatelessWidget {
   final DateTime date;
   final String text;
-  const JournalCard({super.key, required this.date, required this.text});
+  final String? photoUrl;
+  const JournalCard({super.key, required this.date, required this.text, this.photoUrl});
 
   String _formatDate(DateTime d) {
     const names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -28,6 +29,14 @@ class JournalCard extends StatelessWidget {
             alignment: Alignment.topRight,
             child: Text(dateLabel, style: const TextStyle(fontSize: 10, color: Colors.black54)),
           ),
+          if (photoUrl != null && photoUrl!.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(photoUrl!, height: 160, width: double.infinity, fit: BoxFit.cover),
+              ),
+            ),
           Text(text,
               style: const TextStyle(fontSize: 12, height: 1.25),
               maxLines: 3,
