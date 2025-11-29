@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phoenix/core/app_state.dart';
+import 'package:phoenix/services/notification_service.dart';
 import 'package:phoenix/widgets/home/home_header.dart';
 import 'package:phoenix/widgets/home/month_header.dart';
 import 'package:phoenix/widgets/home/weekday_row.dart';
@@ -186,29 +187,34 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(context),
-              const SizedBox(height: 10),
-              _buildMonthHeader(),
-              const SizedBox(height: 6),
-              _buildWeekdayRow(),
-              const SizedBox(height: 4),
-              _buildDayGrid(days, today),
-              const SizedBox(height: 14),
-              _buildTodayEntrySection(today),
-              if (!hasPhotoToday) ...[
+        child: RefreshIndicator(
+          onRefresh: _fetchProfileAndJournals,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(context),
+                const SizedBox(height: 10),
+                _buildMonthHeader(),
+                const SizedBox(height: 6),
+                _buildWeekdayRow(),
+                const SizedBox(height: 4),
+                _buildDayGrid(days, today),
+                const SizedBox(height: 14),
+                _buildTodayEntrySection(today),
+                if (!hasPhotoToday) ...[
+                  const SizedBox(height: 12),
+                  _buildUploadButton(context),
+                ],
                 const SizedBox(height: 12),
-                _buildUploadButton(context),
+                // ...existing code...
+                _buildJournalListTitle(),
+                _buildJournalList(),
+                const SizedBox(height: 40),
               ],
-              const SizedBox(height: 18),
-              _buildJournalListTitle(),
-              _buildJournalList(),
-              const SizedBox(height: 40),
-            ],
+            ),
           ),
         ),
       ),
@@ -242,6 +248,13 @@ class _HomePageState extends State<HomePage> {
     final journalWithPhoto = _journals.where(
       (j) => DateTime(j.date.year, j.date.month, j.date.day) == todayDate && j.photoUrl != null && j.photoUrl!.isNotEmpty,
     ).toList();
+    // Cancel today's notification automatically if photo is logged
+    if (journalWithPhoto.isNotEmpty) {
+      Future.microtask(() async {
+        await NotificationService().cancel(1);
+        await NotificationService().cancel(2);
+      });
+    }
     if (journalWithPhoto.isNotEmpty) {
       final journal = journalWithPhoto.first;
       return Column(

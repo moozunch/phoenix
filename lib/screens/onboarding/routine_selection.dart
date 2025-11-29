@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:phoenix/core/app_state.dart';
 import 'package:phoenix/widgets/bottom_rounded_container.dart';
 import 'package:phoenix/widgets/option_button.dart';
 import 'package:phoenix/widgets/onboarding_footer.dart';
-import 'package:phoenix/services/supabase_user_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 
 class RoutineSelection extends StatefulWidget {
   const RoutineSelection({super.key});
@@ -14,6 +14,15 @@ class RoutineSelection extends StatefulWidget {
 }
 
 class _RoutineSelectionState extends State<RoutineSelection> {
+    final List<String> quotes = [
+      "Small steps every day lead to big changes.",
+      "You are capable of amazing things.",
+      "Progress, not perfection.",
+      "Consistency is the key to success.",
+      "Believe in yourself and all that you are.",
+      "Every day is a new beginning.",
+      "Your future is created by what you do today."
+    ];
   String? selectedOption;
 
   @override
@@ -70,18 +79,12 @@ class _RoutineSelectionState extends State<RoutineSelection> {
                   },
                   onNext: () async {
                     if (selectedOption == "Daily" || selectedOption == "Weekly") {
-                      final user = FirebaseAuth.instance.currentUser;
-                      if (user != null) {
-                        await SupabaseUserService().updateUser(user.uid, {
-                          'routine': selectedOption!.toLowerCase(),
-                        });
-                      }
-                      if (context.mounted) {
-                        if (selectedOption == "Daily") {
-                          context.go('/daily_setup');
-                        } else {
-                          context.go('/weekly_setup');
-                        }
+                      final appState = await AppState.create();
+                      await appState.setRoutine(selectedOption!.toLowerCase());
+                      if (selectedOption == "Daily") {
+                        if (context.mounted) context.go('/daily_setup');
+                      } else if (selectedOption == "Weekly") {
+                        if (context.mounted) context.go('/weekly_setup');
                       }
                     } else {
                       if (context.mounted) {

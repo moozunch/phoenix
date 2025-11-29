@@ -1,5 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:phoenix/models/user_model.dart';
+import 'package:phoenix/services/notification_service.dart';
+import 'package:phoenix/services/supabase_user_service.dart';
 import 'package:phoenix/widgets/onboarding_footer.dart';
 import 'package:phoenix/widgets/bottom_rounded_container.dart';
 import 'package:phoenix/styles/app_palette.dart';
@@ -96,11 +100,76 @@ class SuccessScreen extends StatelessWidget {
                     Navigator.of(context).maybePop();
                   },
                   onNext: () {
-                    // Mark onboarding/setup complete so routing no longer treats user as new.
-                    AppState.create().then((state) {
-                      state.setIsNewUser(false);
-                    });
-                    GoRouter.of(context).go('/home');
+                    () async {
+                      final state = await AppState.create();
+                      await state.setIsNewUser(false);
+                      final user = await FirebaseAuth.instance.currentUser;
+                      if (user != null) {
+                        final appState = await AppState.create();
+                        final routine = appState.routine ?? 'daily';
+                        String reminderTime;
+                        if (routine == 'weekly') {
+                          reminderTime = '08:00:00';
+                        } else {
+                          reminderTime = appState.reminderTime ?? '08:00:00';
+                        }
+                        String name = user.displayName ?? '';
+                        await SupabaseUserService().createUser(
+                          UserModel(
+                            uid: user.uid,
+                            name: name,
+                            username: '',
+                            profilePicUrl: user.photoURL ?? '',
+                            joinedAt: DateTime.now(),
+                            routine: routine,
+                            journalCount: 0,
+                            photoCount: 0,
+                            daysActive: 0,
+                            reminderTime: reminderTime,
+                          ),
+                        );
+                        debugPrint('[SuccessScreen] createUser routine: $routine, reminder_time: $reminderTime');
+                        final notif = NotificationService();
+                        await notif.initialize();
+                        await notif.cancelAll();
+                        final quotes = [
+                          "Small steps every day lead to big changes.",
+                          "You are capable of amazing things.",
+                          "Progress, not perfection.",
+                          "Consistency is the key to success.",
+                          "Believe in yourself and all that you are.",
+                          "Every day is a new beginning.",
+                          "Your future is created by what you do today."
+                        ];
+                        final quote = (quotes..shuffle()).first;
+                        int hour = 8;
+                        int minute = 0;
+                        final parts = reminderTime.split(':');
+                        if (parts.length >= 2) {
+                          hour = int.tryParse(parts[0]) ?? 8;
+                          minute = int.tryParse(parts[1]) ?? 0;
+                        }
+                        if (routine == 'daily') {
+                          await notif.scheduleDailyNotification(
+                            id: 1,
+                            title: 'Ready to log today?',
+                            body: quote,
+                            hour: hour,
+                            minute: minute,
+                          );
+                        } else if (routine == 'weekly') {
+                          await notif.scheduleWeeklyNotification(
+                            id: 2,
+                            title: 'Ready to log this week?',
+                            body: quote,
+                            weekday: 1, // Monday
+                            hour: hour,
+                            minute: minute,
+                          );
+                        }
+                      }
+                      GoRouter.of(context).go('/home');
+                    }();
                   },
                 ),
               ],

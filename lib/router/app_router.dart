@@ -203,8 +203,8 @@ class AppRouter {
             '/weekly_setup',
             '/success_screen',
             '/home',
-            '/upload_reflection'
-                '/setting_profile',
+            '/upload_reflection',
+            '/setting_profile',
             '/edit_profile',
             '/account_setting',
             '/display',

@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:phoenix/models/user_model.dart';
 import 'package:phoenix/services/supabase_journal_service.dart';
 import 'package:phoenix/screens/settingprofile/photo_archive_page.dart';
+import 'package:phoenix/screens/settingprofile/notification_settings.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class SettingProfile extends StatefulWidget {
@@ -45,6 +46,7 @@ class _SettingProfileState extends State<SettingProfile> {
           journalCount: journalCount,
           photoCount: photoCount,
           daysActive: daysActive,
+          reminderTime: fetched.reminderTime,
         );
       } else {
         userModel = null;
@@ -62,107 +64,126 @@ class _SettingProfileState extends State<SettingProfile> {
     return Container(
       color: Colors.white,
       child: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: loading
-              ? const Center(child: CircularProgressIndicator())
-              : userModel == null
-                  ? const Center(child: Text('User not found'))
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const SizedBox(height: 10),
-                        const Text(
-                          'My Profile',
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 16),
-                        // profile picture
-                        Center(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(60),
-                            child: userModel!.profilePicUrl.isNotEmpty
-                                ? Image.network(
-                                    userModel!.profilePicUrl,
-                                    width: 120,
-                                    height: 120,
-                                    fit: BoxFit.cover,
-                                  )
-                                : Image.asset(
-                                    'assets/images/no_profile_picture.png',
-                                    width: 120,
-                                    height: 120,
-                                    fit: BoxFit.cover,
-                                  ),
+        child: RefreshIndicator(
+          onRefresh: _fetchUser,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: loading
+                ? const Center(child: CircularProgressIndicator())
+                : userModel == null
+                    ? const Center(child: Text('User not found'))
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: 10),
+                          const Text(
+                            'My Profile',
+                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(userModel!.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                        Text('@${userModel!.username}', style: const TextStyle(color: Colors.grey)),
-                        const SizedBox(height: 10),
-                        Center(
-                          child: AppButton(
-                            label: 'Edit Profile',
-                            fullWidth: false,
-                            minHeight: 36,
-                            onPressed: () {
-                              // Use GoRouter for navigation
-                              context.push('/edit_profile');
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Expanded(child: _infoCard(iconPath: 'assets/images/icon/entry_journal.svg', title: 'Daily Entry', quantity: '${userModel!.journalCount} journal')),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () {
-                                  showModalBottomSheet(
-                                    context: context,
-                                    isScrollControlled: true,
-                                    backgroundColor: Colors.transparent,
-                                    builder: (_) => SizedBox(
-                                      height: MediaQuery.of(context).size.height * 0.95,
-                                      child: const PhotoArchivePage(),
+                          const SizedBox(height: 16),
+                          // profile picture
+                          Center(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(60),
+                              child: userModel!.profilePicUrl.isNotEmpty
+                                  ? Image.network(
+                                      userModel!.profilePicUrl,
+                                      width: 120,
+                                      height: 120,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.asset(
+                                      'assets/images/no_profile_picture.png',
+                                      width: 120,
+                                      height: 120,
+                                      fit: BoxFit.cover,
                                     ),
-                                  );
-                                },
-                                child: _infoCard(
-                                  iconPath: 'assets/images/icon/photos.svg',
-                                  title: 'Photos',
-                                  quantity: '${userModel!.photoCount} uploaded',
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(userModel!.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          Text('@${userModel!.username}', style: const TextStyle(color: Colors.grey)),
+                          const SizedBox(height: 10),
+                          Center(
+                            child: AppButton(
+                              label: 'Edit Profile',
+                              fullWidth: false,
+                              minHeight: 36,
+                              onPressed: () {
+                                // Use GoRouter for navigation
+                                context.push('/edit_profile');
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(child: _infoCard(iconPath: 'assets/images/icon/entry_journal.svg', title: 'Daily Entry', quantity: '${userModel!.journalCount} journal')),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      isScrollControlled: true,
+                                      backgroundColor: Colors.transparent,
+                                      builder: (_) => SizedBox(
+                                        height: MediaQuery.of(context).size.height * 0.95,
+                                        child: const PhotoArchivePage(),
+                                      ),
+                                    );
+                                  },
+                                  child: _infoCard(
+                                    iconPath: 'assets/images/icon/photos.svg',
+                                    title: 'Photos',
+                                    quantity: '${userModel!.photoCount} uploaded',
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(child: _infoCard(iconPath: 'assets/images/icon/join.svg', title: 'Since Joined', quantity: '${userModel!.daysActive} days')),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Text('Routine: ${userModel!.routine}', style: const TextStyle(fontSize: 14, color: Colors.black54)),
-                        const SizedBox(height: 26),
-                        // Menu List
-                        _menuItem(Icons.person_outline, 'Account', onTap: () => context.push('/account_setting')),
-                        _menuItem(Icons.desktop_windows_outlined, 'Display', onTap: () => context.push('/display')),
-                        _menuItem(Icons.notifications_none, 'Announcements', onTap: () {}),
-                        _menuItem(Icons.info_outline, 'Information', onTap: () {}),
-                        const SizedBox(height: 30),
-                        GestureDetector(
-                          onTap: () {},
-                          child: Text(
-                            'Sign Out',
-                            style: TextStyle(
-                              color: AppPalette.primary,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                              const SizedBox(width: 8),
+                              Expanded(child: _infoCard(iconPath: 'assets/images/icon/join.svg', title: 'Since Joined', quantity: '${userModel!.daysActive} days')),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Text('Routine: ${userModel!.routine}', style: const TextStyle(fontSize: 14, color: Colors.black54)),
+                          const SizedBox(height: 26),
+                          // Section Pengaturan Notifikasi
+                          const SizedBox(height: 30),
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            child: const Text(
+                              'Pengaturan Notifikasi',
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 40),
-                      ],
-                    ),
+                          const SizedBox(height: 10),
+                          _menuItem(Icons.notifications_active, 'Pengaturan Notifikasi', onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => const NotificationSettingsPage()),
+                            );
+                          }),
+                          const SizedBox(height: 30),
+                          // Menu List
+                          _menuItem(Icons.person_outline, 'Account', onTap: () => context.push('/account_setting')),
+                          _menuItem(Icons.desktop_windows_outlined, 'Display', onTap: () => context.push('/display')),
+                          _menuItem(Icons.notifications_none, 'Announcements', onTap: () {}),
+                          _menuItem(Icons.info_outline, 'Information', onTap: () {}),
+                          GestureDetector(
+                            onTap: () {},
+                            child: Text(
+                              'Sign Out',
+                              style: TextStyle(
+                                color: AppPalette.primary,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 40),
+                        ],
+                      ),
+          ),
         ),
       ),
     );

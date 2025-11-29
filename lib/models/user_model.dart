@@ -6,12 +6,13 @@ class UserModel {
         uid: data['uid'] ?? '',
         name: data['name'] ?? '',
         username: data['username'] ?? '',
-        profilePicUrl: data['profilepicurl'] ?? '', // Fix mapping here
+        profilePicUrl: data['profilepicurl'] ?? '',
         joinedAt: DateTime.parse(data['joinedAt'] ?? DateTime.now().toIso8601String()),
         routine: data['routine'] ?? 'daily',
         journalCount: data['stats']?['journalCount'] ?? 0,
         photoCount: data['stats']?['photoCount'] ?? 0,
         daysActive: data['stats']?['daysActive'] ?? 0,
+        reminderTime: data['reminder_time'] ?? '',
       );
     }
   final String uid;
@@ -23,6 +24,7 @@ class UserModel {
   final int journalCount;
   final int photoCount;
   final int daysActive;
+  final String reminderTime;
 
   UserModel({
     required this.uid,
@@ -34,6 +36,7 @@ class UserModel {
     required this.journalCount,
     required this.photoCount,
     required this.daysActive,
+    required this.reminderTime,
   });
 
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
@@ -48,6 +51,7 @@ class UserModel {
       journalCount: data['stats']?['journalCount'] ?? 0,
       photoCount: data['stats']?['photoCount'] ?? 0,
       daysActive: data['stats']?['daysActive'] ?? 0,
+      reminderTime: data['reminder_time'] ?? '',
     );
   }
 
@@ -58,6 +62,7 @@ class UserModel {
       'profilePicUrl': profilePicUrl,
       'joinedAt': Timestamp.fromDate(joinedAt),
       'routine': routine,
+      'reminder_time': reminderTime,
       'stats': {
         'journalCount': journalCount,
         'photoCount': photoCount,

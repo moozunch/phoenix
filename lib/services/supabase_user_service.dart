@@ -14,6 +14,7 @@ class SupabaseUserService {
         'profilepicurl': user.profilePicUrl,
         'joinedat': user.joinedAt.toIso8601String(),
         'routine': user.routine,
+        'reminder_time': user.reminderTime,
         'stats': {
           'journalCount': user.journalCount,
           'photoCount': user.photoCount,
@@ -22,8 +23,13 @@ class SupabaseUserService {
       };
       developer.log('Insert user to Supabase:', name: 'SupabaseUserService');
       developer.log(data.toString(), name: 'SupabaseUserService');
-      final response = await Supabase.instance.client.from('users').insert(data);
-      developer.log('Supabase insert response:', name: 'SupabaseUserService');
+      final response = await Supabase.instance.client
+        .from('users')
+        .insert(data)
+        .select()
+        .single();
+
+      developer.log('Supabase insert result:', name: 'SupabaseUserService');
       developer.log(response.toString(), name: 'SupabaseUserService');
     }
   final _supabase = Supabase.instance.client;
