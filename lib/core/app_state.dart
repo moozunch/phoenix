@@ -61,12 +61,9 @@ class AppState extends ChangeNotifier {
     final isLoggedIn = currentUser != null; // authoritative source
     final isNewUser = prefs.getBool(_kIsNewUser) ?? false;
     if (isNewUser) {
-      DebugLog.d('AppState', 'User is marked as NEW USER');
     } else {
-      DebugLog.d('AppState', 'User is NOT marked as new user (will route normally)');
     }
     _instance = AppState._(prefs, hasOnboarded: hasOnboarded, isLoggedIn: isLoggedIn, isNewUser: isNewUser);
-    DebugLog.d('AppState', 'Loaded prefs => hasOnboarded=$hasOnboarded, persistedLoggedIn=$persistedLoggedIn, authLoggedIn=$isLoggedIn, isNewUser=$isNewUser');
     return _instance!;
   }
 
@@ -76,13 +73,11 @@ class AppState extends ChangeNotifier {
 
       // Prevent auto-login routing for new users (still verifying email)
       if (_isNewUser && user != null) {
-        DebugLog.d('AppState', 'AuthStateChanged ignored for new user (still verifying email)');
         return;
       }
 
       if (newVal != _isLoggedIn) {
         _isLoggedIn = newVal;
-        DebugLog.d('AppState', 'AuthStateChanged => isLoggedIn=$newVal');
         notifyListeners();
       }
     });
@@ -98,7 +93,6 @@ class AppState extends ChangeNotifier {
 
   Future<void> setLoggedIn(bool value) async {
     // Deprecated manual login flag setter; FirebaseAuth listener drives state.
-    DebugLog.d('AppState', 'setLoggedIn($value) deprecated - no direct effect');
     // For backward compatibility we still update persisted key (optional).
     await _prefs.setBool(_kIsLoggedIn, value);
     // Do not mutate _isLoggedIn; await auth event instead.
@@ -119,7 +113,6 @@ class AppState extends ChangeNotifier {
     if (_isNewUser == value) return;
     _isNewUser = value;
     await _prefs.setBool(_kIsNewUser, value);
-    DebugLog.d('AppState', 'setIsNewUser($value)');
     notifyListeners();
   }
 }

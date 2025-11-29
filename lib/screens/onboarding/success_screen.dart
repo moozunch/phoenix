@@ -128,7 +128,6 @@ class SuccessScreen extends StatelessWidget {
                             reminderTime: reminderTime,
                           ),
                         );
-                        debugPrint('[SuccessScreen] createUser routine: $routine, reminder_time: $reminderTime');
                         final notif = NotificationService();
                         await notif.initialize();
                         await notif.cancelAll();
