@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:phoenix/core/app_state.dart';
 
 class AuthService {
   AuthService._();
@@ -9,9 +10,30 @@ class AuthService {
   Stream<User?> authStateChanges() => _auth.authStateChanges();
 
   Future<User?> signUpEmail(String email, String password) async {
-    final cred = await _auth.createUserWithEmailAndPassword(email: email, password: password);
-    return cred.user;
+    final cred = await _auth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+
+    final user = cred.user;
+
+    // Try send verification email
+    try {
+      await user?.sendEmailVerification();
+    } catch (e) {
+      print("Email verification failed: $e");
+      // jangan throw error—biarkan signup tetap lanjut
+    }
+
+    // update AppState
+    final state = await AppState.create();
+    await state.setIsNewUser(true);
+    await state.setHasOnboarded(true);
+
+    return user;
   }
+
+
 
   Future<User?> signInEmail(String email, String password) async {
     final cred = await _auth.signInWithEmailAndPassword(email: email, password: password);

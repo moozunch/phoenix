@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phoenix/core/app_state.dart';
 import 'package:phoenix/services/auth_service.dart';
+import 'package:phoenix/services/notification_service.dart';
 import 'package:phoenix/widgets/app_button.dart';
 import 'package:phoenix/widgets/app_text_field.dart';
 import 'package:phoenix/widgets/app_scaffold.dart';
@@ -55,6 +56,43 @@ class _SignInPageState extends State<SignInPage> {
   void _resetFailures() {
     _failCount = 0;
     _lockUntil = null;
+  }
+
+  Future<void> _setupRoutineNotification(String uid) async {
+    final supaUser = await SupabaseUserService().getUser(uid);
+    if (supaUser == null) return;
+    final routine = supaUser.routine;
+    final notif = NotificationService();
+    await notif.initialize();
+    await notif.cancelAll();
+    final quotes = [
+      "Small steps every day lead to big changes.",
+      "You are capable of amazing things.",
+      "Progress, not perfection.",
+      "Consistency is the key to success.",
+      "Believe in yourself and all that you are.",
+      "Every day is a new beginning.",
+      "Your future is created by what you do today."
+    ];
+    final quote = (quotes..shuffle()).first;
+    if (routine == 'daily') {
+      await notif.scheduleDailyNotification(
+        id: 1,
+        title: 'Ready to log today?',
+        body: quote,
+        hour: 8,
+        minute: 0,
+      );
+    } else if (routine == 'weekly') {
+      // Weekly routine: still schedule daily notification, but with weekly message
+      await notif.scheduleDailyNotification(
+        id: 2,
+        title: 'Weekly goal: Log your photo!',
+        body: quote,
+        hour: 8,
+        minute: 0,
+      );
+    }
   }
 
   @override
@@ -152,8 +190,11 @@ class _SignInPageState extends State<SignInPage> {
                       journalCount: 0,
                       photoCount: 0,
                       daysActive: 0,
+                      reminderTime: '08:00:00',
                     ));
                   }
+                  // Setup notification based on routine
+                  await _setupRoutineNotification(user.uid);
                   final state = await AppState.create();
                   if (!mounted) return;
                   // Fire-and-forget persistence
@@ -213,6 +254,7 @@ class _SignInPageState extends State<SignInPage> {
                       journalCount: 0,
                       photoCount: 0,
                       daysActive: 0,
+                      reminderTime: '08:00:00',
                     ));
                   }
                   final state = await AppState.create();

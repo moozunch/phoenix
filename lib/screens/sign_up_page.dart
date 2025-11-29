@@ -15,8 +15,6 @@ import 'package:phoenix/widgets/app_link_button.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:phoenix/core/auth_error_mapper.dart';
-import 'package:phoenix/services/supabase_user_service.dart';
-import 'package:phoenix/models/user_model.dart';
 
 
 class SignUpPage extends StatefulWidget {
@@ -138,21 +136,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 final user = await AuthService.instance.signUpEmail(email, pass);
                 if (!mounted) return;
                 if (user != null) {
-                  // Insert user to Supabase if not exists
-                  final supaUser = await SupabaseUserService().getUser(user.uid);
-                  if (supaUser == null) {
-                    await SupabaseUserService().createUser(UserModel(
-                      uid: user.uid,
-                      name: '',
-                      username: '',
-                      profilePicUrl: '',
-                      joinedAt: DateTime.now(),
-                      routine: 'daily',
-                      journalCount: 0,
-                      photoCount: 0,
-                      daysActive: 0,
-                    ));
-                  }
                   // Kirim email verifikasi jika belum diverifikasi
                   if (!user.emailVerified) {
                     await user.sendEmailVerification();
@@ -163,12 +146,13 @@ class _SignUpPageState extends State<SignUpPage> {
                   }
                   final state = await AppState.create();
                   if (!mounted) return;
-                  state.setHasOnboarded(true);
-                  state.setLoggedIn(true);
-                  state.setIsNewUser(true);
+                  await state.setIsNewUser(true);
+                  await state.setHasOnboarded(true); // ← wajib TRUE supaya router tidak lempar ke /boarding
+                  // JANGAN setLoggedIn di signup email
+                  // state.setLoggedIn(false);   // boleh hapus atau biarkan default
+
                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (!mounted) return;
-                    router.go('/verify_email');
+                    if (mounted) router.go('/verify_email');
                   });
                 } else {
                   messenger.showSnackBar(
@@ -201,21 +185,6 @@ class _SignUpPageState extends State<SignUpPage> {
                 final user = await AuthService.instance.signInGoogle();
                 if (!mounted) return;
                 if (user != null) {
-                  // Insert user to Supabase if not exists
-                  final supaUser = await SupabaseUserService().getUser(user.uid);
-                  if (supaUser == null) {
-                    await SupabaseUserService().createUser(UserModel(
-                      uid: user.uid,
-                      name: user.displayName ?? '',
-                      username: '',
-                      profilePicUrl: user.photoURL ?? '',
-                      joinedAt: DateTime.now(),
-                      routine: 'daily',
-                      journalCount: 0,
-                      photoCount: 0,
-                      daysActive: 0,
-                    ));
-                  }
                   final state = await AppState.create();
                   if (!mounted) return;
                   state.setHasOnboarded(true);

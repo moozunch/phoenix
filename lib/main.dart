@@ -5,7 +5,6 @@ import 'package:phoenix/router/app_router.dart';
 import 'package:phoenix/styles/app_palette.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
-import 'package:flutter/foundation.dart';
 import 'firebase_options.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -21,10 +20,12 @@ void main() async {
     anonKey: 'sb_publishable_iueVZL8L2y2tIpzjriVEJw_raDjwSiR',
   );
   // App Check activation (stub). Enable in console first for services you use.
-  await FirebaseAppCheck.instance.activate(
-    androidProvider: kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
-    appleProvider: kDebugMode ? AppleProvider.debug : AppleProvider.appAttest,
+  FirebaseAppCheck.instance.activate(
+    webProvider: null,
+    androidProvider: AndroidProvider.debug, // ← disable strict check
+    appleProvider: AppleProvider.debug,
   );
+
   final appState = await AppState.create();
   final appRouter = AppRouter(appState);
   runApp(MyApp(router: appRouter.router));

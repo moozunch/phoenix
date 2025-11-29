@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:phoenix/core/app_state.dart';
 import 'package:phoenix/widgets/bottom_rounded_container.dart';
 import 'package:phoenix/widgets/time_picker.dart';
 import 'package:phoenix/widgets/onboarding_footer.dart';
@@ -168,7 +169,7 @@ class _WeeklySetupState extends State<WeeklySetup> {
                   onSkip: () {
                     Navigator.of(context).maybePop();
                   },
-                  onNext: () {
+                  onNext: () async {
                     if (_selectedDays.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -177,8 +178,13 @@ class _WeeklySetupState extends State<WeeklySetup> {
                       );
                       return;
                     }
+                    // Save selected time to AppState
+                    final hour = _selectedTime.hour.toString().padLeft(2, '0');
+                    final minute = _selectedTime.minute.toString().padLeft(2, '0');
+                    final reminderTime = '$hour:$minute:00';
+                    final appState = await AppState.create();
+                    await appState.setReminderTime(reminderTime);
                     GoRouter.of(context).go('/success_screen?from=weekly');
-                    // Next logic here
                   },
                 ),
               ],

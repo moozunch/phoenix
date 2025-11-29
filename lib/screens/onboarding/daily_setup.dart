@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:phoenix/core/app_state.dart';
 import 'package:phoenix/widgets/bottom_rounded_container.dart';
 import 'package:phoenix/widgets/time_picker.dart';
 import 'package:phoenix/widgets/label_switch.dart';
 import 'package:phoenix/widgets/onboarding_footer.dart';
 import 'package:phoenix/styles/app_palette.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class DailySetup extends StatefulWidget {
   const DailySetup({super.key});
@@ -14,6 +16,10 @@ class DailySetup extends StatefulWidget {
 }
 
 class _DailySetupState extends State<DailySetup> {
+    // Helper to get current user (Firebase)
+    Future<User?> getCurrentUser() async {
+      return FirebaseAuth.instance.currentUser;
+    }
   TimeOfDay _selectedTime = const TimeOfDay(hour: 8, minute: 0);
   bool _allDayReminder = false;
 
@@ -93,7 +99,13 @@ class _DailySetupState extends State<DailySetup> {
                   onSkip: () {
                     Navigator.of(context).maybePop();
                   },
-                  onNext: () {
+                  onNext: () async {
+                    // Save selected time to AppState
+                    final hour = _selectedTime.hour.toString().padLeft(2, '0');
+                    final minute = _selectedTime.minute.toString().padLeft(2, '0');
+                    final reminderTime = '$hour:$minute:00';
+                    final appState = await AppState.create();
+                    await appState.setReminderTime(reminderTime);
                     GoRouter.of(context).go('/success_screen?from=daily');
                   },
                 ),

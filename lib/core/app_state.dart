@@ -4,6 +4,26 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'debug_log.dart';
 
 class AppState extends ChangeNotifier {
+      String? _reminderTime;
+      String? get reminderTime => _reminderTime;
+      Future<void> setReminderTime(String value) async {
+        _reminderTime = value;
+        notifyListeners();
+      }
+
+      String? _routine;
+      String? get routine => _routine;
+      Future<void> setRoutine(String value) async {
+        _routine = value;
+        notifyListeners();
+      }
+    // Returns true if the current user's email is verified
+    bool get emailVerified => FirebaseAuth.instance.currentUser?.emailVerified ?? false;
+    Future<void> refreshEmailStatus() async {
+    await FirebaseAuth.instance.currentUser?.reload();
+    notifyListeners();
+  }
+
   AppState._(
     this._prefs, {
     required bool hasOnboarded,
@@ -40,6 +60,11 @@ class AppState extends ChangeNotifier {
     final currentUser = FirebaseAuth.instance.currentUser;
     final isLoggedIn = currentUser != null; // authoritative source
     final isNewUser = prefs.getBool(_kIsNewUser) ?? false;
+    if (isNewUser) {
+      DebugLog.d('AppState', 'User is marked as NEW USER');
+    } else {
+      DebugLog.d('AppState', 'User is NOT marked as new user (will route normally)');
+    }
     _instance = AppState._(prefs, hasOnboarded: hasOnboarded, isLoggedIn: isLoggedIn, isNewUser: isNewUser);
     DebugLog.d('AppState', 'Loaded prefs => hasOnboarded=$hasOnboarded, persistedLoggedIn=$persistedLoggedIn, authLoggedIn=$isLoggedIn, isNewUser=$isNewUser');
     return _instance!;
@@ -48,14 +73,21 @@ class AppState extends ChangeNotifier {
   void _attachAuthListener() {
     FirebaseAuth.instance.authStateChanges().listen((user) {
       final newVal = user != null;
+
+      // Prevent auto-login routing for new users (still verifying email)
+      if (_isNewUser && user != null) {
+        DebugLog.d('AppState', 'AuthStateChanged ignored for new user (still verifying email)');
+        return;
+      }
+
       if (newVal != _isLoggedIn) {
         _isLoggedIn = newVal;
         DebugLog.d('AppState', 'AuthStateChanged => isLoggedIn=$newVal');
-        // Do not persist login state anymore (deprecated); keep prefs key for backward compatibility if needed.
         notifyListeners();
       }
     });
   }
+
 
   Future<void> setHasOnboarded(bool value) async {
     if (_hasOnboarded == value) return;
