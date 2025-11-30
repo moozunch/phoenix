@@ -2,6 +2,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:developer' as developer;
 
 class SupabaseJournalService {
+      // Delete photo by photoUrl (set photo_url to empty for matching journal)
+      Future<void> deletePhotoByUrl(String photoUrl) async {
+        await _supabase.from('journals').update({'photo_url': ''}).eq('photo_url', photoUrl);
+      }
     // Delete photo (set photo_url to empty for a journal)
     Future<void> deletePhoto(String journalId) async {
       await _supabase.from('journals').update({'photo_url': ''}).eq('id', journalId);
@@ -37,6 +41,21 @@ class SupabaseJournalService {
     // Return response for UI to handle error/success
     return response;
   }
+  
+    // Update journal (edit headline, body, mood)
+    Future<void> updateJournal({
+      required String journalId,
+      required String headline,
+      required String body,
+      required String mood,
+    }) async {
+      final data = {
+        'headline': headline,
+        'body': body,
+        'mood': mood,
+      };
+      await _supabase.from('journals').update(data).eq('id', journalId);
+    }
 
   // Fetch journals for a user
   Future<List<Map<String, dynamic>>> fetchJournals(String uid) async {

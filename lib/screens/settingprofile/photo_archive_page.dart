@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:phoenix/services/supabase_journal_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:phoenix/widgets/confirm_dialog.dart';
 
 class PhotoArchivePage extends StatefulWidget {
   const PhotoArchivePage({super.key});
@@ -62,6 +63,7 @@ class _PhotoArchivePageState extends State<PhotoArchivePage> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
                     Text('Archived', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   ],
@@ -82,13 +84,30 @@ class _PhotoArchivePageState extends State<PhotoArchivePage> {
                         ),
                         itemCount: photoUrls.length,
                         itemBuilder: (context, idx) {
-                          return ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              photoUrls[idx],
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              height: double.infinity,
+                          return GestureDetector(
+                            onLongPress: () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (ctx) => ConfirmDialog(
+                                  message: 'Delete this photo?',
+                                  confirmText: 'Delete',
+                                  cancelText: 'Cancel',
+                                ),
+                              );
+                              if (confirm == true) {
+                                setState(() => loading = true);
+                                await SupabaseJournalService().deletePhotoByUrl(photoUrls[idx]);
+                                await _fetchPhotos();
+                              }
+                            },
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                photoUrls[idx],
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: double.infinity,
+                              ),
                             ),
                           );
                         },

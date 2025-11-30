@@ -1,3 +1,4 @@
+import 'package:phoenix/screens/edit_journal_page.dart';
 import 'package:phoenix/screens/settingprofile/notification_settings.dart';
 import 'package:phoenix/screens/settingprofile/photo_archive_page.dart';
 import 'package:go_router/go_router.dart';
@@ -159,7 +160,24 @@ class AppRouter {
           );
         },
       ),
+      GoRoute(
+        path: '/edit_journal',
+        name: 'edit_journal',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return EditJournalPage(
+            journalId: extra['journalId'],
+            headline: extra['headline'],
+            body: extra['body'],
+            mood: extra['mood'],
+            photoUrl: extra['photoUrl'],
+          );
+        },
+      ),
+
     ],
+    
+    
 
     redirect: (context, state) {
       final loc = state.uri.path;
@@ -239,6 +257,7 @@ class AppRouter {
           '/account_setting',
           '/notification_settings',
           '/display',
+          '/edit_journal',
         };
         if (!allowedLoggedIn.contains(loc)) {
           target = '/home';

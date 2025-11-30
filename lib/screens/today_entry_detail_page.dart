@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:phoenix/widgets/journal_options_menu.dart';
 
 class TodayEntryDetailPage extends StatelessWidget {
     String _mapMoodToAsset(String mood) {
@@ -22,6 +24,8 @@ class TodayEntryDetailPage extends StatelessWidget {
   final String mood;
   final DateTime date;
   final String photoUrl;
+  final String journalId;
+  final VoidCallback? onEdit;
 
   const TodayEntryDetailPage({
     super.key,
@@ -30,6 +34,8 @@ class TodayEntryDetailPage extends StatelessWidget {
     required this.mood,
     required this.date,
     required this.photoUrl,
+    required this.journalId,
+    this.onEdit,
   });
 
   String _formatDate(DateTime d) {
@@ -62,27 +68,60 @@ class TodayEntryDetailPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 10),
+                const SizedBox(height: 5),
+                // Drag handle above top bar
                 Center(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onVerticalDragUpdate: (details) {
-                      if (details.primaryDelta != null && details.primaryDelta! > 8) {
-                        if (Navigator.of(context).canPop()) {
-                          Navigator.of(context).pop();
-                        }
-                      }
-                    },
-                    child: Container(
-                      width: 38,
-                      height: 5,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade300,
-                        borderRadius: BorderRadius.circular(3),
-                      ),
+                  child: Container(
+                    width: 38,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(3),
                     ),
                   ),
                 ),
+                const SizedBox(height: 14),
+                // Top bar: close, date, options
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 26),
+                      onPressed: () {
+                        if (Navigator.of(context).canPop()) Navigator.of(context).pop();
+                      },
+                    ),
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          _formatDate(date),
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    JournalOptionsMenu(
+                      journalId: journalId,
+                        onEdit: () async {
+                          if (Navigator.of(context).canPop()) Navigator.of(context).pop();
+                          Future.delayed(Duration.zero, () {
+                            context.push(
+                              '/edit_journal',
+                              extra: {
+                                'journalId': journalId,
+                                'headline': headline,
+                                'body': body,
+                                'mood': mood,
+                                'photoUrl': photoUrl,
+                              },
+                            );
+                          });
+                        },
+                      onDeleted: () {
+                        if (Navigator.of(context).canPop()) Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                ),
+                // Edit button removed, use JournalOptionsMenu only
                 const SizedBox(height: 18),
                 Row(
                   children: [
@@ -113,11 +152,6 @@ class TodayEntryDetailPage extends StatelessWidget {
                           ),
                         ],
                       ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      _formatDate(date),
-                      style: const TextStyle(fontSize: 12, color: Color(0xFF8F9BB3)),
                     ),
                   ],
                 ),

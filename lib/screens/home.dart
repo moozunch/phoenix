@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phoenix/core/app_state.dart';
+import 'package:phoenix/screens/edit_journal_page.dart';
 import 'package:phoenix/services/notification_service.dart';
 import 'package:phoenix/widgets/home/home_header.dart';
 import 'package:phoenix/widgets/home/month_header.dart';
@@ -13,6 +14,7 @@ import 'package:phoenix/services/supabase_journal_service.dart';
 import 'package:phoenix/services/supabase_user_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:phoenix/models/journal_model.dart';
+import 'package:phoenix/widgets/journal_options_menu.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomePage extends StatefulWidget {
@@ -134,6 +136,20 @@ class _HomePageState extends State<HomePage> {
                 mood: journalWithPhoto.mood,
                 date: journalWithPhoto.date,
                 photoUrl: journalWithPhoto.photoUrl ?? '',
+                journalId: journalWithPhoto.journalId,
+                onEdit: () async {
+                  await context.push(
+                    '/edit_journal',
+                    extra: {
+                      'journalId': journalWithPhoto.journalId,
+                      'headline': journalWithPhoto.headline,
+                      'body': journalWithPhoto.body,
+                      'mood': journalWithPhoto.mood,
+                      'photoUrl': journalWithPhoto.photoUrl,
+                    },
+                  );
+                  await _fetchProfileAndJournals();
+                },
               ),
             );
           }
@@ -314,6 +330,20 @@ class _HomePageState extends State<HomePage> {
                   mood: journal.mood,
                   date: journal.date,
                   photoUrl: journal.photoUrl ?? '',
+                    journalId: journal.journalId,
+                    onEdit: () async {
+                      await context.push(
+                        '/edit_journal',
+                        extra: {
+                          'journalId': journal.journalId,
+                          'headline': journal.headline,
+                          'body': journal.body,
+                          'mood': journal.mood,
+                          'photoUrl': journal.photoUrl,
+                        },
+                      );
+                      await _fetchProfileAndJournals();
+                    },
                 ),
               );
             },
@@ -339,35 +369,23 @@ class _HomePageState extends State<HomePage> {
                 Positioned(
                   top: 8,
                   right: 8,
-                  child: PopupMenuButton<String>(
-                    icon: const Icon(Icons.more_horiz, color: Colors.black, size: 20),
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(
-                        value: 'delete',
-                        child: Text('Delete Journal'),
-                      ),
-                    ],
-                    onSelected: (value) async {
-                      if (value == 'delete') {
-                        final confirm = await showDialog<bool>(
-                          context: context,
-                          builder: (ctx) => AlertDialog(
-                            title: const Text('Delete Journal'),
-                            content: const Text('Are you sure you want to delete this journal?'),
-                            actions: [
-                              TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
-                              TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Delete')),
-                            ],
-                          ),
-                        );
-                        if (confirm == true) {
-                          await SupabaseJournalService().deleteJournal(journal.journalId);
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Journal deleted.')));
-                            _fetchProfileAndJournals();
-                          }
-                        }
-                      }
+                  child: JournalOptionsMenu(
+                    journalId: journal.journalId,
+                      onEdit: () async {
+                        await context.push(
+                            '/edit_journal',
+                            extra: {
+                              'journalId': journal.journalId,
+                              'headline': journal.headline,
+                              'body': journal.body,
+                              'mood': journal.mood,
+                              'photoUrl': journal.photoUrl,
+                            },
+                          );
+                        await _fetchProfileAndJournals();
+                      },
+                    onDeleted: () {
+                      _fetchProfileAndJournals();
                     },
                   ),
                 ),
@@ -457,6 +475,20 @@ class _HomePageState extends State<HomePage> {
                       mood: j.mood,
                       date: j.date,
                       photoUrl: j.photoUrl ?? '',
+                      journalId: j.journalId,
+                      onEdit: () async {
+                        await context.push(
+                          '/edit_journal',
+                          extra: {
+                            'journalId': j.journalId,
+                            'headline': j.headline,
+                            'body': j.body,
+                            'mood': j.mood,
+                            'photoUrl': j.photoUrl,
+                          },
+                        );
+                        await _fetchProfileAndJournals();
+                      },
                     ),
                   );
                 },
@@ -472,35 +504,23 @@ class _HomePageState extends State<HomePage> {
               Positioned(
                 top: 10,
                 right: 10,
-                child: PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_horiz, color: Colors.black, size: 20),
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(
-                      value: 'delete',
-                      child: Text('Delete Journal'),
-                    ),
-                  ],
-                  onSelected: (value) async {
-                    if (value == 'delete') {
-                      final confirm = await showDialog<bool>(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: const Text('Delete Journal'),
-                          content: const Text('Are you sure you want to delete this journal?'),
-                          actions: [
-                            TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
-                            TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Delete')),
-                          ],
-                        ),
+                child: JournalOptionsMenu(
+                  journalId: j.journalId,
+                    onEdit: () async {
+                      await context.push(
+                        '/edit_journal',
+                        extra: {
+                          'journalId': j.journalId,
+                          'headline': j.headline,
+                          'body': j.body,
+                          'mood': j.mood,
+                          'photoUrl': j.photoUrl,
+                        },
                       );
-                      if (confirm == true) {
-                        await SupabaseJournalService().deleteJournal(j.journalId);
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Journal deleted.')));
-                          _fetchProfileAndJournals();
-                        }
-                      }
-                    }
+                      await _fetchProfileAndJournals();
+                    },
+                  onDeleted: () {
+                    _fetchProfileAndJournals();
                   },
                 ),
               ),
