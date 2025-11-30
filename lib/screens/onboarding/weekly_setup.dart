@@ -16,7 +16,6 @@ class WeeklySetup extends StatefulWidget {
 class _WeeklySetupState extends State<WeeklySetup> {
   TimeOfDay _selectedTime = const TimeOfDay(hour: 8, minute: 0);
 
-  // Days (order based on screenshot)
   final List<String> _days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   final Set<String> _selectedDays = {};
 
@@ -64,7 +63,6 @@ class _WeeklySetupState extends State<WeeklySetup> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 16),
-
                 const Text(
                   "Your Weekly Check-in Set Up",
                   style: TextStyle(
@@ -73,9 +71,7 @@ class _WeeklySetupState extends State<WeeklySetup> {
                     color: Colors.black87,
                   ),
                 ),
-
                 const SizedBox(height: 10),
-
                 const Text(
                   "Select your preferred days.",
                   style: TextStyle(
@@ -83,9 +79,7 @@ class _WeeklySetupState extends State<WeeklySetup> {
                     color: Colors.black54,
                   ),
                 ),
-
                 const SizedBox(height: 16),
-
                 GridView.count(
                   crossAxisCount: 3,
                   shrinkWrap: true,
@@ -95,7 +89,6 @@ class _WeeklySetupState extends State<WeeklySetup> {
                   childAspectRatio: 2.5,
                   children: _days.map((day) {
                     final bool isSelected = _selectedDays.contains(day);
-
                     return GestureDetector(
                       onTap: () {
                         setState(() {
@@ -108,7 +101,6 @@ class _WeeklySetupState extends State<WeeklySetup> {
                       },
                       child: Row(
                         children: [
-                          // Checkbox box
                           Container(
                             height: 22,
                             width: 22,
@@ -118,9 +110,7 @@ class _WeeklySetupState extends State<WeeklySetup> {
                                 color: AppPalette.primary,
                                 width: 1.5,
                               ),
-                              color: isSelected
-                                  ? AppPalette.primary
-                                  : Colors.white,
+                              color: isSelected ? AppPalette.primary : Colors.white,
                             ),
                             child: isSelected
                                 ? const Icon(
@@ -130,9 +120,7 @@ class _WeeklySetupState extends State<WeeklySetup> {
                             )
                                 : null,
                           ),
-
                           const SizedBox(width: 8),
-
                           Text(
                             day,
                             style: const TextStyle(
@@ -145,7 +133,6 @@ class _WeeklySetupState extends State<WeeklySetup> {
                     );
                   }).toList(),
                 ),
-
                 const SizedBox(height: 20),
                 const Text(
                   "Choose your preferred time.",
@@ -154,16 +141,12 @@ class _WeeklySetupState extends State<WeeklySetup> {
                     color: Colors.black54,
                   ),
                 ),
-
                 const SizedBox(height: 16),
-
                 TimePicker(
                   timeLabel: _selectedTime.format(context),
                   onTap: _pickTime,
                 ),
-
                 const Spacer(),
-
                 OnboardingFooter(
                   activeIndex: 1, // Weekly is step 2
                   onSkip: () {
@@ -178,7 +161,6 @@ class _WeeklySetupState extends State<WeeklySetup> {
                       );
                       return;
                     }
-                    // Save selected time to AppState
                     final hour = _selectedTime.hour.toString().padLeft(2, '0');
                     final minute = _selectedTime.minute.toString().padLeft(2, '0');
                     final reminderTime = '$hour:$minute:00';
