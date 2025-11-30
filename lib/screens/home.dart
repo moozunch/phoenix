@@ -413,10 +413,12 @@ class _HomePageState extends State<HomePage> {
         ],
       );
     }
-    final hasLoggedToday = _loggedDays.contains(todayDate);
+    final hasLoggedTodayWithPhoto = _journals.any(
+      (j) => DateTime(j.date.year, j.date.month, j.date.day) == todayDate && j.photoUrl != null && j.photoUrl!.isNotEmpty,
+    );
     return TodayEntryCard(
-      entryText: hasLoggedToday
-        ? 'You already logged today, feel free to log whenever you\'re ready again.'
+      entryText: hasLoggedTodayWithPhoto
+        ? 'Goodjob, your entry today will make yourself proud tomorrow.'
         : "You haven't log your entry today, feel free to log whenever you're ready",
     );
   }
