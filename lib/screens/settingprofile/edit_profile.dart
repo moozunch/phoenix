@@ -24,6 +24,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final emailCtrl = TextEditingController();
   final descCtrl = TextEditingController();
   bool loading = true;
+  String? profilePicUrl;
 
   @override
   void initState() {
@@ -39,10 +40,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
         nameCtrl.text = fetched.name;
         usernameCtrl.text = fetched.username;
         emailCtrl.text = user.email ?? '';
-        descCtrl.text = '';
+        descCtrl.text = fetched.desc ?? '';
+        profilePicUrl = fetched.profilePicUrl;
       }
     }
-      if (context.mounted) setState(() => loading = false);
+    if (context.mounted) setState(() => loading = false);
   }
 
   Future<void> _updateProfile() async {
@@ -73,6 +75,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     await SupabaseUserService().updateUser(user.uid, {
       'name': nameCtrl.text,
       'username': usernameCtrl.text,
+      'desc': descCtrl.text,
       // add other fields if needed
     });
     if (context.mounted) {
@@ -140,12 +143,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 height: 130,
                                 fit: BoxFit.cover,
                               )
-                            : Image.asset(
-                                "assets/images/no_profile_picture.png",
-                                width: 130,
-                                height: 130,
-                                fit: BoxFit.cover,
-                              ),
+                            : (profilePicUrl != null && profilePicUrl!.isNotEmpty)
+                                ? Image.network(
+                                    profilePicUrl!,
+                                    width: 130,
+                                    height: 130,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Image.asset(
+                                    "assets/images/no_profile_picture.png",
+                                    width: 130,
+                                    height: 130,
+                                    fit: BoxFit.cover,
+                                  ),
                       ),
                     ),
                     Positioned(
@@ -195,7 +205,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               const SizedBox(height: 6),
               _inputField(
                 controller: nameCtrl,
-                hint: "Udin",
+                hint: "What you want to be called",
                 icon: Icons.badge_outlined,
               ),
 
@@ -212,7 +222,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               const SizedBox(height: 6),
               _inputField(
                 controller: usernameCtrl,
-                hint: "@walidudin",
+                hint: "username",
                 icon: Icons.alternate_email,
               ),
 
@@ -225,7 +235,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               const SizedBox(height: 6),
               _inputField(
                 controller: emailCtrl,
-                hint: "walid@gmail.com",
+                hint: "email@something.com",
                 icon: Icons.email_outlined,
                 enabled: false,
               ),
@@ -238,7 +248,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               const SizedBox(height: 6),
               _inputField(
                 controller: descCtrl,
-                hint: "miaw miaw miaw nyan",
+                hint: "tell something about yourself",
                 icon: Icons.edit_note,
               ),
 

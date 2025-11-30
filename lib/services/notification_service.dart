@@ -3,6 +3,21 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 
 class NotificationService {
+    Future<void> showNotification({
+      required int id,
+      required String title,
+      required String body,
+    }) async {
+      await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: id,
+          channelKey: 'daily_channel',
+          title: title,
+          body: body,
+          notificationLayout: NotificationLayout.Default,
+        ),
+      );
+    }
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
   NotificationService._internal();

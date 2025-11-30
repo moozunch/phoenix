@@ -41,10 +41,14 @@ class TodayEntryDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final moodName = _mapMoodToAsset(mood);
     final moodAsset = moodName.isNotEmpty ? 'assets/images/feelings/$moodName.png' : null;
+    final hasPhoto = photoUrl.isNotEmpty;
+    final minSheet = 0.4;
+    final maxSheet = 0.95;
+    const initialSheet = 0.75;
     return DraggableScrollableSheet(
-      initialChildSize: 0.95,
-      minChildSize: 0.6,
-      maxChildSize: 0.95,
+      initialChildSize: initialSheet,
+      minChildSize: minSheet,
+      maxChildSize: maxSheet,
       expand: false,
       builder: (context, scrollController) {
         return Container(
@@ -64,7 +68,9 @@ class TodayEntryDetailPage extends StatelessWidget {
                     behavior: HitTestBehavior.opaque,
                     onVerticalDragUpdate: (details) {
                       if (details.primaryDelta != null && details.primaryDelta! > 8) {
-                        Navigator.of(context).pop();
+                        if (Navigator.of(context).canPop()) {
+                          Navigator.of(context).pop();
+                        }
                       }
                     },
                     child: Container(
@@ -121,16 +127,17 @@ class TodayEntryDetailPage extends StatelessWidget {
                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF222B45)),
                 ),
                 const SizedBox(height: 18),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    photoUrl,
-                    width: double.infinity,
-                    height: 180,
-                    fit: BoxFit.cover,
+                if (hasPhoto)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      photoUrl,
+                      width: double.infinity,
+                      height: 180,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 18),
+                if (hasPhoto) const SizedBox(height: 18),
                 Text(
                   body,
                   style: const TextStyle(fontSize: 15, color: Color(0xFF222B45), height: 1.5),

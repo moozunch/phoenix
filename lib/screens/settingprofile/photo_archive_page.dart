@@ -34,7 +34,7 @@ class _PhotoArchivePageState extends State<PhotoArchivePage> {
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
-      initialChildSize: 0.95,
+      initialChildSize: 0.75,
       minChildSize: 0.6,
       maxChildSize: 0.95,
       expand: false,
