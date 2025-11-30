@@ -41,6 +41,7 @@ class TodayEntryDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final moodName = _mapMoodToAsset(mood);
     final moodAsset = moodName.isNotEmpty ? 'assets/images/feelings/$moodName.png' : null;
+    final hasPhoto = photoUrl.isNotEmpty;
     return DraggableScrollableSheet(
       initialChildSize: 0.95,
       minChildSize: 0.6,
@@ -121,16 +122,17 @@ class TodayEntryDetailPage extends StatelessWidget {
                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF222B45)),
                 ),
                 const SizedBox(height: 18),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    photoUrl,
-                    width: double.infinity,
-                    height: 180,
-                    fit: BoxFit.cover,
+                if (hasPhoto)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      photoUrl,
+                      width: double.infinity,
+                      height: 180,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 18),
+                if (hasPhoto) const SizedBox(height: 18),
                 Text(
                   body,
                   style: const TextStyle(fontSize: 15, color: Color(0xFF222B45), height: 1.5),

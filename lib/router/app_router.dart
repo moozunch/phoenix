@@ -1,3 +1,4 @@
+import 'package:phoenix/screens/settingprofile/notification_settings.dart';
 import 'package:phoenix/screens/settingprofile/photo_archive_page.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
@@ -91,6 +92,10 @@ class AppRouter {
       GoRoute(
         path: '/account_setting',
         builder: (context, state) => const AccountSettingPage(),
+      ),
+      GoRoute(
+        path: '/notification_settings',
+        builder: (context, state) => const NotificationSettingsPage(),
       ),
       GoRoute(
         path: '/display',
@@ -207,6 +212,7 @@ class AppRouter {
             '/setting_profile',
             '/edit_profile',
             '/account_setting',
+            '/notification_settings',
             '/display',
           };
 
@@ -231,6 +237,7 @@ class AppRouter {
           '/setting_profile',
           '/edit_profile',
           '/account_setting',
+          '/notification_settings',
           '/display',
         };
         if (!allowedLoggedIn.contains(loc)) {

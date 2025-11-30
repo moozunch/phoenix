@@ -153,15 +153,13 @@ class _SettingProfileState extends State<SettingProfile> {
                           Container(
                             alignment: Alignment.centerLeft,
                             child: const Text(
-                              'Pengaturan Notifikasi',
+                              'Notification',
                               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                           ),
                           const SizedBox(height: 10),
-                          _menuItem(Icons.notifications_active, 'Pengaturan Notifikasi', onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => const NotificationSettingsPage()),
-                            );
+                          _menuItem(Icons.notifications_none, 'Notification', onTap: () {
+                            context.push('/notification_settings');
                           }),
                           const SizedBox(height: 30),
                           // Menu List
@@ -170,7 +168,13 @@ class _SettingProfileState extends State<SettingProfile> {
                           _menuItem(Icons.notifications_none, 'Announcements', onTap: () {}),
                           _menuItem(Icons.info_outline, 'Information', onTap: () {}),
                           GestureDetector(
-                            onTap: () {},
+                            onTap: () async {
+                              // Sign out logic
+                              await FirebaseAuth.instance.signOut();
+                              if (context.mounted) {
+                                context.go('/signin');
+                              }
+                            },
                             child: Text(
                               'Sign Out',
                               style: TextStyle(

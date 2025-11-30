@@ -386,24 +386,24 @@ class _HomePageState extends State<HomePage> {
       return const Center(child: Text('No journal entries yet.', style: TextStyle(color: Colors.black38)));
     }
     // Lazy loading: show initial batch, load more on scroll
-      Future<void> _loadMoreJournals() async {
-        if (_isLoadingMore || !_hasMoreJournals) return;
-        setState(() => _isLoadingMore = true);
-        final user = FirebaseAuth.instance.currentUser;
-        if (user != null) {
-          final journalMaps = await SupabaseJournalService().fetchJournals(user.uid);
-          final allJournals = journalMaps.map<JournalModel>((data) => JournalModel.fromSupabase(data)).toList();
-          final nextPage = allJournals.skip(_journalPage * _journalPageSize).take(_journalPageSize).toList();
-          setState(() {
-            _journals.addAll(nextPage);
-            _journalPage++;
-            _hasMoreJournals = allJournals.length > _journalPage * _journalPageSize;
-            _isLoadingMore = false;
-          });
-        } else {
-          setState(() => _isLoadingMore = false);
-        }
+    Future<void> _loadMoreJournals() async {
+      if (_isLoadingMore || !_hasMoreJournals) return;
+      setState(() => _isLoadingMore = true);
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final journalMaps = await SupabaseJournalService().fetchJournals(user.uid);
+        final allJournals = journalMaps.map<JournalModel>((data) => JournalModel.fromSupabase(data)).toList();
+        final nextPage = allJournals.skip(_journalPage * _journalPageSize).take(_journalPageSize).toList();
+        setState(() {
+          _journals.addAll(nextPage);
+          _journalPage++;
+          _hasMoreJournals = allJournals.length > _journalPage * _journalPageSize;
+          _isLoadingMore = false;
+        });
+      } else {
+        setState(() => _isLoadingMore = false);
       }
+    }
     return NotificationListener<ScrollNotification>(
       onNotification: (scrollInfo) {
         if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 100 && !_isLoadingMore && _hasMoreJournals) {
@@ -416,13 +416,29 @@ class _HomePageState extends State<HomePage> {
           .where((j) => j.photoUrl == null || j.photoUrl!.isEmpty || DateTime(j.date.year, j.date.month, j.date.day) != DateTime.now())
           .map((j) => Stack(
             children: [
-              JournalCard(
-                date: j.date,
-                headline: j.headline,
-                body: j.body,
-                mood: j.mood,
-                tag: 'Adventures', // Example tag, replace with actual if available
-                onDetail: () {}, // Implement detail navigation if needed
+              GestureDetector(
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (ctx) => TodayEntryDetailPage(
+                      headline: j.headline,
+                      body: j.body,
+                      mood: j.mood,
+                      date: j.date,
+                      photoUrl: j.photoUrl ?? '',
+                    ),
+                  );
+                },
+                child: JournalCard(
+                  date: j.date,
+                  headline: j.headline,
+                  body: j.body,
+                  mood: j.mood,
+                  tag: 'Adventures', // Example tag, replace with actual if available
+                  onDetail: null,
+                ),
               ),
               Positioned(
                 top: 10,
