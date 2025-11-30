@@ -76,6 +76,7 @@ class JournalOptionsMenu extends StatelessWidget {
             );
           },
         );
+        if (!context.mounted) return;
         if (result == 'edit') {
           if (onEdit != null) onEdit!();
         } else if (result == 'delete') {
@@ -87,6 +88,7 @@ class JournalOptionsMenu extends StatelessWidget {
               cancelText: 'Cancel',
             ),
           );
+          if (!context.mounted) return;
           if (confirm == true) {
             await SupabaseJournalService().deleteJournal(journalId);
             if (onDeleted != null) onDeleted!();
@@ -106,7 +108,6 @@ class _SheetButton extends StatelessWidget {
   final Color? textColor;
   final VoidCallback onTap;
   const _SheetButton({
-    super.key,
     required this.text,
     required this.onTap,
     this.textColor,

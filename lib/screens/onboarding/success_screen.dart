@@ -166,6 +166,7 @@ class SuccessScreen extends StatelessWidget {
                     }
                   }
 
+                  if (!context.mounted) return;
                   GoRouter.of(context).go('/home');
                 },
               ),

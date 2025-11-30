@@ -48,6 +48,7 @@ class _DailySetupState extends State<DailySetup> {
       },
     );
 
+    if (!mounted) return;
     if (result != null) {
       setState(() {
         _selectedTime = result;
@@ -97,7 +98,7 @@ class _DailySetupState extends State<DailySetup> {
                   ),
                   const SizedBox(height: 30),
                   TimePicker(
-                    timeLabel: _selectedTime.format(context),
+                    timeLabel: context.mounted ? _selectedTime.format(context) : '',
                     onTap: _pickTime,
                   ),
                   const SizedBox(height: 24),
@@ -114,12 +115,13 @@ class _DailySetupState extends State<DailySetup> {
                     },
                     onNext: () async {
                       final hour =
-                      _selectedTime.hour.toString().padLeft(2, '0');
+                        _selectedTime.hour.toString().padLeft(2, '0');
                       final minute =
-                      _selectedTime.minute.toString().padLeft(2, '0');
+                        _selectedTime.minute.toString().padLeft(2, '0');
                       final reminderTime = '$hour:$minute:00';
                       final appState = await AppState.create();
                       await appState.setReminderTime(reminderTime);
+                      if (!context.mounted) return;
                       GoRouter.of(context).go('/success_screen?from=daily');
                     },
                   ),

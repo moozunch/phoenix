@@ -44,7 +44,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
         profilePicUrl = fetched.profilePicUrl;
       }
     }
-    if (context.mounted) setState(() => loading = false);
+    if (!mounted) return;
+    setState(() => loading = false);
   }
 
   Future<void> _updateProfile() async {
@@ -52,7 +53,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
         if (selectedProfileImage != null) {
           final user = FirebaseAuth.instance.currentUser;
           if (user != null) {
-            if (context.mounted) setState(() => isUploadingProfilePic = true);
+            if (!mounted) return;
+            setState(() => isUploadingProfilePic = true);
             try {
               final photoUrl = await StorageService().uploadImageToSupabase(
                 File(selectedProfileImage!.path),
@@ -61,13 +63,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
               );
               await SupabaseUserService().updateProfilePic(user.uid, photoUrl);
             } catch (e) {
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Failed to upload profile picture: $e')),
-                );
-              }
+              if (!mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Failed to upload profile picture: $e')),
+              );
             }
-            if (context.mounted) setState(() => isUploadingProfilePic = false);
+            if (!mounted) return;
+            setState(() => isUploadingProfilePic = false);
           }
         }
     final user = FirebaseAuth.instance.currentUser;
@@ -78,10 +80,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
       'desc': descCtrl.text,
       // add other fields if needed
     });
-    if (context.mounted) {
-      // Use GoRouter to reload the page for latest info
-      context.go('/setting_profile');
-    }
+    if (!mounted) return;
+    // Use GoRouter to reload the page for latest info
+    context.go('/setting_profile');
   }
 
   @override
