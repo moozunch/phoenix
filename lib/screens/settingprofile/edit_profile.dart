@@ -40,7 +40,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         nameCtrl.text = fetched.name;
         usernameCtrl.text = fetched.username;
         emailCtrl.text = user.email ?? '';
-        descCtrl.text = '';
+        descCtrl.text = fetched.desc ?? '';
         profilePicUrl = fetched.profilePicUrl;
       }
     }
@@ -75,6 +75,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     await SupabaseUserService().updateUser(user.uid, {
       'name': nameCtrl.text,
       'username': usernameCtrl.text,
+      'desc': descCtrl.text,
       // add other fields if needed
     });
     if (context.mounted) {

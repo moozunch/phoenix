@@ -13,6 +13,7 @@ class UserModel {
         photoCount: data['stats']?['photoCount'] ?? 0,
         daysActive: data['stats']?['daysActive'] ?? 0,
         reminderTime: data['reminder_time'] ?? '',
+        desc: data['desc'],
       );
     }
   final String uid;
@@ -25,6 +26,7 @@ class UserModel {
   final int photoCount;
   final int daysActive;
   final String reminderTime;
+  final String? desc;
 
   UserModel({
     required this.uid,
@@ -37,6 +39,7 @@ class UserModel {
     required this.photoCount,
     required this.daysActive,
     required this.reminderTime,
+    this.desc,
   });
 
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
@@ -52,6 +55,7 @@ class UserModel {
       photoCount: data['stats']?['photoCount'] ?? 0,
       daysActive: data['stats']?['daysActive'] ?? 0,
       reminderTime: data['reminder_time'] ?? '',
+      desc: data['desc'],
     );
   }
 
@@ -63,6 +67,7 @@ class UserModel {
       'joinedAt': Timestamp.fromDate(joinedAt),
       'routine': routine,
       'reminder_time': reminderTime,
+      if (desc != null) 'desc': desc,
       'stats': {
         'journalCount': journalCount,
         'photoCount': photoCount,

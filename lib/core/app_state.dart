@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'debug_log.dart';
 
 class AppState extends ChangeNotifier {
       String? _reminderTime;
@@ -56,7 +55,6 @@ class AppState extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final hasOnboarded = prefs.getBool(_kHasOnboarded) ?? false;
     // Deprecated persisted login flag replaced by FirebaseAuth currentUser
-    final persistedLoggedIn = prefs.getBool(_kIsLoggedIn) ?? false;
     final currentUser = FirebaseAuth.instance.currentUser;
     final isLoggedIn = currentUser != null; // authoritative source
     final isNewUser = prefs.getBool(_kIsNewUser) ?? false;

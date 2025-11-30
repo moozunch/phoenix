@@ -7,7 +7,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:phoenix/models/user_model.dart';
 import 'package:phoenix/services/supabase_journal_service.dart';
 import 'package:phoenix/screens/settingprofile/photo_archive_page.dart';
-import 'package:phoenix/screens/settingprofile/notification_settings.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class SettingProfile extends StatefulWidget {

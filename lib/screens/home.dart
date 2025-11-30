@@ -7,7 +7,6 @@ import 'package:phoenix/widgets/home/month_header.dart';
 import 'package:phoenix/widgets/home/weekday_row.dart';
 import 'package:phoenix/widgets/home/calendar_day_cell.dart';
 import 'package:phoenix/widgets/home/journal_card.dart';
-import 'package:phoenix/widgets/home/upload_button.dart';
 import 'package:phoenix/widgets/home/today_entry_card.dart';
 import 'package:phoenix/screens/today_entry_detail_page.dart';
 import 'package:phoenix/services/supabase_journal_service.dart';
@@ -38,8 +37,11 @@ class _HomePageState extends State<HomePage> {
         if (mounted) {
           setState(() {
             _avatarUrl = userModel.profilePicUrl.isNotEmpty ? userModel.profilePicUrl : null;
-            _name = userModel.name;
-            _tagline = userModel.username.isNotEmpty ? '@${userModel.username}' : '';
+            _name = userModel.name.isNotEmpty ? userModel.name : 'No Name';
+            _tagline = userModel.username.isNotEmpty ? '@${userModel.username}' : '@username';
+            _bio = (userModel.desc != null && userModel.desc!.isNotEmpty)
+              ? userModel.desc!
+              : '-';
             loadingProfile = false;
           });
         }
@@ -93,6 +95,7 @@ class _HomePageState extends State<HomePage> {
   String? _avatarUrl;
   String _name = '';
   String _tagline = '';
+  String _bio = '-';
   bool loadingProfile = true;
 
   String _monthName(int m) {
@@ -111,7 +114,30 @@ class _HomePageState extends State<HomePage> {
         isSelected: _selectedDay != null && _isSameDay(cd.date, _selectedDay!),
         isLogged: _loggedDays.contains(cd.date),
         hasPhoto: _photoDays.contains(cd.date),
-        onTap: cd.isOutside ? null : () => setState(() => _selectedDay = cd.date),
+        onTap: cd.isOutside ? null : () async {
+          setState(() => _selectedDay = cd.date);
+          // Find journals for the selected date
+          final journalsForDay = _journals.where((j) => _isSameDay(j.date, cd.date)).toList();
+          if (journalsForDay.isNotEmpty) {
+            // Prefer journal with photo
+            final journalWithPhoto = journalsForDay.firstWhere(
+              (j) => j.photoUrl != null && j.photoUrl!.isNotEmpty,
+              orElse: () => journalsForDay.last,
+            );
+            await showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (ctx) => TodayEntryDetailPage(
+                headline: journalWithPhoto.headline,
+                body: journalWithPhoto.body,
+                mood: journalWithPhoto.mood,
+                date: journalWithPhoto.date,
+                photoUrl: journalWithPhoto.photoUrl ?? '',
+              ),
+            );
+          }
+        },
       )).toList(),
     );
   }
@@ -195,6 +221,7 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                SizedBox(height: 12),
                 _buildHeader(context),
                 const SizedBox(height: 10),
                 _buildMonthHeader(),
@@ -204,12 +231,7 @@ class _HomePageState extends State<HomePage> {
                 _buildDayGrid(days, today),
                 const SizedBox(height: 14),
                 _buildTodayEntrySection(today),
-                if (!hasPhotoToday) ...[
-                  const SizedBox(height: 12),
-                  _buildUploadButton(context),
-                ],
                 const SizedBox(height: 12),
-                // ...existing code...
                 _buildJournalListTitle(),
                 _buildJournalList(),
                 const SizedBox(height: 40),
@@ -222,12 +244,22 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildHeader(BuildContext context) {
-    return HomeHeader(
-      avatarUrl: _avatarUrl ?? '',
-      name: _name,
-      tagline: _tagline,
-      onSettings: () => context.go('/settings'),
-      onLogout: () => _logout(context),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        HomeHeader(
+          avatarUrl: _avatarUrl ?? '',
+          name: _name,
+          tagline: _tagline,
+          onSettings: () => context.go('/edit_profile'),
+          onLogout: () => _logout(context),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          _bio.isNotEmpty ? _bio : '-',
+          style: const TextStyle(fontSize: 13, color: Colors.black54),
+        ),
+      ],
     );
   }
 
@@ -342,6 +374,7 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
+          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -368,10 +401,6 @@ class _HomePageState extends State<HomePage> {
         ? 'You already logged today, feel free to log whenever you\'re ready again.'
         : "You haven't log your entry today, feel free to log whenever you're ready",
     );
-  }
-
-  Widget _buildUploadButton(BuildContext context) {
-    return const UploadButton();
   }
 
   Widget _buildJournalListTitle() {
