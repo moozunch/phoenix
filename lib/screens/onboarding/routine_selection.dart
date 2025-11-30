@@ -4,7 +4,8 @@ import 'package:phoenix/core/app_state.dart';
 import 'package:phoenix/widgets/bottom_rounded_container.dart';
 import 'package:phoenix/widgets/option_button.dart';
 import 'package:phoenix/widgets/onboarding_footer.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:phoenix/services/supabase_user_service.dart';
 
 class RoutineSelection extends StatefulWidget {
   const RoutineSelection({super.key});
@@ -14,15 +15,16 @@ class RoutineSelection extends StatefulWidget {
 }
 
 class _RoutineSelectionState extends State<RoutineSelection> {
-    final List<String> quotes = [
-      "Small steps every day lead to big changes.",
-      "You are capable of amazing things.",
-      "Progress, not perfection.",
-      "Consistency is the key to success.",
-      "Believe in yourself and all that you are.",
-      "Every day is a new beginning.",
-      "Your future is created by what you do today."
-    ];
+  final List<String> quotes = [
+    "Small steps every day lead to big changes.",
+    "You are capable of amazing things.",
+    "Progress, not perfection.",
+    "Consistency is the key to success.",
+    "Believe in yourself and all that you are.",
+    "Every day is a new beginning.",
+    "Your future is created by what you do today."
+  ];
+
   String? selectedOption;
 
   @override
@@ -31,85 +33,107 @@ class _RoutineSelectionState extends State<RoutineSelection> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          BottomRoundedContainer(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 16), // small spacing below the arrow
-                const Text(
-                  "Personalize Your Check–In Routine",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.white,
+              Color(0xFFDF2A00),
+            ],
+            stops: [0.25, 1.0],
+          ),
+        ),
+        child: Stack(
+          children: [
+            BottomRoundedContainer(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 16),
+                  const Text(
+                    "Personalize Your Check–In Routine",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  "Choose the rhythm that feels right to you.",
-                  style: TextStyle(fontSize: 16, color: Colors.black54),
-                ),
-                const SizedBox(height: 30),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OptionButton(
-                        text: "Daily",
-                        selected: selectedOption == "Daily",
-                        onTap: () => setState(() => selectedOption = "Daily"),
+                  const SizedBox(height: 10),
+                  const Text(
+                    "Choose the rhythm that feels right to you.",
+                    style: TextStyle(fontSize: 16, color: Colors.black54),
+                  ),
+                  const SizedBox(height: 30),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OptionButton(
+                          text: "Daily",
+                          selected: selectedOption == "Daily",
+                          onTap: () => setState(() => selectedOption = "Daily"),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: OptionButton(
-                        text: "Weekly",
-                        selected: selectedOption == "Weekly",
-                        onTap: () => setState(() => selectedOption = "Weekly"),
-                      ),
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                OnboardingFooter(
-                  activeIndex: 0,
-                  onSkip: () {
-                    Navigator.of(context).maybePop();
-                  },
-                  onNext: () async {
-                    if (selectedOption == "Daily" || selectedOption == "Weekly") {
-                      final appState = await AppState.create();
-                      await appState.setRoutine(selectedOption!.toLowerCase());
-                      if (selectedOption == "Daily") {
-                        if (context.mounted) context.go('/daily_setup');
-                      } else if (selectedOption == "Weekly") {
-                        if (context.mounted) context.go('/weekly_setup');
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: OptionButton(
+                          text: "Weekly",
+                          selected: selectedOption == "Weekly",
+                          onTap: () => setState(() => selectedOption = "Weekly"),
+                        ),
+                      )
+                    ],
+                  ),
+                  const Spacer(),
+                  OnboardingFooter(
+                    activeIndex: 0,
+                    onSkip: () {
+                      Navigator.of(context).maybePop();
+                    },
+                    onNext: () async {
+                      if (selectedOption == "Daily" || selectedOption == "Weekly") {
+                        final user = FirebaseAuth.instance.currentUser;
+                        if (user != null) {
+                          await SupabaseUserService().updateUser(user.uid, {
+                            'routine': selectedOption!.toLowerCase(),
+                          });
+                        }
+                        final appState = await AppState.create();
+                        await appState.setRoutine(selectedOption!.toLowerCase());
+
+                        if (context.mounted) {
+                          if (selectedOption == "Daily") {
+                            context.go('/daily_setup');
+                          } else {
+                            context.go('/weekly_setup');
+                          }
+                        }
+                      } else {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Please select one option')),
+                          );
+                        }
                       }
-                    } else {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Please select one option')),
-                        );
-                      }
-                    }
-                  },
-                ),
-              ],
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-          // Back arrow button
-          Positioned(
-            top: statusBarHeight + 8,
-            left: 8,
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black87),
-              onPressed: () {
-                GoRouter.of(context).go('/signup');
-              },
+            // Back Button
+            Positioned(
+              top: statusBarHeight + 8,
+              left: 8,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.black87),
+                onPressed: () {
+                  GoRouter.of(context).go('/signup');
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
