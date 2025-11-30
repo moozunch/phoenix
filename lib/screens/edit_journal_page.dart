@@ -224,7 +224,7 @@ class _EditJournalPageState extends State<EditJournalPage> {
                     journalId: widget.journalId,
                     headline: headlineCtrl.text,
                     body: journalCtrl.text,
-                    mood: selectedEmotion == null ? '' : '${selectedEmotion!.red / 255},${selectedEmotion!.green / 255},${selectedEmotion!.blue / 255}',
+                    mood: selectedEmotion == null ? '' : '${selectedEmotion!.r / 255},${selectedEmotion!.g / 255},${selectedEmotion!.b / 255}',
                   );
                   setState(() => isUploading = false);
                   if (context.mounted) GoRouter.of(context).pop();

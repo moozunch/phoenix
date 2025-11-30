@@ -103,6 +103,7 @@ class TodayEntryDetailPage extends StatelessWidget {
                         onEdit: () async {
                           if (Navigator.of(context).canPop()) Navigator.of(context).pop();
                           Future.delayed(Duration.zero, () {
+                            if (!context.mounted) return;
                             context.push(
                               '/edit_journal',
                               extra: {

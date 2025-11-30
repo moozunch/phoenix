@@ -143,7 +143,7 @@ class _WeeklySetupState extends State<WeeklySetup> {
                 ),
                 const SizedBox(height: 16),
                 TimePicker(
-                  timeLabel: _selectedTime.format(context),
+                  timeLabel: context.mounted ? _selectedTime.format(context) : '',
                   onTap: _pickTime,
                 ),
                 const Spacer(),
@@ -166,6 +166,7 @@ class _WeeklySetupState extends State<WeeklySetup> {
                     final reminderTime = '$hour:$minute:00';
                     final appState = await AppState.create();
                     await appState.setReminderTime(reminderTime);
+                    if (!context.mounted) return;
                     GoRouter.of(context).go('/success_screen?from=weekly');
                   },
                 ),

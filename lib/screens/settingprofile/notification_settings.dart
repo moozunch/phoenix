@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 // import 'package:android_intent_plus/android_intent.dart';
 // import 'package:android_intent_plus/flag.dart';
-import 'package:flutter/services.dart';
+
 import 'package:phoenix/services/notification_service.dart';
 import 'package:phoenix/services/supabase_user_service.dart';
 
@@ -53,13 +53,13 @@ class NotificationSettingsPage extends StatelessWidget {
     }
 
     Future<void> _loadUserSettings() async {
-      final user = await FirebaseAuth.instance.currentUser;
+      final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         final userModel = await SupabaseUserService().getUser(user.uid);
         if (userModel != null) {
           setState(() {
             _reminderType = userModel.routine;
-            _reminderTime = userModel.reminderTime.substring(0,5) ?? '08:00';
+            _reminderTime = userModel.reminderTime.substring(0,5);
           });
         }
       }
@@ -67,7 +67,7 @@ class NotificationSettingsPage extends StatelessWidget {
     }
 
     Future<void> _updateReminderType(String type) async {
-      final user = await FirebaseAuth.instance.currentUser;
+      final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         await SupabaseUserService().updateUser(user.uid, {'routine': type});
         setState(() => _reminderType = type);
@@ -76,7 +76,7 @@ class NotificationSettingsPage extends StatelessWidget {
     }
 
     Future<void> _updateReminderTime(String time) async {
-      final user = await FirebaseAuth.instance.currentUser;
+      final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         await SupabaseUserService().updateUser(user.uid, {'reminder_time': '$time:00'});
         setState(() => _reminderTime = time);
@@ -201,7 +201,7 @@ class NotificationSettingsPage extends StatelessWidget {
                 initialTime: initial,
               );
               if (picked != null) {
-                final formatted = picked.hour.toString().padLeft(2, '0') + ':' + picked.minute.toString().padLeft(2, '0');
+                final formatted = '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
                 await _updateReminderTime(formatted);
               }
             },
@@ -266,7 +266,7 @@ class NotificationSettingsPage extends StatelessWidget {
 class ReminderTypeSelector extends StatefulWidget {
   final String? selected;
   final ValueChanged<String>? onChanged;
-  const ReminderTypeSelector({this.selected, this.onChanged, Key? key}) : super(key: key);
+  const ReminderTypeSelector({this.selected, this.onChanged, super.key});
   @override
   State<ReminderTypeSelector> createState() => _ReminderTypeSelectorState();
 }

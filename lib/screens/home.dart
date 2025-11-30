@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phoenix/core/app_state.dart';
-import 'package:phoenix/screens/edit_journal_page.dart';
 import 'package:phoenix/services/notification_service.dart';
 import 'package:phoenix/widgets/home/home_header.dart';
 import 'package:phoenix/widgets/home/month_header.dart';
@@ -224,8 +223,6 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final today = DateTime.now();
     final days = _generateCalendarDays(_focusedMonth);
-    final todayDate = DateTime(today.year, today.month, today.day);
-    final hasPhotoToday = _photoDays.contains(todayDate);
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -435,7 +432,7 @@ class _HomePageState extends State<HomePage> {
       return const Center(child: Text('No journal entries yet.', style: TextStyle(color: Colors.black38)));
     }
     // Lazy loading: show initial batch, load more on scroll
-    Future<void> _loadMoreJournals() async {
+    Future<void> loadMoreJournals() async {
       if (_isLoadingMore || !_hasMoreJournals) return;
       setState(() => _isLoadingMore = true);
       final user = FirebaseAuth.instance.currentUser;
@@ -456,7 +453,7 @@ class _HomePageState extends State<HomePage> {
     return NotificationListener<ScrollNotification>(
       onNotification: (scrollInfo) {
         if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 100 && !_isLoadingMore && _hasMoreJournals) {
-          _loadMoreJournals();
+          loadMoreJournals();
         }
         return false;
       },

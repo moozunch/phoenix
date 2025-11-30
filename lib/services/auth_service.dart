@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:phoenix/core/app_state.dart';
+import 'package:flutter/foundation.dart';
 
 class AuthService {
   AuthService._();
@@ -21,7 +22,7 @@ class AuthService {
     try {
       await user?.sendEmailVerification();
     } catch (e) {
-      print("Email verification failed: $e");
+      debugPrint("Email verification failed: $e");
       // jangan throw error—biarkan signup tetap lanjut
     }
 
