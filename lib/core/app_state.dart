@@ -50,6 +50,7 @@ class AppState extends ChangeNotifier {
   bool get isNewUser => _isNewUser;
 
   static AppState? _instance;
+  static AppState? get instance => _instance;
   static Future<AppState> create() async {
     if (_instance != null) return _instance!;
     final prefs = await SharedPreferences.getInstance();

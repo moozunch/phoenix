@@ -181,117 +181,97 @@ class AppRouter {
 
     redirect: (context, state) {
       final loc = state.uri.path;
-      final atAuth = loc == '/signin' || loc == '/signup' || loc == '/forgot_password';
       final user = FirebaseAuth.instance.currentUser;
-      final loggedIn = user != null; // authoritative source (instead of appState.isLoggedIn)
-      String? target;
+      final loggedIn = user != null;
+      final atAuth = loc == '/signin' || loc == '/signup' || loc == '/forgot_password';
 
-      // If user not onboarded yet, always go to boarding (except splash root which will redirect below)
-      if (!appState.hasOnboarded) {
-        // Allow splash ('/') to fall through so splash screen itself can handle timing, but block other screens.
-        if (loc == '/' || loc == '/boarding') {
-          DebugLog.d('Router', 'Unauth onboard=false allow $loc');
-          return null; // let splash / boarding render
-        }
-        target = '/boarding';
-        DebugLog.d('Router', 'Redirect $loc -> $target (not onboarded)');
-        return target;
-      }
+      DebugLog.d('Router', 'LOC=$loc | loggedIn=$loggedIn | onboarded=${appState.hasOnboarded} | newUser=${appState.isNewUser}');
 
-      // Logged in flows (using FirebaseAuth directly)
-      if (loggedIn) {
-        // New user still completing routine setup
-        if (appState.isNewUser) {
-          final verified = user.emailVerified;
-          // If email not verified, force user to stay on verify email page until verified
-          if (!verified) {
-            if (loc != '/verify_email' && loc != '/') {
-              target = '/verify_email';
-              DebugLog.d('Router', 'Email not verified redirect $loc -> $target');
-              return target;
-            }
-            DebugLog.d('Router', 'Email not verified allow $loc');
-            return null;
-          }
-          // Prevent navigating back to auth or boarding or splash
-          if (loc == '/' || loc == '/boarding' || atAuth) {
-            target = '/routine_selection';
-            DebugLog.d('Router', 'NewUser redirect $loc -> $target');
-            return target;
-          }
-          // Allow defined onboarding pages + home + upload_reflection
-          const allowed = {
-            '/routine_selection',
-            '/daily_setup',
-            '/weekly_setup',
-            '/success_screen',
-            '/home',
-            '/upload_reflection',
-            '/setting_profile',
-            '/edit_profile',
-            '/account_setting',
-            '/notification_settings',
-            '/display',
-          };
-
-          if (!allowed.contains(loc)) {
-            target = '/routine_selection';
-            DebugLog.d('Router', 'NewUser restrict $loc -> $target');
-            return target;
-          }
-          DebugLog.d('Router', 'NewUser allow $loc');
-          return null;
-        }
-
-        // Fully onboarded user: never show splash/boarding/auth again; send to home if accessing them.
-        if (loc == '/' || loc == '/boarding' || atAuth) {
-          target = '/home';
-          DebugLog.d('Router', 'LoggedIn redirect $loc -> $target');
-          return target;
-        }
-        const allowedLoggedIn = {
-          '/home',
-          '/upload_reflection',
-          '/setting_profile',
-          '/edit_profile',
-          '/account_setting',
-          '/notification_settings',
-          '/display',
-          '/edit_journal',
-        };
-        if (!allowedLoggedIn.contains(loc)) {
-          target = '/home';
-          DebugLog.d('Router', 'LoggedIn restrict $loc -> $target');
-          return target;
-        }
-        DebugLog.d('Router', 'LoggedIn allow $loc');
+      // ────────────────────────────────────────────────
+      // 0. Splash screen → allow
+      // ────────────────────────────────────────────────
+      if (loc == '/') {
         return null;
       }
 
-      // Not logged in but onboarded: allow auth pages; block others.
+      // ────────────────────────────────────────────────
+      // 1. NOT LOGGED IN
+      // ────────────────────────────────────────────────
       if (!loggedIn) {
-        // Allow boarding even after user previously onboarded (marketing / info screen revisit)
-        if (loc == '/boarding') {
-          DebugLog.d('Router', 'NotLoggedIn allow boarding');
-          return null;
-        }
-        if (atAuth) {
-          DebugLog.d('Router', 'Auth screen allowed: $loc');
-          return null;
-        }
-        if (loc == '/') {
-          target = '/boarding';
-          DebugLog.d('Router', 'Root redirect (not logged in) -> $target');
-          return target;
-        }
-        // Any other route force to signin
-        target = '/signin';
-        DebugLog.d('Router', 'NotLoggedIn redirect $loc -> $target');
-        return target;
+        // allow boarding always
+        if (loc == '/boarding') return null;
+
+        // allow auth pages
+        if (atAuth) return null;
+
+        // everything else → boarding
+        return '/boarding';
       }
 
-      DebugLog.d('Router', 'Fall-through allow $loc');
-      return null; // default fall-through
+      // ────────────────────────────────────────────────
+      // 2. LOGGED IN but Email Not Verified
+      // ────────────────────────────────────────────────
+      if (!user.emailVerified) {
+        // only allow verify email
+        if (loc != '/verify_email') {
+          return '/verify_email';
+        }
+        return null;
+      }
+
+      // ────────────────────────────────────────────────
+      // 3. LOGGED IN + NEW USER (HAS NOT COMPLETED ONBOARDING)
+      // ────────────────────────────────────────────────
+      if (appState.isNewUser) {
+        // prevent going to splash, boarding, signin/signup
+        if (loc == '/' || loc == '/boarding' || atAuth) {
+          return '/routine_selection';
+        }
+
+        // allowed onboarding pages
+        const onboardingCore = {
+          '/routine_selection',
+          '/daily_setup',
+          '/weekly_setup',
+        };
+
+        // success screen (with or without ?from=)
+        final isSuccessScreen = loc == '/success_screen';
+
+        if (onboardingCore.contains(loc) || isSuccessScreen) {
+          return null;
+        }
+
+        // block everything else
+        return '/routine_selection';
+      }
+
+      // ────────────────────────────────────────────────
+      // 4. FULLY LOGGED IN USER (NORMAL USER)
+      // ────────────────────────────────────────────────
+      // prevent going back to splash / boarding / signin
+      if (loc == '/' || loc == '/boarding' || atAuth) {
+        return '/home';
+      }
+
+      // pages allowed for normal user
+      const allowedLoggedIn = {
+        '/home',
+        '/upload_reflection',
+        '/setting_profile',
+        '/edit_profile',
+        '/account_setting',
+        '/notification_settings',
+        '/display',
+        '/edit_journal',
+      };
+
+      if (!allowedLoggedIn.contains(loc)) {
+        return '/home';
+      }
+
+      // allow all valid logged-in pages
+      return null;
     },
   );
 }

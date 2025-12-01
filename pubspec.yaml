@@ -64,7 +64,6 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
-  flutter_native_splash: ^2.4.1
   flutter_launcher_icons: ^0.13.1
 
 # For information on the generic Dart part of this file, see the
@@ -103,17 +102,6 @@ flutter:
           weight: 700
         - asset: assets/fonts/PlusJakartaSans-ExtraBold.ttf
           weight: 800
-
-flutter_native_splash:
-  color: "#DF2A00"
-  color_dark: "#DF2A00"
-  android: true
-  ios: true
-  web: false
-
-  android_12:
-    color: "#DF2A00"
-    color_dark: "#DF2A00"
 
 # App icon generation config
 flutter_launcher_icons:
