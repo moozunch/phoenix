@@ -52,17 +52,17 @@ class AppRouter {
       GoRoute(
         path: '/signin',
         name: 'signin',
-        builder: (context, state) => const SignInPage(),
+        pageBuilder: (context, state) => NoTransitionPage(child: const SignInPage()),
       ),
       GoRoute(
         path: '/forgot_password',
         name: 'forgot_password',
-        builder: (context, state) => const ForgotPasswordPage(),
+        pageBuilder: (context, state) => NoTransitionPage(child: const ForgotPasswordPage()),
       ),
       GoRoute(
         path: '/signup',
         name: 'signup',
-        builder: (context, state) => const SignUpPage(),
+        pageBuilder: (context, state) => NoTransitionPage(child: const SignUpPage()),
       ),
       GoRoute(
         path: '/routine_selection',
