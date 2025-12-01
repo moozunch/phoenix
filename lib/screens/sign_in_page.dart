@@ -3,9 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:phoenix/core/app_state.dart';
 import 'package:phoenix/services/auth_service.dart';
 import 'package:phoenix/services/notification_service.dart';
-import 'package:phoenix/widgets/app_button.dart';
 import 'package:phoenix/widgets/app_text_field.dart';
-import 'package:phoenix/widgets/app_scaffold.dart';
+// Removed AppScaffold import
 import 'package:phoenix/widgets/lined_label.dart';
 import 'package:phoenix/widgets/app_link_button.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -22,6 +21,46 @@ class SignInPage extends StatefulWidget {
 }
 
 class _SignInPageState extends State<SignInPage> {
+  // Social sign-in button widget (lowerCamelCase)
+  Widget _socialSignInButton({
+    required String label,
+    required VoidCallback? onPressed,
+    required Widget icon,
+    Color? backgroundColor,
+    Color? borderColor,
+    Color? textColor,
+  }) {
+    return SizedBox(
+      height: 48,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: backgroundColor ?? Colors.grey[100],
+          foregroundColor: textColor ?? Colors.black87,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: borderColor ?? Colors.grey[300]!),
+          ),
+          elevation: 0,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(width: 22, height: 22, child: icon),
+            const SizedBox(width: 12),
+            Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+                color: textColor ?? Colors.black87,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
   final _email = TextEditingController();
   final _password = TextEditingController();
   bool _showPassword = false;
@@ -104,213 +143,213 @@ class _SignInPageState extends State<SignInPage> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-  // Padding handled by AppScaffold
-
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) return;
-        if (context.mounted) context.go('/boarding');
-      },
-      child: AppScaffold(
-        showBack: true,
-        onBack: () => context.go('/boarding'),
-        body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(height: size.height * 0.14),
-          Text(
-            'Welcome back!',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 16),
-          AppTextField(
-            controller: _email,
-            label: 'Email',
-            keyboardType: TextInputType.emailAddress,
-            prefixIcon: const Icon(Icons.email_outlined, color: Colors.black54),
-          ),
-          const SizedBox(height: 16),
-          AppTextField(
-            controller: _password,
-            label: 'Password',
-            obscure: !_showPassword,
-            prefixIcon: const Icon(Icons.lock_outline, color: Colors.black54),
-            suffixIcon: IconButton(
-              onPressed: () => setState(() => _showPassword = !_showPassword),
-              icon: Icon(_showPassword ? Icons.visibility_off : Icons.visibility),
-              color: Colors.black54,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Align(
-            alignment: Alignment.centerRight,
-            child: AppLinkButton(
-              onPressed: () => context.go('/forgot_password'),
-              text: 'Forgot Password?',
-            ),
-          ),
-          const SizedBox(height: 8),
-          AppButton(
-            label: _loading
-                ? 'Signing In...'
-                : _isLocked
-                    ? 'Locked (${_remainingLockSeconds}s)'
-                    : 'Sign In',
-            onPressed: _loading || _isLocked
-                ? null
-                : () async {
-              final ctx = context; // capture before async gaps
-              final router = GoRouter.of(ctx);
-              final messenger = ScaffoldMessenger.of(ctx);
-              final email = _email.text.trim();
-              final pass = _password.text;
-              if (email.isEmpty || pass.isEmpty) {
-                messenger.showSnackBar(
-                  const SnackBar(content: Text('Email and password are required.')),
-                );
-                return;
-              }
-              setState(() => _loading = true);
-              try {
-                final user = await AuthService.instance.signInEmail(email, pass);
-                if (!mounted) return; // ensure state still active
-                if (user != null) {
-                  // Insert user to Supabase if not exists
-                  final supaUser = await SupabaseUserService().getUser(user.uid);
-                  if (supaUser == null) {
-                    await SupabaseUserService().createUser(UserModel(
-                      uid: user.uid,
-                      name: '',
-                      username: '',
-                      profilePicUrl: '',
-                      joinedAt: DateTime.now(),
-                      routine: 'daily',
-                      journalCount: 0,
-                      photoCount: 0,
-                      daysActive: 0,
-                      reminderTime: '08:00:00',
-                    ));
-                  }
-                  // Setup notification based on routine
-                  await _setupRoutineNotification(user.uid);
-                  final state = await AppState.create();
-                  if (!mounted) return;
-                  // Fire-and-forget persistence
-                  state.setLoggedIn(true);
-                  state.setIsNewUser(false);
-                  _resetFailures();
-                  // Navigasi ditunda ke frame berikut supaya aman dari lint async context
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (!mounted) return;
-                    router.go('/home');
-                  });
-                } else {
-                  messenger.showSnackBar(
-                    const SnackBar(content: Text('Authentication failed. Please check your credentials.')),
-                  );
-                  _registerFailure(messenger);
-                }
-              } on FirebaseAuthException catch (e) {
-                if (!mounted) return;
-                final msg = AuthErrorMapper.map(e, AuthContext.signIn);
-                messenger.showSnackBar(SnackBar(content: Text(msg)));
-                _registerFailure(messenger);
-              } catch (e) {
-                if (!mounted) return;
-                messenger.showSnackBar(
-                  const SnackBar(content: Text('An internal error occurred.')),
-                );
-                _registerFailure(messenger);
-              } finally {
-                if (mounted) setState(() => _loading = false);
-              }
-            },
-          ),
-          const SizedBox(height: 12),
-          const LinedLabel('or sign in with'),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: _loading || _isLocked ? null : () async {
-              final ctx = context; // capture BuildContext synchronously
-              final router = GoRouter.of(ctx);
-              final messenger = ScaffoldMessenger.of(ctx);
-              setState(() => _loading = true);
-              try {
-                final user = await AuthService.instance.signInGoogle();
-                if (!mounted) return;
-                if (user != null) {
-                  // Insert user to Supabase if not exists
-                  final supaUser = await SupabaseUserService().getUser(user.uid);
-                  if (supaUser == null) {
-                    await SupabaseUserService().createUser(UserModel(
-                      uid: user.uid,
-                      name: user.displayName ?? '',
-                      username: '',
-                      profilePicUrl: user.photoURL ?? '',
-                      joinedAt: DateTime.now(),
-                      routine: 'daily',
-                      journalCount: 0,
-                      photoCount: 0,
-                      daysActive: 0,
-                      reminderTime: '08:00:00',
-                    ));
-                  }
-                  final state = await AppState.create();
-                  if (!mounted) return;
-                  state.setLoggedIn(true);
-                  state.setIsNewUser(false);
-                  _resetFailures();
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (!mounted) return;
-                    router.go('/home');
-                  });
-                } else {
-                  messenger.showSnackBar(
-                    const SnackBar(content: Text('Google Sign-In failed.')),
-                  );
-                  _registerFailure(messenger);
-                }
-              } on FirebaseAuthException catch (e) {
-                if (!mounted) return;
-                final msg = AuthErrorMapper.map(e, AuthContext.google);
-                messenger.showSnackBar(SnackBar(content: Text(msg)));
-                _registerFailure(messenger);
-              } catch (_) {
-                if (!mounted) return;
-                messenger.showSnackBar(
-                  const SnackBar(content: Text('An error occurred during Google Sign-In.')),
-                );
-                _registerFailure(messenger);
-              } finally {
-                if (mounted) setState(() => _loading = false);
-              }
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SvgPicture.asset(
-                  'assets/images/icon/google_logo_bw.svg',
-                  height: 30,
-                  width: 30,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text("Don't have an account? "),
-              AppLinkButton(
-                onPressed: () => context.go('/signup'),
-                text: 'Sign Up',
+              const SizedBox(height: 60),
+              Text(
+                'Welcome back!',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 40),
+              AppTextField(
+                controller: _email,
+                label: 'Email',
+                keyboardType: TextInputType.emailAddress,
+                prefixIcon: const Icon(Icons.email_outlined, color: Colors.black54),
+              ),
+              const SizedBox(height: 16),
+              AppTextField(
+                controller: _password,
+                label: 'Password',
+                obscure: !_showPassword,
+                prefixIcon: const Icon(Icons.lock_outline, color: Colors.black54),
+                suffixIcon: IconButton(
+                  onPressed: () => setState(() => _showPassword = !_showPassword),
+                  icon: Icon(_showPassword ? Icons.visibility_off : Icons.visibility),
+                  color: Colors.black54,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerRight,
+                child: AppLinkButton(
+                  onPressed: () => context.go('/forgot_password'),
+                  text: 'Forgot Password?',
+                ),
+              ),
+              const SizedBox(height: 24),
+              _socialSignInButton(
+                label: _loading
+                    ? 'Signing In...'
+                    : _isLocked
+                        ? 'Locked (${_remainingLockSeconds}s)'
+                        : 'Sign In',
+                onPressed: _loading || _isLocked
+                    ? null
+                    : () async {
+                  final ctx = context; // capture before async gaps
+                  final router = GoRouter.of(ctx);
+                  final messenger = ScaffoldMessenger.of(ctx);
+                  final email = _email.text.trim();
+                  final pass = _password.text;
+                  if (email.isEmpty || pass.isEmpty) {
+                    messenger.showSnackBar(
+                      const SnackBar(content: Text('Email and password are required.')),
+                    );
+                    return;
+                  }
+                  setState(() => _loading = true);
+                  try {
+                    final user = await AuthService.instance.signInEmail(email, pass);
+                    if (!mounted) return; // ensure state still active
+                    if (user != null) {
+                      // Insert user to Supabase if not exists
+                      final supaUser = await SupabaseUserService().getUser(user.uid);
+                      if (supaUser == null) {
+                        await SupabaseUserService().createUser(UserModel(
+                          uid: user.uid,
+                          name: '',
+                          username: '',
+                          profilePicUrl: '',
+                          joinedAt: DateTime.now(),
+                          routine: 'daily',
+                          journalCount: 0,
+                          photoCount: 0,
+                          daysActive: 0,
+                          reminderTime: '08:00:00',
+                        ));
+                      }
+                      // Setup notification based on routine
+                      await _setupRoutineNotification(user.uid);
+                      final state = await AppState.create();
+                      if (!mounted) return;
+                      // Fire-and-forget persistence
+                      state.setLoggedIn(true);
+                      state.setIsNewUser(false);
+                      _resetFailures();
+                      // Navigasi ditunda ke frame berikut supaya aman dari lint async context
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (!mounted) return;
+                        router.go('/home');
+                      });
+                    } else {
+                      messenger.showSnackBar(
+                        const SnackBar(content: Text('Authentication failed. Please check your credentials.')),
+                      );
+                      _registerFailure(messenger);
+                    }
+                  } on FirebaseAuthException catch (e) {
+                    if (!mounted) return;
+                    final msg = AuthErrorMapper.map(e, AuthContext.signIn);
+                    messenger.showSnackBar(SnackBar(content: Text(msg)));
+                    _registerFailure(messenger);
+                  } catch (e) {
+                    if (!mounted) return;
+                    messenger.showSnackBar(
+                      const SnackBar(content: Text('An internal error occurred.')),
+                    );
+                    _registerFailure(messenger);
+                  } finally {
+                    if (mounted) setState(() => _loading = false);
+                  }
+                },
+                icon: Icon(Icons.login, size: 22, color: Colors.black),
+                backgroundColor: Colors.grey[100],
+                borderColor: Colors.grey[300],
+                textColor: Colors.black87,
+              ),
+              const SizedBox(height: 20),
+              const LinedLabel('or sign in with'),
+              const SizedBox(height: 16),
+              _socialSignInButton(
+                label: 'Sign in with Google',
+                onPressed: _loading || _isLocked
+                    ? null
+                    : () async {
+                  final ctx = context; // capture BuildContext synchronously
+                  final router = GoRouter.of(ctx);
+                  final messenger = ScaffoldMessenger.of(ctx);
+                  setState(() => _loading = true);
+                  try {
+                    final user = await AuthService.instance.signInGoogle();
+                    if (!mounted) return;
+                    if (user != null) {
+                      // Insert user to Supabase if not exists
+                      final supaUser = await SupabaseUserService().getUser(user.uid);
+                      if (supaUser == null) {
+                        await SupabaseUserService().createUser(UserModel(
+                          uid: user.uid,
+                          name: user.displayName ?? '',
+                          username: '',
+                          profilePicUrl: user.photoURL ?? '',
+                          joinedAt: DateTime.now(),
+                          routine: 'daily',
+                          journalCount: 0,
+                          photoCount: 0,
+                          daysActive: 0,
+                          reminderTime: '08:00:00',
+                        ));
+                      }
+                      final state = await AppState.create();
+                      if (!mounted) return;
+                      state.setLoggedIn(true);
+                      state.setIsNewUser(false);
+                      _resetFailures();
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (!mounted) return;
+                        router.go('/home');
+                      });
+                    } else {
+                      messenger.showSnackBar(
+                        const SnackBar(content: Text('Google Sign-In failed.')),
+                      );
+                      _registerFailure(messenger);
+                    }
+                  } on FirebaseAuthException catch (e) {
+                    if (!mounted) return;
+                    final msg = AuthErrorMapper.map(e, AuthContext.google);
+                    messenger.showSnackBar(SnackBar(content: Text(msg)));
+                    _registerFailure(messenger);
+                  } catch (_) {
+                    if (!mounted) return;
+                    messenger.showSnackBar(
+                      const SnackBar(content: Text('An error occurred during Google Sign-In.')),
+                    );
+                    _registerFailure(messenger);
+                  } finally {
+                    if (mounted) setState(() => _loading = false);
+                  }
+                },
+                icon: SvgPicture.asset('assets/images/icon/google_logo_bw.svg'),
+              ),
+              const SizedBox(height: 12),
+              _socialSignInButton(
+                label: 'Sign in with Apple',
+                onPressed: null, // UI only, no backend
+                icon: Icon(Icons.apple, size: 22, color: Colors.black),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Don't have an account? "),
+                  AppLinkButton(
+                    onPressed: () => context.go('/signup'),
+                    text: 'Sign Up',
+                  ),
+                ],
               ),
             ],
           ),
-          const SizedBox(height: 24),
-        ],
         ),
       ),
     );
