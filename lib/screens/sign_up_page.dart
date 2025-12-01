@@ -93,7 +93,16 @@ class _SignUpPageState extends State<SignUpPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 60),
+                const SizedBox(height: 16),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.black87),
+                    onPressed: () => context.go('/signin'),
+                    tooltip: 'Back',
+                  ),
+                ),
+                const SizedBox(height: 16),
                 Text(
                   'Create an account',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
@@ -209,10 +218,10 @@ class _SignUpPageState extends State<SignUpPage> {
                       if (mounted) setState(() => _loading = false);
                     }
                   },
-                  icon: Icon(Icons.person_add, size: 22, color: Colors.black),
-                  backgroundColor: Colors.grey[100],
-                  borderColor: Colors.grey[300],
-                  textColor: Colors.black87,
+                  icon: Icon(Icons.person_add, size: 22, color: Colors.white),
+                  backgroundColor: AppPalette.primary,
+                  borderColor: AppPalette.primary,
+                  textColor: Colors.white,
                 ),
                 const SizedBox(height: 12),
                 const LinedLabel('or sign up with'),

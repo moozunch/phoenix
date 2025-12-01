@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:phoenix/styles/app_palette.dart';
 
 class VerifyEmailPage extends StatefulWidget {
   const VerifyEmailPage({super.key});
@@ -69,39 +70,78 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Verify Email'),
-        automaticallyImplyLeading: false,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Email Verification',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'We have sent a verification link to your email address. Please open the link to verify your account.',
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _checking ? null : _reloadAndCheck,
-              child: Text(_checking ? 'Checking...' : 'I have verified'),
-            ),
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: _resending ? null : _resend,
-              child: Text(_resending ? 'Resending...' : 'Resend verification email'),
-            ),
-            const Spacer(),
-            TextButton(
-              onPressed: () => context.go('/signin'),
-              child: const Text('Back to Sign In'),
-            ),
-          ],
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 16),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.black87),
+                  onPressed: () => context.go('/signin'),
+                  tooltip: 'Back',
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Email Verification',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'We have sent a verification link to your email address. Please open the link to verify your account.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black87),
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppPalette.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(color: AppPalette.primary),
+                    ),
+                    elevation: 0,
+                  ),
+                  onPressed: _checking ? null : _reloadAndCheck,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Text(
+                      _checking ? 'Checking...' : 'I have verified',
+                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: _resending ? null : _resend,
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppPalette.primary,
+                    textStyle: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  child: Text(_resending ? 'Resending...' : 'Resend verification email'),
+                ),
+              ),
+              const SizedBox(height: 32),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
+import 'package:phoenix/styles/app_palette.dart';
+import 'package:phoenix/widgets/app_text_field.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -19,6 +21,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     _email.dispose();
     super.dispose();
   }
+
+  bool _showSpamHint = false;
 
   Future<void> _submit() async {
     final email = _email.text.trim();
@@ -52,12 +56,14 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('If an account exists, a reset link has been sent.')),
       );
+      setState(() => _showSpamHint = true);
     } catch (_) {
       if (!mounted) return;
       // Same generic message to avoid user enumeration.
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('If an account exists, a reset link has been sent.')),
       );
+      setState(() => _showSpamHint = true);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -66,46 +72,90 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Reset Password'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Forgot your password?',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'Enter your email address and we will send you a link to reset your password.',
-            ),
-            const SizedBox(height: 24),
-            TextField(
-              controller: _email,
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 16),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.black87),
+                  onPressed: () => context.go('/signin'),
+                  tooltip: 'Back',
+                ),
               ),
-              enabled: !_loading,
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _loading ? null : _submit,
-                child: Text(_loading ? 'Sending...' : 'Send Reset Link'),
+              const SizedBox(height: 16),
+              Text(
+                'Forgot your password?',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black87,
+                ),
               ),
-            ),
-            const Spacer(),
-            TextButton(
-              onPressed: () => context.go('/signin'),
-              child: const Text('Back to Sign In'),
-            )
-          ],
+              const SizedBox(height: 12),
+              Text(
+                'Enter your email address and we will send you a link to reset your password.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black87),
+              ),
+              const SizedBox(height: 32),
+              AppTextField(
+                controller: _email,
+                label: 'Email',
+                keyboardType: TextInputType.emailAddress,
+                prefixIcon: const Icon(Icons.email_outlined, color: Colors.black54),
+                // No need for obscure, suffixIcon, etc.
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppPalette.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(color: AppPalette.primary),
+                    ),
+                    elevation: 0,
+                  ),
+                  onPressed: _loading ? null : _submit,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Text(
+                      _loading ? 'Sending...' : 'Send Reset Link',
+                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                    ),
+                  ),
+                ),
+              ),
+              if (_showSpamHint) ...[
+                const SizedBox(height: 8),
+                Text(
+                  'Check your spam folder if the email does not arrive.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.black38, fontSize: 13),
+                ),
+              ],
+              const SizedBox(height: 32),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () => context.go('/signin'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppPalette.primary,
+                      textStyle: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    child: const Text('Back to Sign In'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

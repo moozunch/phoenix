@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:phoenix/core/app_state.dart';
 import 'package:phoenix/services/auth_service.dart';
 import 'package:phoenix/services/notification_service.dart';
+import 'package:phoenix/styles/app_palette.dart';
 import 'package:phoenix/widgets/app_text_field.dart';
 // Removed AppScaffold import
 import 'package:phoenix/widgets/lined_label.dart';
@@ -151,7 +152,16 @@ class _SignInPageState extends State<SignInPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 60),
+              const SizedBox(height: 16),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.black87),
+                  onPressed: () => context.go('/boarding'),
+                  tooltip: 'Back',
+                ),
+              ),
+              const SizedBox(height: 16),
               Text(
                 'Welcome back!',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -262,10 +272,10 @@ class _SignInPageState extends State<SignInPage> {
                     if (mounted) setState(() => _loading = false);
                   }
                 },
-                icon: Icon(Icons.login, size: 22, color: Colors.black),
-                backgroundColor: Colors.grey[100],
-                borderColor: Colors.grey[300],
-                textColor: Colors.black87,
+                icon: Icon(Icons.login, size: 22, color: Colors.white),
+                backgroundColor: AppPalette.primary,
+                borderColor: AppPalette.primary,
+                textColor: Colors.white,
               ),
               const SizedBox(height: 20),
               const LinedLabel('or sign in with'),
