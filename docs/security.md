@@ -3,10 +3,9 @@
 This document outlines current and planned security measures for the Phoenix app across authentication, data access, and abuse prevention.
 
 ## 1. Authentication Lifecycle
-- Current State: Email/password + Google Sign-In using Firebase Auth; email verification gate in place (`/verify_email`); centralized error mapping via `AuthErrorMapper`.
-- Auth State Source of Truth: `FirebaseAuth.instance.authStateChanges()` drives `AppState.isLoggedIn` (manual persistence deprecated).
-- Planned Enhancements:
-  - Multi-Factor Authentication (MFA) for sensitive accounts (phone SMS second factor or TOTP via custom provider).
+ Current State: Email/password + Google Sign-In using Firebase Auth; email verification is required before accessing main features (`/verify_email`); centralized error mapping via `AuthErrorMapper`.
+ Auth State Source of Truth: `FirebaseAuth.instance.authStateChanges()` drives `AppState.isLoggedIn` (manual persistence deprecated).
+ Planned Enhancements:
   - Re-authentication before critical operations (password change, email change, account deletion).
 
 ### 1.1 Email Verification Gate
@@ -71,13 +70,11 @@ Guiding Principle: Principle of Least Privilege.
   ```
 - Future: Add size/type validation (MIME whitelist) using Functions or Storage Rules metadata checks.
 
-## 5. Multi-Factor Authentication (MFA)
-- Enable SMS second factor in Firebase console.
-- Flow:
-  1. User signs in primary factor.
-  2. Enroll or verify second factor via `multiFactor.enroll` with phone.
-  3. On sign-in, prompt `resolveSignIn` for second factor assertion.
-- For TOTP: Not natively supported; can integrate an external TOTP provider—store shared secret encrypted in Firestore (consider envelope encryption using Cloud KMS).
+## 5. Re-authentication
+ Use `reauthenticateWithCredential` before:
+ - Changing password/email.
+ - Deleting account.
+ Expose a helper `AuthService.reauthenticate(password)` or credential aggregator for Google accounts.
 
 ## 6. Re-authentication
 Use `reauthenticateWithCredential` before:

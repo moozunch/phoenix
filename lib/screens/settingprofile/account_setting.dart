@@ -16,7 +16,7 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
 
   final emailCtrl = TextEditingController();
   final passwordCtrl = TextEditingController();
-  final currentPasswordCtrl = TextEditingController(); // ADDED
+  final currentPasswordCtrl = TextEditingController();
 
   bool loading = false;
 
@@ -26,7 +26,6 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
     final user = FirebaseAuth.instance.currentUser;
     emailCtrl.text = user?.email ?? '';
 
-    // Listener untuk tombol save
     emailCtrl.addListener(_updateButtonState);
     passwordCtrl.addListener(_updateButtonState);
     currentPasswordCtrl.addListener(_updateButtonState);
@@ -43,7 +42,6 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
     super.dispose();
   }
 
-  // Tombol Save Changes hanya aktif jika email ada, password valid, dan current password diisi jika ingin ganti password
   bool get _canSave {
     final emailFilled = emailCtrl.text.trim().isNotEmpty;
     final passwordValid = passwordCtrl.text.isEmpty || passwordCtrl.text.length >= 6;
@@ -51,9 +49,7 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
     return emailFilled && passwordValid && currentPasswordValid;
   }
 
-  void _updateButtonState() {
-    setState(() {});
-  }
+  void _updateButtonState() => setState(() {});
 
   @override
   Widget build(BuildContext context) {
@@ -77,12 +73,12 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
           onPressed: () => context.pop('/setting_profile'),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: SingleChildScrollView(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              // EMAIL
+              // Editable fields
               _editableMenuItem(
                 title: "Change Email",
                 controller: emailCtrl,
@@ -90,8 +86,6 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
                 theme: theme,
               ),
               const SizedBox(height: 12),
-
-              // PASSWORD
               _editableMenuItem(
                 title: "Change Password",
                 controller: passwordCtrl,
@@ -100,8 +94,6 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
                 theme: theme,
               ),
               const SizedBox(height: 12),
-
-              // CURRENT PASSWORD
               _editableMenuItem(
                 title: "Current Password *",
                 controller: currentPasswordCtrl,
@@ -111,13 +103,30 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
               ),
               const SizedBox(height: 20),
 
-              // SAVE BUTTON
+              // Gender & Birth Date
+              _menuItem(
+                title: "Gender",
+                value: gender,
+                onTap: _selectGender,
+                theme: theme,
+              ),
+              _menuItem(
+                title: "Birth Date",
+                value: birthDate == null
+                    ? "Select"
+                    : "${birthDate!.year}.${birthDate!.month.toString().padLeft(2, '0')}.${birthDate!.day.toString().padLeft(2, '0')}",
+                onTap: _selectBirthDate,
+                theme: theme,
+              ),
+              const SizedBox(height: 30),
+
+              // Save Button
               ElevatedButton(
                 onPressed: (_canSave && !loading) ? _saveChanges : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: (_canSave && !loading)
                       ? AppPalette.primary
-                      : theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                      : theme.colorScheme.onSurface.withOpacity(0.3),
                   minimumSize: const Size.fromHeight(48),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -136,23 +145,7 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
               ),
               const SizedBox(height: 20),
 
-              // ORIGINAL MENU ITEMS
-              _menuItem(
-                title: "Gender",
-                value: gender,
-                onTap: () => _selectGender(),
-                theme: theme,
-              ),
-              _menuItem(
-                title: "Birth Date",
-                value: birthDate == null
-                    ? "Select"
-                    : "${birthDate!.year}.${birthDate!.month.toString().padLeft(2, '0')}.${birthDate!.day.toString().padLeft(2, '0')}",
-                onTap: () => _selectBirthDate(),
-                theme: theme,
-              ),
-              const SizedBox(height: 30),
-
+              // Delete Account
               GestureDetector(
                 onTap: () {},
                 child: const Text(
@@ -341,7 +334,6 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
 
     if (newEmail.isEmpty) return;
 
-    // Validasi password baru & current password
     if (newPassword.isNotEmpty && newPassword.length < 6) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -363,7 +355,6 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return;
 
-      // Reauthenticate jika ada password baru
       if (newPassword.isNotEmpty) {
         final cred = EmailAuthProvider.credential(email: user.email!, password: currentPassword);
         await user.reauthenticateWithCredential(cred);

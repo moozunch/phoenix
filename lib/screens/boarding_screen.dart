@@ -21,9 +21,7 @@ class BoardingScreen extends StatelessWidget {
     final logoHeight = (media.width * kBoardingLogoScale).clamp(kBoardingLogoMin, kBoardingLogoMax);
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SizedBox(
-        width: double.infinity,
-        height: double.infinity,
+      body: SingleChildScrollView(
         child: Column(
           children: [
             // Top gradient background
