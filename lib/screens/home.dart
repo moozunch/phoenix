@@ -224,7 +224,7 @@ class _HomePageState extends State<HomePage> {
     final today = DateTime.now();
     final days = _generateCalendarDays(_focusedMonth);
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _fetchProfileAndJournals,
@@ -270,7 +270,10 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(height: 6),
         Text(
           _bio.isNotEmpty ? _bio : '-',
-          style: const TextStyle(fontSize: 13, color: Colors.black54),
+          style: TextStyle(
+            fontSize: 12,
+            color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.6),
+          ),
         ),
       ],
     );
@@ -305,14 +308,21 @@ class _HomePageState extends State<HomePage> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Today's Entry",
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).textTheme.bodyLarge?.color,
+            ),
           ),
           const SizedBox(height: 2),
-          const Text(
+            Text(
             "Goodjob, your entry today will make yourself proud tomorrow.",
-            style: TextStyle(fontSize: 12, color: Colors.black54),
+            style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context).textTheme.bodyMedium?.color?..withValues(alpha: 0.6),
+            ),
           ),
           const SizedBox(height: 8),
           GestureDetector(
@@ -351,7 +361,7 @@ class _HomePageState extends State<HomePage> {
                   width: double.infinity,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    color: Colors.grey.shade200,
+                    color: Theme.of(context).cardColor,
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
@@ -396,14 +406,17 @@ class _HomePageState extends State<HomePage> {
               Expanded(
                 child: Text(
                   journal.headline.isNotEmpty ? journal.headline : journal.body,
-                  style: const TextStyle(fontSize: 12, color: Colors.black87),
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.bodyMedium?.color),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               Text(
                 "${journal.date.day.toString().padLeft(2, '0')} ${_monthName(journal.date.month)} ${journal.date.year}",
-                style: const TextStyle(fontSize: 11, color: Colors.black45),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.6),
+                  )
               ),
             ],
           ),
@@ -429,7 +442,15 @@ class _HomePageState extends State<HomePage> {
       return const Center(child: CircularProgressIndicator());
     }
     if (_journals.isEmpty) {
-      return const Center(child: Text('No journal entries yet.', style: TextStyle(color: Colors.black38)));
+      return Center(
+        child: Text(
+          'No journal entries yet.',
+          style: TextStyle(
+              color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.4),
+          ),
+        ),
+      );
+
     }
     // Lazy loading: show initial batch, load more on scroll
     Future<void> loadMoreJournals() async {

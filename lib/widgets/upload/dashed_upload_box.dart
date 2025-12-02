@@ -6,6 +6,7 @@ class DashedUploadBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 40),
@@ -29,17 +30,17 @@ class DashedUploadBox extends StatelessWidget {
                 color: AppPalette.primary, size: 40),
           ),
           const SizedBox(height: 10),
-          const Text(
+           Text(
             "Snap or upload your photo",
-            style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-                color: Colors.black87),
+          style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: cs.onSurface),
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             "Take a selfie to start your reflection day",
-            style: TextStyle(color: Colors.black54),
+            style: TextStyle(color: cs.onSurfaceVariant),
           ),
         ],
       ),

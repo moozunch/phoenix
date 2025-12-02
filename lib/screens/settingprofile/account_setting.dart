@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phoenix/styles/app_palette.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class AccountSettingPage extends StatefulWidget{
+class AccountSettingPage extends StatefulWidget {
   const AccountSettingPage({super.key});
 
   @override
@@ -13,87 +14,225 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
   String gender = "Male";
   DateTime? birthDate;
 
+  final emailCtrl = TextEditingController();
+  final passwordCtrl = TextEditingController();
+  final currentPasswordCtrl = TextEditingController(); // ADDED
+
+  bool loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final user = FirebaseAuth.instance.currentUser;
+    emailCtrl.text = user?.email ?? '';
+
+    // Listener untuk tombol save
+    emailCtrl.addListener(_updateButtonState);
+    passwordCtrl.addListener(_updateButtonState);
+    currentPasswordCtrl.addListener(_updateButtonState);
+  }
+
+  @override
+  void dispose() {
+    emailCtrl.removeListener(_updateButtonState);
+    passwordCtrl.removeListener(_updateButtonState);
+    currentPasswordCtrl.removeListener(_updateButtonState);
+    emailCtrl.dispose();
+    passwordCtrl.dispose();
+    currentPasswordCtrl.dispose();
+    super.dispose();
+  }
+
+  // Tombol Save Changes hanya aktif jika email ada, password valid, dan current password diisi jika ingin ganti password
+  bool get _canSave {
+    final emailFilled = emailCtrl.text.trim().isNotEmpty;
+    final passwordValid = passwordCtrl.text.isEmpty || passwordCtrl.text.length >= 6;
+    final currentPasswordValid = passwordCtrl.text.isEmpty || currentPasswordCtrl.text.isNotEmpty;
+    return emailFilled && passwordValid && currentPasswordValid;
+  }
+
+  void _updateButtonState() {
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
-        title: const Text("Account",
+        title: Text(
+          "Account",
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: Colors.black,
+            color: theme.textTheme.titleLarge!.color,
           ),
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: theme.iconTheme.color),
           onPressed: () => context.pop('/setting_profile'),
         ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            _menuItem(
-              title: "Change Email",
-              value: "Walid@gmail.com",
-              onTap: () {},
-            ),
-
-            _menuItem(
-              title: "Change Password",
-              onTap: () {},
-            ),
-
-            _menuItem(
-              title: "Gender",
-              value: gender,
-              onTap: () => _selectGender(),
-            ),
-
-            _menuItem(
-              title: "Birth Date",
-              value: birthDate == null
-                  ? "Select"
-                  : "${birthDate!.year}.${birthDate!.month.toString().padLeft(
-                  2, '0')}.${birthDate!.day.toString().padLeft(2, '0')}",
-              onTap: () => _selectBirthDate(),
-            ),
-
-            const SizedBox(height: 30),
-
-            GestureDetector(
-              onTap: () {},
-              child: const Text(
-                "Delete Account",
-                style: TextStyle(
-                    color: Colors.red, fontWeight: FontWeight.bold),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // EMAIL
+              _editableMenuItem(
+                title: "Change Email",
+                controller: emailCtrl,
+                hint: "Enter your email",
+                theme: theme,
               ),
-            ),
-          ],
+              const SizedBox(height: 12),
+
+              // PASSWORD
+              _editableMenuItem(
+                title: "Change Password",
+                controller: passwordCtrl,
+                hint: "Enter new password",
+                obscureText: true,
+                theme: theme,
+              ),
+              const SizedBox(height: 12),
+
+              // CURRENT PASSWORD
+              _editableMenuItem(
+                title: "Current Password *",
+                controller: currentPasswordCtrl,
+                hint: "Enter current password",
+                obscureText: true,
+                theme: theme,
+              ),
+              const SizedBox(height: 20),
+
+              // SAVE BUTTON
+              ElevatedButton(
+                onPressed: (_canSave && !loading) ? _saveChanges : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: (_canSave && !loading)
+                      ? AppPalette.primary
+                      : theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                  minimumSize: const Size.fromHeight(48),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: loading
+                    ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                )
+                    : const Text("Save Changes"),
+              ),
+              const SizedBox(height: 20),
+
+              // ORIGINAL MENU ITEMS
+              _menuItem(
+                title: "Gender",
+                value: gender,
+                onTap: () => _selectGender(),
+                theme: theme,
+              ),
+              _menuItem(
+                title: "Birth Date",
+                value: birthDate == null
+                    ? "Select"
+                    : "${birthDate!.year}.${birthDate!.month.toString().padLeft(2, '0')}.${birthDate!.day.toString().padLeft(2, '0')}",
+                onTap: () => _selectBirthDate(),
+                theme: theme,
+              ),
+              const SizedBox(height: 30),
+
+              GestureDetector(
+                onTap: () {},
+                child: const Text(
+                  "Delete Account",
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _menuItem(
-      {required String title, String? value, required Function() onTap}) {
+  Widget _editableMenuItem({
+    required String title,
+    required TextEditingController controller,
+    required ThemeData theme,
+    String? hint,
+    bool obscureText = false,
+  }) {
     return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF7F7F7),
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(13),
       ),
       child: ListTile(
-        title: Text(title),
+        title: Text(
+          title,
+          style: TextStyle(color: theme.textTheme.bodyLarge!.color),
+        ),
+        subtitle: TextField(
+          controller: controller,
+          obscureText: obscureText,
+          style: TextStyle(color: theme.textTheme.bodyMedium!.color),
+          decoration: InputDecoration(
+            hintText: hint,
+            border: InputBorder.none,
+            isDense: true,
+            contentPadding: const EdgeInsets.symmetric(vertical: 8),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _menuItem({
+    required String title,
+    String? value,
+    required Function() onTap,
+    required ThemeData theme,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(13),
+      ),
+      child: ListTile(
+        title: Text(
+          title,
+          style: TextStyle(color: theme.textTheme.bodyLarge!.color),
+        ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if(value != null) Text(value),
+            if (value != null)
+              Text(
+                value,
+                style: TextStyle(
+                  color: theme.textTheme.bodyMedium!.color,
+                ),
+              ),
             const SizedBox(width: 4),
-            const Icon(Icons.arrow_forward_ios, size: 16),
+            Icon(Icons.arrow_forward_ios, size: 16, color: theme.iconTheme.color),
           ],
         ),
         onTap: onTap,
@@ -102,54 +241,52 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
   }
 
   void _selectGender() {
+    final theme = Theme.of(context);
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) =>
-          Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      builder: (_) => Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 5,
+              decoration: BoxDecoration(
+                color: theme.dividerColor,
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 40,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+            const SizedBox(height: 12),
+            _genderOption("Male", theme),
+            _divider(theme),
+            _genderOption("Female", theme),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                "Cancel",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: AppPalette.primary,
                 ),
-                const SizedBox(height: 12),
-
-                _genderOption("Male"),
-                _divider(),
-                _genderOption("Female"),
-
-                const SizedBox(height: 12),
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text(
-                    "Cancel",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: AppPalette.primary,
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _genderOption(String label) {
+  Widget _genderOption(String label, ThemeData theme) {
     return InkWell(
       onTap: () {
         setState(() => gender = label);
@@ -160,17 +297,18 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
         width: double.infinity,
         child: Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
+            color: theme.textTheme.bodyLarge!.color,
           ),
         ),
       ),
     );
   }
 
-
   void _selectBirthDate() async {
+    final theme = Theme.of(context);
     final date = await showDatePicker(
       context: context,
       initialDate: DateTime(2000),
@@ -178,30 +316,76 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
       lastDate: DateTime.now(),
       builder: (context, child) {
         return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: AppPalette.primary,
-              onPrimary: Colors.white,
-              onSurface: Colors.black,
-            ),
-            datePickerTheme: const DatePickerThemeData(
-              backgroundColor: Colors.white,
+          data: theme.copyWith(
+            datePickerTheme: DatePickerThemeData(
+              backgroundColor: theme.colorScheme.surface,
             ),
           ),
           child: child!,
         );
       },
     );
-
-    if (date != null) {
-      setState(() => birthDate = date);
-    }
+    if (date != null) setState(() => birthDate = date);
   }
 
-  Widget _divider() =>
-      Divider(
-        height: 1,
-        thickness: 1,
-        color: Colors.grey.shade200,
+  Widget _divider(ThemeData theme) => Divider(
+    height: 1,
+    thickness: 1,
+    color: theme.dividerColor,
+  );
+
+  Future<void> _saveChanges() async {
+    final newEmail = emailCtrl.text.trim();
+    final newPassword = passwordCtrl.text.trim();
+    final currentPassword = currentPasswordCtrl.text;
+
+    if (newEmail.isEmpty) return;
+
+    // Validasi password baru & current password
+    if (newPassword.isNotEmpty && newPassword.length < 6) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Password must be at least 6 characters")),
       );
+      return;
+    }
+    if (newPassword.isNotEmpty && currentPassword.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Current password is required to change password")),
+      );
+      return;
+    }
+
+    setState(() => loading = true);
+
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      // Reauthenticate jika ada password baru
+      if (newPassword.isNotEmpty) {
+        final cred = EmailAuthProvider.credential(email: user.email!, password: currentPassword);
+        await user.reauthenticateWithCredential(cred);
+        await user.updatePassword(newPassword);
+      }
+
+      if (newEmail != user.email) await user.verifyBeforeUpdateEmail(newEmail);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Account updated successfully")),
+      );
+
+      passwordCtrl.clear();
+      currentPasswordCtrl.clear();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to update: $e")),
+      );
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
+  }
 }

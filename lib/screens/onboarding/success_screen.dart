@@ -37,10 +37,11 @@ class SuccessScreen extends StatelessWidget {
             ),
           ),
 
-          // MAIN CONTENT (CENTERED)
+          // MAIN CONTENT + FIXED FOOTER ALIGNMENT
           Column(
             children: [
               SizedBox(height: size.height * 0.18),
+
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -89,86 +90,93 @@ class SuccessScreen extends StatelessWidget {
                 ),
               ),
 
-              // FOOTER
-              OnboardingFooter(
-                activeIndex: 2,
-                onSkip: () {
-                  Navigator.of(context).maybePop();
-                },
-                onNext: () async {
-                  final state = await AppState.create();
-                  await state.setIsNewUser(false);
+              // 🔥 FOOTER DIPINDAH KE SINI (bukan pakai Positioned)
+              Padding(
+                padding: const EdgeInsets.only(
+                  bottom: 28,
+                  left: 16,
+                  right: 16,
+                ),
+                child: OnboardingFooter(
+                  activeIndex: 2,
+                  onSkip: () {
+                    Navigator.of(context).maybePop();
+                  },
+                  onNext: () async {
+                    final state = await AppState.create();
+                    await state.setIsNewUser(false);
 
-                  final user = FirebaseAuth.instance.currentUser;
-                  if (user != null) {
-                    final appState = await AppState.create();
-                    final routine = appState.routine ?? 'daily';
-                    String reminderTime = routine == 'weekly'
-                        ? '08:00:00'
-                        : appState.reminderTime ?? '08:00:00';
+                    final user = FirebaseAuth.instance.currentUser;
+                    if (user != null) {
+                      final appState = await AppState.create();
+                      final routine = appState.routine ?? 'daily';
+                      String reminderTime = routine == 'weekly'
+                          ? '08:00:00'
+                          : appState.reminderTime ?? '08:00:00';
 
-                    String name = user.displayName ?? '';
-                    await SupabaseUserService().createUser(
-                      UserModel(
-                        uid: user.uid,
-                        name: name,
-                        username: '',
-                        profilePicUrl: user.photoURL ?? '',
-                        joinedAt: DateTime.now(),
-                        routine: routine,
-                        journalCount: 0,
-                        photoCount: 0,
-                        daysActive: 0,
-                        reminderTime: reminderTime,
-                      ),
-                    );
+                      String name = user.displayName ?? '';
+                      await SupabaseUserService().createUser(
+                        UserModel(
+                          uid: user.uid,
+                          name: name,
+                          username: '',
+                          profilePicUrl: user.photoURL ?? '',
+                          joinedAt: DateTime.now(),
+                          routine: routine,
+                          journalCount: 0,
+                          photoCount: 0,
+                          daysActive: 0,
+                          reminderTime: reminderTime,
+                        ),
+                      );
 
-                    final notif = NotificationService();
-                    await notif.initialize();
-                    await notif.cancelAll();
+                      final notif = NotificationService();
+                      await notif.initialize();
+                      await notif.cancelAll();
 
-                    final quotes = [
-                      "Small steps every day lead to big changes.",
-                      "You are capable of amazing things.",
-                      "Progress, not perfection.",
-                      "Consistency is the key to success.",
-                      "Believe in yourself and all that you are.",
-                      "Every day is a new beginning.",
-                      "Your future is created by what you do today."
-                    ];
-                    final quote = (quotes..shuffle()).first;
+                      final quotes = [
+                        "Small steps every day lead to big changes.",
+                        "You are capable of amazing things.",
+                        "Progress, not perfection.",
+                        "Consistency is the key to success.",
+                        "Believe in yourself and all that you are.",
+                        "Every day is a new beginning.",
+                        "Your future is created by what you do today."
+                      ];
+                      final quote = (quotes..shuffle()).first;
 
-                    int hour = 8;
-                    int minute = 0;
-                    final parts = reminderTime.split(':');
-                    if (parts.length >= 2) {
-                      hour = int.tryParse(parts[0]) ?? 8;
-                      minute = int.tryParse(parts[1]) ?? 0;
+                      int hour = 8;
+                      int minute = 0;
+                      final parts = reminderTime.split(':');
+                      if (parts.length >= 2) {
+                        hour = int.tryParse(parts[0]) ?? 8;
+                        minute = int.tryParse(parts[1]) ?? 0;
+                      }
+
+                      if (routine == 'daily') {
+                        await notif.scheduleDailyNotification(
+                          id: 1,
+                          title: 'Ready to log today?',
+                          body: quote,
+                          hour: hour,
+                          minute: minute,
+                        );
+                      } else if (routine == 'weekly') {
+                        await notif.scheduleWeeklyNotification(
+                          id: 2,
+                          title: 'Ready to log this week?',
+                          body: quote,
+                          weekday: 1,
+                          hour: hour,
+                          minute: minute,
+                        );
+                      }
                     }
 
-                    if (routine == 'daily') {
-                      await notif.scheduleDailyNotification(
-                        id: 1,
-                        title: 'Ready to log today?',
-                        body: quote,
-                        hour: hour,
-                        minute: minute,
-                      );
-                    } else if (routine == 'weekly') {
-                      await notif.scheduleWeeklyNotification(
-                        id: 2,
-                        title: 'Ready to log this week?',
-                        body: quote,
-                        weekday: 1,
-                        hour: hour,
-                        minute: minute,
-                      );
-                    }
-                  }
-
-                  if (!context.mounted) return;
-                  GoRouter.of(context).go('/home');
-                },
+                    if (!context.mounted) return;
+                    GoRouter.of(context).go('/home');
+                  },
+                ),
               ),
             ],
           ),

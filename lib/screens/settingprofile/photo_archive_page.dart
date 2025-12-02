@@ -41,77 +41,94 @@ class _PhotoArchivePageState extends State<PhotoArchivePage> {
       expand: false,
       builder: (context, scrollController) {
         return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,    // ← Colors.white
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 18),
+
+              // drag indicator
               Center(
                 child: Container(
                   width: 38,
                   height: 5,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: Theme.of(context).dividerColor,   // ← Colors.grey.shade300
                     borderRadius: BorderRadius.circular(3),
                   ),
                 ),
               ),
+
               const SizedBox(height: 18),
+
+              // title
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Text('Archived', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  children: [
+                    Text(
+                      'Archived',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
               ),
+
               Expanded(
                 child: loading
-                  ? const Center(child: CircularProgressIndicator())
-                  : photoUrls.isEmpty
-                    ? const Center(child: Text('No photos uploaded yet.'))
+                    ? const Center(child: CircularProgressIndicator())
+                    : photoUrls.isEmpty
+                    ? Center(
+                  child: Text(
+                    'No photos uploaded yet.',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                )
                     : GridView.builder(
-                        controller: scrollController,
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 6,
-                          mainAxisSpacing: 6,
+                  controller: scrollController,
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 6,
+                    mainAxisSpacing: 6,
+                  ),
+                  itemCount: photoUrls.length,
+                  itemBuilder: (context, idx) {
+                    return GestureDetector(
+                      onLongPress: () async {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (ctx) => ConfirmDialog(
+                            message: 'Delete this photo?',
+                            confirmText: 'Delete',
+                            cancelText: 'Cancel',
+                          ),
+                        );
+                        if (confirm == true) {
+                          setState(() => loading = true);
+                          await SupabaseJournalService().deletePhotoByUrl(photoUrls[idx]);
+                          await _fetchPhotos();
+                        }
+                      },
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          photoUrls[idx],
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
                         ),
-                        itemCount: photoUrls.length,
-                        itemBuilder: (context, idx) {
-                          return GestureDetector(
-                            onLongPress: () async {
-                              final confirm = await showDialog<bool>(
-                                context: context,
-                                builder: (ctx) => ConfirmDialog(
-                                  message: 'Delete this photo?',
-                                  confirmText: 'Delete',
-                                  cancelText: 'Cancel',
-                                ),
-                              );
-                              if (confirm == true) {
-                                setState(() => loading = true);
-                                await SupabaseJournalService().deletePhotoByUrl(photoUrls[idx]);
-                                await _fetchPhotos();
-                              }
-                            },
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.network(
-                                photoUrls[idx],
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                height: double.infinity,
-                              ),
-                            ),
-                          );
-                        },
                       ),
+                    );
+                  },
+                ),
               ),
             ],
           ),

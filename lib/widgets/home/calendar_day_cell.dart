@@ -22,40 +22,49 @@ class CalendarDayCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color bg;
-    Color textColor = Colors.black87;
+    final cs = Theme.of(context).colorScheme;
+
+    Color bg = cs.surfaceVariant;
+    Color textColor = cs.onSurface;
     Border? border;
+
     if (isOutside) {
-      bg = Colors.white;
-      textColor = Colors.black26;
+      bg = cs.surface.withValues(alpha: 0.3);
+      textColor = cs.onSurface.withValues(alpha: 0.3);
     } else if (hasPhoto) {
-      bg = AppPalette.primary;
-      textColor = Colors.white;
+      bg = cs.primary;
+      textColor = cs.onPrimary;
     } else if (isLogged) {
-      bg = AppPalette.secondary;
-      textColor = Colors.white;
+      bg = cs.secondary;
+      textColor = cs.onSecondary;
     } else if (isToday) {
-      bg = const Color(0xFFFFF4F0);
-      border = Border.all(color: AppPalette.primary, width: 1.4);
-    } else {
-      bg = const Color(0xFFEDEDED);
+      bg = cs.primary.withValues(alpha: 0.15);
+      border = Border.all(color: cs.primary, width: 1.4);
     }
+
     if (isSelected) {
-      border = Border.all(color: Colors.blueAccent, width: 2);
+      border = Border.all(color: cs.primary, width: 2);
     }
+
     return GestureDetector(
       onTap: isOutside ? null : onTap,
       child: Container(
         width: 34,
         height: 34,
+        alignment: Alignment.center,
         decoration: BoxDecoration(
           color: bg,
           borderRadius: BorderRadius.circular(6),
           border: border,
         ),
-        alignment: Alignment.center,
-        child: Text('${date.day}',
-            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: textColor)),
+        child: Text(
+          '${date.day}',
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: textColor,
+          ),
+        ),
       ),
     );
   }

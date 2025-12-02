@@ -14,8 +14,17 @@ class JournalList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (entries.isEmpty) {
-      return const Center(
-        child: Text('No journal entries yet.', style: TextStyle(color: Colors.black38)),
+      return Center(
+        child: Text(
+          'No journal entries yet.',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.color
+                ?.withValues(alpha: 0.4),
+          ),
+        ),
       );
     }
     return ListView.separated(

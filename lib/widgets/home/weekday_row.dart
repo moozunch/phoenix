@@ -12,7 +12,7 @@ class WeekdayRow extends StatelessWidget {
         width: 34,
         child: Text(d,
           textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Colors.black54)),
+          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.6))),
       )).toList(),
     );
   }

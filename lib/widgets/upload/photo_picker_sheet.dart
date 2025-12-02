@@ -5,10 +5,18 @@ import 'package:image_picker/image_picker.dart';
 
 Future<XFile?> photoPickerSheet(BuildContext context) async {
   final ImagePicker picker = ImagePicker();
+  final theme = Theme.of(context);
+  final isDark = theme.brightness == Brightness.dark;
+
+  final backgroundColor = theme.scaffoldBackgroundColor; // bottom sheet background
+  final tileColor = isDark ? const Color(0xFF2C2C2C) : const Color(0xFFF8F8F8); // tiap tile
+  final dividerColor = isDark ? Colors.white24 : const Color(0xFFD7D7D7); // line divider
+  final iconColor = isDark ? Colors.white : AppPalette.primary; // icon
+
 
   return showModalBottomSheet<XFile?>(
     context: context,
-    backgroundColor: Colors.white,
+    backgroundColor: backgroundColor,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
@@ -38,28 +46,34 @@ Future<XFile?> photoPickerSheet(BuildContext context) async {
           _pickerTile(
             icon: Icons.camera_alt,
             text: "Take a Photo",
+            color: iconColor,
+            backgroundColor: tileColor,
             onTap: () async {
               final XFile? photo = await picker.pickImage(source: ImageSource.camera);
               if (context.mounted) Navigator.pop(context, photo);
             },
           ),
-          _divider(),
+          _divider(dividerColor),
 
           // ---------- Option 2 ----------
           _pickerTile(
             icon: Icons.photo_library,
             text: "Add from Photo Library",
+            color: iconColor,
+            backgroundColor: tileColor,
             onTap: () async {
               final XFile? image = await picker.pickImage(source: ImageSource.gallery);
               if (context.mounted) Navigator.pop(context, image);
             },
           ),
-          _divider(),
+          _divider(dividerColor),
 
           // ---------- Option 3 ----------
           _pickerTile(
             icon: Icons.insert_drive_file,
             text: "Select Existing File",
+            color: iconColor,
+            backgroundColor: tileColor,
             onTap: () async {
               final result = await FilePicker.platform.pickFiles(
                 type: FileType.image,
@@ -88,11 +102,13 @@ Widget _pickerTile({
   required IconData icon,
   required String text,
   required VoidCallback onTap,
+  required Color color,
+  required Color backgroundColor,
 }) {
   return GestureDetector(
     onTap: onTap,
     child: Container(
-      color: const Color(0xFFF8F8F8), // light grey background
+      color:backgroundColor, // light grey background
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Row(
         children: [
@@ -105,7 +121,7 @@ Widget _pickerTile({
   );
 }
 
-Widget _divider() => Container(
+Widget _divider(Color color) => Container(
   height: 1,
-  color: const Color(0xFFD7D7D7), // LIGHT DIVIDER
+  color: color, // LIGHT DIVIDER
 );

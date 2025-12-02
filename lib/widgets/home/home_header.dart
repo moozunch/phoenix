@@ -17,6 +17,8 @@ class HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = Theme.of(context).textTheme;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -29,21 +31,30 @@ class HomeHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+              Text(
+                name,
+                style: t.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
               const SizedBox(height: 2),
-              Text(tagline, style: const TextStyle(fontSize: 12, color: Colors.black54)),
+              Text(
+                tagline,
+                style: t.bodySmall?.copyWith(
+                  color: t.bodySmall?.color?.withValues(alpha: 0.6),
+                ),
+              ),
             ],
           ),
         ),
         IconButton(
           tooltip: 'Settings',
           onPressed: onSettings,
-          icon: const Icon(Icons.settings_outlined),
+          icon: Icon(Icons.settings_outlined,
+              color: t.bodyMedium?.color),
         ),
         IconButton(
           tooltip: 'Logout',
           onPressed: onLogout,
-          icon: const Icon(Icons.logout),
+          icon: Icon(Icons.logout, color: t.bodyMedium?.color),
         ),
       ],
     );

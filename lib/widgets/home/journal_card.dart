@@ -50,19 +50,18 @@ class JournalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateLabel = _formatDate(date);
-    final timeLabel = _formatTime(date);
-    final moodName = _mapMoodToAsset(mood);
-    final moodAsset = mood.isNotEmpty ? 'assets/images/feelings/$moodName.png' : null;
+    final cs = Theme.of(context).colorScheme;
+    final t = Theme.of(context).textTheme;
+
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cs.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04 * 255),
+            color: cs.shadow.withValues(alpha: 0.08),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -73,28 +72,29 @@ class JournalCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (moodAsset != null)
+              if (mood.isNotEmpty)
                 Container(
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFF3C0), // yellow circle, adjust as needed
+                    color: cs.secondaryContainer,
                     shape: BoxShape.circle,
                   ),
                   child: Center(
-                    child: Image.asset(moodAsset, width: 22, height: 22),
+                    child: Image.asset(
+                      'assets/images/feelings/happy.png',
+                      width: 22,
+                      height: 22,
+                    ),
                   ),
                 ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   headline,
-                  style: const TextStyle(
-                    fontSize: 15,
+                  style: t.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF222B45),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -104,22 +104,15 @@ class JournalCard extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            '$dateLabel • $timeLabel',
-            style: const TextStyle(
-              fontSize: 12,
-              color: Color(0xFF8F9BB3),
-              fontWeight: FontWeight.w400,
+            '${_formatDate(date)} • ${_formatTime(date)}',
+            style: t.bodySmall?.copyWith(
+              color: t.bodySmall?.color?.withValues(alpha: 0.6),
             ),
           ),
           const SizedBox(height: 10),
           Text(
             body,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Color(0xFF222B45),
-              fontWeight: FontWeight.w400,
-              height: 1.35,
-            ),
+            style: t.bodyMedium?.copyWith(height: 1.35),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),

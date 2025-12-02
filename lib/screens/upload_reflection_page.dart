@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:phoenix/services/supabase_journal_service.dart';
 import 'package:phoenix/services/storage_service.dart';
+import 'package:intl/intl.dart';
 
 class UploadReflectionPage extends StatefulWidget {
   const UploadReflectionPage({super.key});
@@ -18,20 +19,23 @@ class UploadReflectionPage extends StatefulWidget {
 }
 
 class _UploadReflectionPageState extends State<UploadReflectionPage> {
-    bool isUploading = false;
+  bool isUploading = false;
   final TextEditingController headlineCtrl = TextEditingController();
   final TextEditingController journalCtrl = TextEditingController();
 
   Color? selectedEmotion;
-
   XFile? selectedImage;
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final statusBarHeight = MediaQuery.of(context).padding.top;
+    final now = DateTime.now();
+    final formattedDate = DateFormat('EEEE d MMM').format(now); // Friday 26 Sep
+
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: cs.surface, // updated
       body: Stack(
         children: [
           Padding(
@@ -40,7 +44,7 @@ class _UploadReflectionPageState extends State<UploadReflectionPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  //upload box
+
                   GestureDetector(
                     onTap: () async {
                       final file = await photoPickerSheet(context);
@@ -48,6 +52,7 @@ class _UploadReflectionPageState extends State<UploadReflectionPage> {
                         final allowedTypes = ['jpg', 'jpeg', 'png'];
                         final ext = file.name.split('.').last.toLowerCase();
                         final fileSize = await File(file.path).length();
+
                         if (!allowedTypes.contains(ext)) {
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -56,6 +61,7 @@ class _UploadReflectionPageState extends State<UploadReflectionPage> {
                           }
                           return;
                         }
+
                         if (fileSize > 5 * 1024 * 1024) {
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -64,9 +70,8 @@ class _UploadReflectionPageState extends State<UploadReflectionPage> {
                           }
                           return;
                         }
-                        setState(() {
-                          selectedImage = file;
-                        });
+
+                        setState(() => selectedImage = file);
                       }
                     },
                     child: selectedImage == null
@@ -79,84 +84,83 @@ class _UploadReflectionPageState extends State<UploadReflectionPage> {
                         height: 220,
                         fit: BoxFit.cover,
                       ),
-
                     ),
                   ),
 
                   const SizedBox(height: 30),
 
-                  //headline
+                  /// HEADLINE SECTION
                   Row(
                     children: [
-                      const Text(
+                      Text(
                         "Your Day’s Headline",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w600),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: cs.onSurface),
                       ),
                       const Spacer(),
                       Text(
                         "${headlineCtrl.text.length}/25",
-                        style: const TextStyle(color: Colors.black54),
+                        style: TextStyle(color: cs.onSurfaceVariant),
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 10),
 
                   TextField(
                     controller: headlineCtrl,
                     maxLength: 25,
                     onChanged: (_) => setState(() {}),
+                    style: TextStyle(color: cs.onSurface),
                     decoration: InputDecoration(
                       hintText: "Please insert your day’s headline…",
                       filled: true,
-                      fillColor: const Color(0xFFF8F8F8),
+                      fillColor: cs.surface, // updated
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide:  BorderSide(
-                          color: Colors.grey.shade400,
+                        borderSide: BorderSide(
+                          color: cs.onSurfaceVariant,
                           width: 1,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: AppPalette.primary, // stays black when focused
+                        borderSide: BorderSide(
+                          color: AppPalette.primary,
                           width: 1,
                         ),
                       ),
-                      counterText: '', // optional: hide default counter if you manage it manually
+                      counterText: '',
                     ),
                   ),
 
-
                   const SizedBox(height: 20),
 
-                  //journal and mood picker
+                  /// JOURNAL + MOOD
                   Row(
                     children: [
                       GestureDetector(
-                        onTap: () => MoodPickerDialog.showMoodPicker(context, (color) {
-                          setState(() => selectedEmotion = color);
-                        }),
+                        onTap: () => MoodPickerDialog.showMoodPicker(
+                          context,
+                              (color) => setState(() => selectedEmotion = color),
+                        ),
                         child: CircleAvatar(
                           radius: 10,
-                          backgroundColor:
-                          selectedEmotion ?? Colors.grey.shade300,
+                          backgroundColor: selectedEmotion ?? cs.surfaceContainerHighest,
                         ),
                       ),
                       const SizedBox(width: 10),
-                      const Text(
+                      Text(
                         "Your Journal",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w600),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: cs.onSurface),
                       ),
                       const Spacer(),
                       Text(
                         "${journalCtrl.text.length}/3000",
-                        style: const TextStyle(color: Colors.black54),
+                        style: TextStyle(color: cs.onSurfaceVariant),
                       ),
                     ],
                   ),
+
                   const SizedBox(height: 10),
 
                   TextField(
@@ -164,28 +168,28 @@ class _UploadReflectionPageState extends State<UploadReflectionPage> {
                     maxLength: 3000,
                     maxLines: 10,
                     onChanged: (_) => setState(() {}),
+                    style: TextStyle(color: cs.onSurface),
                     decoration: InputDecoration(
                       hintText: "It’s okay to be honest, this space is for you…",
                       alignLabelWithHint: true,
                       filled: true,
-                      fillColor: const Color(0xFFF8F8F8),
+                      fillColor: cs.surface, // updated
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide:  BorderSide(
-                          color: Colors.grey.shade400, // black stroke
+                        borderSide: BorderSide(
+                          color: cs.onSurfaceVariant,
                           width: 1,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: AppPalette.primary, // same black
+                        borderSide: BorderSide(
+                          color: AppPalette.primary,
                           width: 1,
                         ),
                       ),
                     ),
                   ),
-
 
                   const SizedBox(height: 80),
                 ],
@@ -193,7 +197,7 @@ class _UploadReflectionPageState extends State<UploadReflectionPage> {
             ),
           ),
 
-          //header arrow and date
+          /// HEADER (arrow + date)
           Positioned(
             top: statusBarHeight + 8,
             left: 0,
@@ -201,22 +205,21 @@ class _UploadReflectionPageState extends State<UploadReflectionPage> {
             child: Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.arrow_back, size: 22),
-                  onPressed: () => GoRouter.of(context).pop(),
+                  icon: Icon(Icons.arrow_back, size: 22, color: cs.onSurface),
+                  onPressed: () => context.pop(),
                 ),
                 const Spacer(),
-                const Text(
-                  "Friday, 26 Sep",
-                  style: TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.bold),
+                Text(
+                  formattedDate,
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: cs.onSurface),
                 ),
                 const Spacer(),
-                const SizedBox(width: 48), // balance arrow spacing
+                const SizedBox(width: 48),
               ],
             ),
           ),
 
-          //button log
+          /// LOG BUTTON (Bottom Right)
           Positioned(
             right: 20,
             bottom: 30,
@@ -229,7 +232,10 @@ class _UploadReflectionPageState extends State<UploadReflectionPage> {
               onPressed: isUploading ? null : () async {
                 final user = FirebaseAuth.instance.currentUser;
                 if (user == null) return;
-                if (headlineCtrl.text.isEmpty && journalCtrl.text.isEmpty && selectedImage == null) {
+
+                if (headlineCtrl.text.isEmpty &&
+                    journalCtrl.text.isEmpty &&
+                    selectedImage == null) {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Please enter a headline, journal, or photo.')),
@@ -237,29 +243,33 @@ class _UploadReflectionPageState extends State<UploadReflectionPage> {
                   }
                   return;
                 }
+
                 if (context.mounted) setState(() => isUploading = true);
                 String? photoUrl;
                 dynamic result;
+
                 try {
                   if (selectedImage != null) {
-                    // Use Supabase Storage for image upload
                     photoUrl = await StorageService().uploadImageToSupabase(
                       File(selectedImage!.path),
-                      'user_uploads', // Supabase bucket name
+                      'user_uploads',
                       user.uid,
                     );
                   }
-                  // Save journal to Supabase using Firebase UID
+
                   result = await SupabaseJournalService().createJournal(
                     uid: user.uid,
                     headline: headlineCtrl.text,
                     body: journalCtrl.text,
-                    mood: selectedEmotion == null ? '' : '${selectedEmotion!.r},${selectedEmotion!.g},${selectedEmotion!.b}',
+                    mood: selectedEmotion == null
+                        ? ''
+                        : '${selectedEmotion!.r},${selectedEmotion!.g},${selectedEmotion!.b}',
                     photoUrl: photoUrl,
                     date: DateTime.now(),
                   );
+
                   if (context.mounted) setState(() => isUploading = false);
-                  // Only show error if result is a Map and contains 'error' key
+
                   if (result is Map && result.containsKey('error')) {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -267,8 +277,7 @@ class _UploadReflectionPageState extends State<UploadReflectionPage> {
                       );
                     }
                   } else {
-                    // Success: go to home (same as back button)
-                    if (context.mounted) GoRouter.of(context).go('/home');
+                    if (context.mounted) context.go('/home');
                   }
                 } catch (e) {
                   if (context.mounted) setState(() => isUploading = false);
@@ -280,17 +289,19 @@ class _UploadReflectionPageState extends State<UploadReflectionPage> {
                 }
               },
               child: isUploading
-                  ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+              )
                   : const Text(
-                      "Log",
-                      style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.w700),
-                    ),
+                "Log",
+                style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.w700),
+              ),
             ),
           ),
         ],
       ),
-      // Nav handled by shell
     );
   }
 }
-

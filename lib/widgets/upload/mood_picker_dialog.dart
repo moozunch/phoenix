@@ -10,17 +10,23 @@ class MoodPickerDialog {
   ];
 
   static void showMoodPicker(BuildContext context, Function(Color) onSelect) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final containerColor = isDark ? const Color(0xFF2C2C2C) : const Color(0xFFF8F8F8);
+    final dividerColor = isDark ? Colors.white24 : const Color(0xFFD7D7D7);
+
     showDialog(
       context: context,
       builder: (context) {
         return Dialog(
-          backgroundColor: Colors.white,
-          surfaceTintColor: Colors.white,
+          backgroundColor: theme.scaffoldBackgroundColor,
+          surfaceTintColor: theme.scaffoldBackgroundColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
           child: Material(
-            color: Colors.white,
+            color: theme.scaffoldBackgroundColor,
             borderRadius: BorderRadius.circular(16),
             child: Padding(
               padding: const EdgeInsets.all(20),
@@ -50,7 +56,7 @@ class MoodPickerDialog {
                   // Rounded light-grey container
                   Container(
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF8F8F8),
+                      color: containerColor,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
@@ -75,12 +81,12 @@ class MoodPickerDialog {
 
                               // Divider (not full width)
                               if (index != emotions.length - 1)
-                                const Divider(
+                                 Divider(
                                   indent: 56,
                                   endIndent: 16,
                                   height: 1,
                                   thickness: 1,
-                                  color: Color(0xFFD7D7D7),
+                                  color: dividerColor,
                                 ),
                             ],
                           );

@@ -24,16 +24,20 @@ class TabScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     // final selectedIndex = navigationShell.currentIndex == 0 ? 0 : 2;
     final selectedIndex = navigationShell.currentIndex;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: SafeArea(
-        // Extra padding to lift nav above gesture/back area
         child: Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: WaterDropNavBar(
-            backgroundColor: Colors.white,
-            waterDropColor: AppPalette.primary,
+            backgroundColor: isDark
+                ? Theme.of(context).scaffoldBackgroundColor
+                : Colors.white,
+            waterDropColor: isDark
+                ? Colors.white
+                : AppPalette.primary,
             selectedIndex: selectedIndex,
             onItemSelected: (i) => _handleTap(context, i),
             barItems: [
