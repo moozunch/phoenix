@@ -13,6 +13,7 @@ class MoodPickerDialog {
     showDialog(
       context: context,
       builder: (context) {
+        final maxHeight = MediaQuery.of(context).size.height * 0.8;
         return Dialog(
           backgroundColor: Colors.white,
           surfaceTintColor: Colors.white,
@@ -24,71 +25,78 @@ class MoodPickerDialog {
             borderRadius: BorderRadius.circular(16),
             child: Padding(
               padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Header
-                  Row(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: maxHeight,
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
-                        "Pin your feeling",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      // Header
+                      Row(
+                        children: [
+                          const Text(
+                            "Pin your feeling",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const Spacer(),
+                          IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
                       ),
-                      const Spacer(),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(context),
+
+                      const SizedBox(height: 10),
+
+                      // Rounded light-grey container
+                      Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8F8F8),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          children: [
+                            ...emotions.asMap().entries.map((entry) {
+                              final index = entry.key;
+                              final e = entry.value;
+
+                              return Column(
+                                children: [
+                                  ListTile(
+                                    leading: CircleAvatar(
+                                      radius: 8,
+                                      backgroundColor: e["color"],
+                                    ),
+                                    title: Text(e["label"]),
+                                    onTap: () {
+                                      onSelect(e["color"]);
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+
+                                  // Divider (not full width)
+                                  if (index != emotions.length - 1)
+                                    const Divider(
+                                      indent: 56,
+                                      endIndent: 16,
+                                      height: 1,
+                                      thickness: 1,
+                                      color: Color(0xFFD7D7D7),
+                                    ),
+                                ],
+                              );
+                            }),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-
-                  const SizedBox(height: 10),
-
-                  // Rounded light-grey container
-                  Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF8F8F8),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      children: [
-                        ...emotions.asMap().entries.map((entry) {
-                          final index = entry.key;
-                          final e = entry.value;
-
-                          return Column(
-                            children: [
-                              ListTile(
-                                leading: CircleAvatar(
-                                  radius: 8,
-                                  backgroundColor: e["color"],
-                                ),
-                                title: Text(e["label"]),
-                                onTap: () {
-                                  onSelect(e["color"]);
-                                  Navigator.pop(context);
-                                },
-                              ),
-
-                              // Divider (not full width)
-                              if (index != emotions.length - 1)
-                                const Divider(
-                                  indent: 56,
-                                  endIndent: 16,
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Color(0xFFD7D7D7),
-                                ),
-                            ],
-                          );
-                        }),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),

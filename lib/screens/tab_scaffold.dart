@@ -27,6 +27,7 @@ class TabScaffold extends StatelessWidget {
 
     return Scaffold(
       body: navigationShell,
+      backgroundColor: Colors.white,
       bottomNavigationBar: SafeArea(
         // Extra padding to lift nav above gesture/back area
         child: Padding(

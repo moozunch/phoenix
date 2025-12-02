@@ -32,47 +32,49 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
           onPressed: () => context.pop('/setting_profile'),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            _menuItem(
-              title: "Change Email",
-              value: "Walid@gmail.com",
-              onTap: () {},
-            ),
-
-            _menuItem(
-              title: "Change Password",
-              onTap: () {},
-            ),
-
-            _menuItem(
-              title: "Gender",
-              value: gender,
-              onTap: () => _selectGender(),
-            ),
-
-            _menuItem(
-              title: "Birth Date",
-              value: birthDate == null
-                  ? "Select"
-                  : "${birthDate!.year}.${birthDate!.month.toString().padLeft(
-                  2, '0')}.${birthDate!.day.toString().padLeft(2, '0')}",
-              onTap: () => _selectBirthDate(),
-            ),
-
-            const SizedBox(height: 30),
-
-            GestureDetector(
-              onTap: () {},
-              child: const Text(
-                "Delete Account",
-                style: TextStyle(
-                    color: Colors.red, fontWeight: FontWeight.bold),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              _menuItem(
+                title: "Change Email",
+                value: "Walid@gmail.com",
+                onTap: () {},
               ),
-            ),
-          ],
+        
+              _menuItem(
+                title: "Change Password",
+                onTap: () {},
+              ),
+        
+              _menuItem(
+                title: "Gender",
+                value: gender,
+                onTap: () => _selectGender(),
+              ),
+        
+              _menuItem(
+                title: "Birth Date",
+                value: birthDate == null
+                    ? "Select"
+                    : "${birthDate!.year}.${birthDate!.month.toString().padLeft(
+                    2, '0')}.${birthDate!.day.toString().padLeft(2, '0')}",
+                onTap: () => _selectBirthDate(),
+              ),
+        
+              const SizedBox(height: 30),
+        
+              GestureDetector(
+                onTap: () {},
+                child: const Text(
+                  "Delete Account",
+                  style: TextStyle(
+                      color: Colors.red, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

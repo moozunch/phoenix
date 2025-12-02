@@ -13,72 +13,74 @@ Future<XFile?> photoPickerSheet(BuildContext context) async {
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
     builder: (_) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // ---------- Header ----------
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Row(
-              children: [
-                const Text(
-                  "Add",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                ),
-                const Spacer(),
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: const Icon(Icons.close, size: 22),
-                ),
-              ],
+      return SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // ---------- Header ----------
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: Row(
+                children: [
+                  const Text(
+                    "Add",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: const Icon(Icons.close, size: 22),
+                  ),
+                ],
+              ),
             ),
-          ),
 
-          // ---------- Option 1 ----------
-          _pickerTile(
-            icon: Icons.camera_alt,
-            text: "Take a Photo",
-            onTap: () async {
-              final XFile? photo = await picker.pickImage(source: ImageSource.camera);
-              if (context.mounted) Navigator.pop(context, photo);
-            },
-          ),
-          _divider(),
+            // ---------- Option 1 ----------
+            _pickerTile(
+              icon: Icons.camera_alt,
+              text: "Take a Photo",
+              onTap: () async {
+                final XFile? photo = await picker.pickImage(source: ImageSource.camera);
+                if (context.mounted) Navigator.pop(context, photo);
+              },
+            ),
+            _divider(),
 
-          // ---------- Option 2 ----------
-          _pickerTile(
-            icon: Icons.photo_library,
-            text: "Add from Photo Library",
-            onTap: () async {
-              final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-              if (context.mounted) Navigator.pop(context, image);
-            },
-          ),
-          _divider(),
+            // ---------- Option 2 ----------
+            _pickerTile(
+              icon: Icons.photo_library,
+              text: "Add from Photo Library",
+              onTap: () async {
+                final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+                if (context.mounted) Navigator.pop(context, image);
+              },
+            ),
+            _divider(),
 
-          // ---------- Option 3 ----------
-          _pickerTile(
-            icon: Icons.insert_drive_file,
-            text: "Select Existing File",
-            onTap: () async {
-              final result = await FilePicker.platform.pickFiles(
-                type: FileType.image,
-              );
-              if (context.mounted) {
-                if (result != null && result.files.first.path != null){
-                  Navigator.pop(
-                    context,
-                    XFile(result.files.first.path!),
-                  );
-                } else {
-                  Navigator.pop(context, null);
+            // ---------- Option 3 ----------
+            _pickerTile(
+              icon: Icons.insert_drive_file,
+              text: "Select Existing File",
+              onTap: () async {
+                final result = await FilePicker.platform.pickFiles(
+                  type: FileType.image,
+                );
+                if (context.mounted) {
+                  if (result != null && result.files.first.path != null){
+                    Navigator.pop(
+                      context,
+                      XFile(result.files.first.path!),
+                    );
+                  } else {
+                    Navigator.pop(context, null);
+                  }
                 }
-              }
-            },
-          ),
+              },
+            ),
 
-          const SizedBox(height: 20),
-        ],
+            const SizedBox(height: 20),
+          ],
+        ),
       );
     },
   );
