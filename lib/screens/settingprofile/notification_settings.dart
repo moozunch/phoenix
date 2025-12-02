@@ -28,9 +28,11 @@ class NotificationSettingsPage extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: _NotificationSettingsContent(),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: _NotificationSettingsContent(),
+        ),
       ),
     );
   }
