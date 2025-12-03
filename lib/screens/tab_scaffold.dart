@@ -28,7 +28,7 @@ class TabScaffold extends StatelessWidget {
 
     return Scaffold(
       body: navigationShell,
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.only(bottom: 12),

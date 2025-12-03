@@ -227,8 +227,62 @@ class _SettingProfileState extends State<SettingProfile> {
                     onTap: () => context.push('/account_setting')),
                 _menuItem(Icons.desktop_windows_outlined, 'Display',
                     onTap: () => context.push('/display')),
-                _menuItem(Icons.notifications_none, 'Announcements'),
-                _menuItem(Icons.info_outline, 'Information'),
+                _menuItem(
+                  Icons.notifications_none,
+                  'Announcements',
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        final isDark = Theme.of(context).brightness == Brightness.dark;
+
+                        return AlertDialog(
+                          backgroundColor: isDark
+                              ? const Color(0xFF2C2C2C)
+                              : Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          title: Text(
+                            'Coming Soon!',
+                            style: TextStyle(
+                              color: isDark ? Colors.white : Colors.black,
+                            ),
+                          ),
+                          content: Text(
+                            'This feature is currently under development.',
+                            style: TextStyle(
+                              color: isDark ? Colors.white70 : Colors.black87,
+                            ),
+                          ),
+                          actions: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? Colors.white.withValues(alpha: 0.15) // subtle dark bg
+                                    : AppPalette.primary,            // custom light bg
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: TextButton(
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 10,
+                                  ),
+                                  foregroundColor: Colors.white,
+                                ),
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('OK'),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+                _menuItem(Icons.info_outline, 'Information',
+                    onTap: () => context.push('/information_page')),
 
                 GestureDetector(
                   onTap: () async {

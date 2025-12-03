@@ -201,8 +201,8 @@ class _SignInPageState extends State<SignInPage> {
                 label: _loading
                     ? 'Signing In...'
                     : _isLocked
-                        ? 'Locked (${_remainingLockSeconds}s)'
-                        : 'Sign In',
+                    ? 'Locked (${_remainingLockSeconds}s)'
+                    : 'Sign In',
                 onPressed: _loading || _isLocked
                     ? null
                     : () async {

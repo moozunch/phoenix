@@ -139,7 +139,7 @@ class _NotificationSettingsContentState extends State<_NotificationSettingsConte
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    // final theme = Theme.of(context);
 
     if (_loading) {
       return const Center(child: CircularProgressIndicator());

@@ -96,13 +96,6 @@ class MyApp extends StatelessWidget {
               displayColor: Colors.white,
             ),
 
-            // bottomNavigationBarTheme: BottomNavigationBarThemeData(
-            //   backgroundColor: const Color(0xFF2C2C2C),
-            //   selectedItemColor: AppPalette.primary,
-            //   unselectedItemColor: Colors.white.withValues(alpha: 0.4),
-            //   elevation: 0,
-            // ),
-
             appBarTheme: const AppBarTheme(
               backgroundColor: Color(0xFF212121),
               foregroundColor: Colors.white,

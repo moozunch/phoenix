@@ -82,7 +82,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                 alignment: Alignment.centerLeft,
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.black87),
-                  onPressed: () => context.go('/signin'),
+                  onPressed: () => context.go('/signup'),
                   tooltip: 'Back',
                 ),
               ),

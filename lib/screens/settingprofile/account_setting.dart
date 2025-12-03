@@ -18,13 +18,23 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
   final passwordCtrl = TextEditingController();
   final currentPasswordCtrl = TextEditingController();
 
+  late String originalEmail;
   bool loading = false;
+
+  late String originalGender;
+  DateTime? originalBirthDate;
 
   @override
   void initState() {
     super.initState();
+
+    originalGender = gender;
+    originalBirthDate = birthDate;
+
+
     final user = FirebaseAuth.instance.currentUser;
-    emailCtrl.text = user?.email ?? '';
+    originalEmail = user?.email ?? '';
+    emailCtrl.text = originalEmail;
 
     emailCtrl.addListener(_updateButtonState);
     passwordCtrl.addListener(_updateButtonState);
@@ -43,10 +53,20 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
   }
 
   bool get _canSave {
-    final emailFilled = emailCtrl.text.trim().isNotEmpty;
-    final passwordValid = passwordCtrl.text.isEmpty || passwordCtrl.text.length >= 6;
-    final currentPasswordValid = passwordCtrl.text.isEmpty || currentPasswordCtrl.text.isNotEmpty;
-    return emailFilled && passwordValid && currentPasswordValid;
+    final emailChanged = emailCtrl.text.trim() != originalEmail;
+    final passwordChanged = passwordCtrl.text.isNotEmpty;
+    final genderChanged = gender != originalGender;
+    final birthDateChanged = birthDate != originalBirthDate;
+
+    final passwordValid =
+        passwordCtrl.text.isEmpty || passwordCtrl.text.length >= 6;
+
+    final currentPasswordValid =
+        !passwordChanged || currentPasswordCtrl.text.isNotEmpty;
+
+    final hasChanges = emailChanged || passwordChanged || genderChanged || birthDateChanged;
+
+    return hasChanges && passwordValid && currentPasswordValid;
   }
 
   void _updateButtonState() => setState(() {});
@@ -78,7 +98,6 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              // Editable fields
               _editableMenuItem(
                 title: "Change Email",
                 controller: emailCtrl,
@@ -103,7 +122,6 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
               ),
               const SizedBox(height: 20),
 
-              // Gender & Birth Date
               _menuItem(
                 title: "Gender",
                 value: gender,
@@ -120,13 +138,15 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
               ),
               const SizedBox(height: 30),
 
-              // Save Button
               ElevatedButton(
                 onPressed: (_canSave && !loading) ? _saveChanges : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: (_canSave && !loading)
                       ? AppPalette.primary
-                      : theme.colorScheme.onSurface.withOpacity(0.3),
+                      : theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                  foregroundColor: (_canSave && !loading)
+                  ?Colors.white
+                  : theme.colorScheme.onSurface.withValues(alpha: 0.5),//when disabled
                   minimumSize: const Size.fromHeight(48),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -143,9 +163,9 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
                 )
                     : const Text("Save Changes"),
               ),
+
               const SizedBox(height: 20),
 
-              // Delete Account
               GestureDetector(
                 onTap: () {},
                 child: const Text(
@@ -220,12 +240,11 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
             if (value != null)
               Text(
                 value,
-                style: TextStyle(
-                  color: theme.textTheme.bodyMedium!.color,
-                ),
+                style: TextStyle(color: theme.textTheme.bodyMedium!.color),
               ),
             const SizedBox(width: 4),
-            Icon(Icons.arrow_forward_ios, size: 16, color: theme.iconTheme.color),
+            Icon(Icons.arrow_forward_ios,
+                size: 16, color: theme.iconTheme.color),
           ],
         ),
         onTap: onTap,
@@ -267,10 +286,8 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
               onPressed: () => Navigator.pop(context),
               child: const Text(
                 "Cancel",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: AppPalette.primary,
-                ),
+                style:
+                TextStyle(fontWeight: FontWeight.bold, color: AppPalette.primary),
               ),
             )
           ],
@@ -310,9 +327,8 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
       builder: (context, child) {
         return Theme(
           data: theme.copyWith(
-            datePickerTheme: DatePickerThemeData(
-              backgroundColor: theme.colorScheme.surface,
-            ),
+            datePickerTheme:
+            DatePickerThemeData(backgroundColor: theme.colorScheme.surface),
           ),
           child: child!,
         );
@@ -341,10 +357,12 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
       );
       return;
     }
+
     if (newPassword.isNotEmpty && currentPassword.isEmpty) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Current password is required to change password")),
+        const SnackBar(
+            content: Text("Current password is required to change password")),
       );
       return;
     }
@@ -356,12 +374,15 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
       if (user == null) return;
 
       if (newPassword.isNotEmpty) {
-        final cred = EmailAuthProvider.credential(email: user.email!, password: currentPassword);
+        final cred = EmailAuthProvider.credential(
+            email: user.email!, password: currentPassword);
         await user.reauthenticateWithCredential(cred);
         await user.updatePassword(newPassword);
       }
 
-      if (newEmail != user.email) await user.verifyBeforeUpdateEmail(newEmail);
+      if (newEmail != user.email) {
+        await user.verifyBeforeUpdateEmail(newEmail);
+      }
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

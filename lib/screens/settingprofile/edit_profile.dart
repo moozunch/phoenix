@@ -214,21 +214,25 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
               // ------ INPUT SECTIONS ------
               _label("Display Name"),
+              const SizedBox(height: 6),
               _inputField(controller: nameCtrl, hint: "What you want to be called", icon: Icons.badge_outlined),
 
               const SizedBox(height: 18),
 
               _label("Username"),
+              const SizedBox(height: 6),
               _inputField(controller: usernameCtrl, hint: "username", icon: Icons.alternate_email),
 
               const SizedBox(height: 18),
 
               _label("Email"),
+              const SizedBox(height: 6),
               _inputField(controller: emailCtrl, hint: "email@something.com", icon: Icons.email_outlined, enabled: false),
 
               const SizedBox(height: 18),
 
               _label("Description"),
+              const SizedBox(height: 6),
               _inputField(controller: descCtrl, hint: "tell something about yourself", icon: Icons.edit_note),
 
               const SizedBox(height: 50),

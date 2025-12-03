@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:phoenix/core/app_state.dart';
 import 'package:phoenix/widgets/bottom_rounded_container.dart';
 import 'package:phoenix/widgets/option_button.dart';
 import 'package:phoenix/widgets/onboarding_footer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:phoenix/core/app_state.dart';
 import 'package:phoenix/services/supabase_user_service.dart';
 
 class RoutineSelection extends StatefulWidget {
@@ -15,16 +15,6 @@ class RoutineSelection extends StatefulWidget {
 }
 
 class _RoutineSelectionState extends State<RoutineSelection> {
-  final List<String> quotes = [
-    "Small steps every day lead to big changes.",
-    "You are capable of amazing things.",
-    "Progress, not perfection.",
-    "Consistency is the key to success.",
-    "Believe in yourself and all that you are.",
-    "Every day is a new beginning.",
-    "Your future is created by what you do today."
-  ];
-
   String? selectedOption;
 
   @override
@@ -33,22 +23,27 @@ class _RoutineSelectionState extends State<RoutineSelection> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.white,
-              Color(0xFFDF2A00),
-            ],
-            stops: [0.25, 1.0],
+      body: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.white,
+                  Color(0xFFDF2A00),
+                ],
+              ),
+            ),
           ),
-        ),
-        child: Stack(
-          children: [
-            BottomRoundedContainer(
+
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: BottomRoundedContainer(
+              height: null,
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 16),
@@ -66,6 +61,7 @@ class _RoutineSelectionState extends State<RoutineSelection> {
                     style: TextStyle(fontSize: 16, color: Colors.black54),
                   ),
                   const SizedBox(height: 30),
+
                   Row(
                     children: [
                       Expanded(
@@ -85,7 +81,9 @@ class _RoutineSelectionState extends State<RoutineSelection> {
                       )
                     ],
                   ),
-                  const Spacer(),
+
+                  const SizedBox(height: 24),
+
                   OnboardingFooter(
                     activeIndex: 0,
                     onSkip: () {
@@ -99,6 +97,7 @@ class _RoutineSelectionState extends State<RoutineSelection> {
                             'routine': selectedOption!.toLowerCase(),
                           });
                         }
+
                         final appState = await AppState.create();
                         await appState.setRoutine(selectedOption!.toLowerCase());
 
@@ -121,19 +120,18 @@ class _RoutineSelectionState extends State<RoutineSelection> {
                 ],
               ),
             ),
-            // Back Button
-            Positioned(
-              top: statusBarHeight + 8,
-              left: 8,
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.black87),
-                onPressed: () {
-                  GoRouter.of(context).go('/signup');
-                },
-              ),
+          ),
+          Positioned(
+            top: statusBarHeight + 8,
+            left: 8,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.black87),
+              onPressed: () {
+                GoRouter.of(context).go('/signup');
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

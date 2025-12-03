@@ -14,11 +14,11 @@ class BottomRoundedContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double computedHeight = height ?? MediaQuery.of(context).size.height * 0.55;
+    // final double computedHeight = height ?? MediaQuery.of(context).size.height * 0.55;
     return Align(
       alignment: Alignment.bottomCenter,
       child: Container(
-        height: computedHeight,
+        height: height,
         width: double.infinity,
         decoration: const BoxDecoration(
           color: Colors.white,

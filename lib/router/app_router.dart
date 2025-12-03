@@ -24,6 +24,7 @@ import 'package:phoenix/screens/settingprofile/setting_profile.dart';
 import 'package:phoenix/screens/settingprofile/edit_profile.dart';
 import 'package:phoenix/screens/settingprofile/display.dart';
 import 'package:phoenix/screens/settingprofile/account_setting.dart';
+import 'package:phoenix/screens/settingprofile/information_page.dart';
 
 class AppRouter {
   AppRouter(this.appState);
@@ -93,6 +94,10 @@ class AppRouter {
       GoRoute(
         path: '/account_setting',
         builder: (context, state) => const AccountSettingPage(),
+      ),
+      GoRoute(
+        path: '/information_page',
+        builder: (context, state) => const InformationPage(),
       ),
       GoRoute(
         path: '/notification_settings',
@@ -185,6 +190,8 @@ class AppRouter {
       final loggedIn = user != null;
       final atAuth = loc == '/signin' || loc == '/signup' || loc == '/forgot_password';
 
+
+
       DebugLog.d('Router', 'LOC=$loc | loggedIn=$loggedIn | onboarded=${appState.hasOnboarded} | newUser=${appState.isNewUser}');
 
       // ────────────────────────────────────────────────
@@ -213,10 +220,10 @@ class AppRouter {
       // ────────────────────────────────────────────────
       if (!user.emailVerified) {
         // only allow verify email
-        if (loc != '/verify_email') {
-          return '/verify_email';
+        if (loc != '/verify_email' || loc == 'signup') {
+          return null;
         }
-        return null;
+        return '/verify_email';
       }
 
       // ────────────────────────────────────────────────
@@ -264,6 +271,7 @@ class AppRouter {
         '/notification_settings',
         '/display',
         '/edit_journal',
+        '/information_page',
       };
 
       if (!allowedLoggedIn.contains(loc)) {

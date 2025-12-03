@@ -77,7 +77,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-  // Padding handled by AppScaffold
+    // Padding handled by AppScaffold
 
     return PopScope(
       canPop: false,
