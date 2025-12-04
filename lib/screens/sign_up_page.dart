@@ -79,12 +79,38 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget build(BuildContext context) {
     // Padding handled by AppScaffold
 
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) return;
-        if (context.mounted) context.go('/boarding');
-      },
+    // return PopScope(
+    //     //   canPop: false,
+    //     //   onPopInvokedWithResult: (didPop, result) {
+    //     //     if (didPop) return;
+    //     //     if (context.mounted) context.go('/boarding');
+    //     //   },
+    return Theme(
+      data: Theme.of(context).copyWith(
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: Colors.white,
+        canvasColor: Colors.white,
+        colorScheme: const ColorScheme.light(),
+        iconTheme: const IconThemeData(color: Colors.black),
+        textTheme: Theme.of(context).textTheme.apply(
+          bodyColor: Colors.black,
+          displayColor: Colors.black,
+        ),
+        inputDecorationTheme: const InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.white,
+          hintStyle: TextStyle(color: Colors.black54),
+          labelStyle: TextStyle(color: Colors.black),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.black26),
+            borderRadius: BorderRadius.all(Radius.circular(16)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.black87),
+            borderRadius: BorderRadius.all(Radius.circular(16)),
+          ),
+        ),
+      ),
       child: Scaffold(
         backgroundColor: Colors.white,
         body: SingleChildScrollView(
@@ -105,7 +131,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 const SizedBox(height: 16),
                 Text(
                   'Create an account',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700, color: Colors.black),
                 ),
                 const SizedBox(height: 40),
                 AppTextField(
@@ -136,7 +162,9 @@ class _SignUpPageState extends State<SignUpPage> {
                     Expanded(
                       child: RichText(
                         text: TextSpan(
-                          style: Theme.of(context).textTheme.bodyMedium,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Colors.black,
+                          ),
                           children: [
                             const TextSpan(text: 'I agree to the '),
                             TextSpan(
@@ -269,7 +297,28 @@ class _SignUpPageState extends State<SignUpPage> {
                 const SizedBox(height: 12),
                 _socialSignUpButton(
                   label: 'Sign up with Apple',
-                  onPressed: null, // UI only, no backend
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        backgroundColor: Colors.black87,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        content: const Text(
+                          'Apple Sign-Up is coming soon!',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                        duration: Duration(milliseconds: 1600),
+                      ),
+                    );
+                  },
+                    // UI only, no backend
                   icon: Icon(Icons.apple, size: 22, color: Colors.black),
                 ),
                 const SizedBox(height: 16),

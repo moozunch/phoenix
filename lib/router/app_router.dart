@@ -272,6 +272,7 @@ class AppRouter {
         '/display',
         '/edit_journal',
         '/information_page',
+        '/success_upload',
       };
 
       if (!allowedLoggedIn.contains(loc)) {

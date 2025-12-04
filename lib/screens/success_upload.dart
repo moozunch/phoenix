@@ -14,31 +14,54 @@ class SuccessUploadPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+
               const Spacer(),
 
-              const Text(
-                "Small steps,\nbig chances.",
+
+              RichText(
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  height: 1.3,
+                text: TextSpan(
+                  style: const TextStyle(
+                    fontSize: 24,
+                    height: 1.3,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  children: [
+                    const TextSpan(text: "Small steps, "),
+                    WidgetSpan(
+                      child: Container(
+                        padding:
+                        const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                        color: AppPalette.primary,    // background highlight
+                        child: const Text(
+                          "big chances.",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
 
               const Text(
                 "Thank you for logging today.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 24,
                   color: Colors.white70,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
 
-              const Spacer(),
+              const SizedBox(height: 24),
+
 
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
@@ -46,21 +69,23 @@ class SuccessUploadPage extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 24, vertical: 14),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 onPressed: () {
-                  context.go('/feed');  // <-- replace based on your home route
+                  context.go('/home');
                 },
                 child: const Text(
                   "Back to Feed",
                   style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
                 ),
               ),
 
-              const SizedBox(height: 40),
+              const Spacer(),
             ],
           ),
         ),

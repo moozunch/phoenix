@@ -83,7 +83,7 @@ class JournalCard extends StatelessWidget {
                   ),
                   child: Center(
                     child: Image.asset(
-                      'assets/images/feelings/happy.png',
+                      'assets/images/feelings/${_mapMoodToAsset(mood)}.png',
                       width: 22,
                       height: 22,
                     ),

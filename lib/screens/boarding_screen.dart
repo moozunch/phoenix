@@ -89,19 +89,47 @@ class BoardingScreen extends StatelessWidget {
                     },
                   ),
                   const SizedBox(height: 14),
-                  _BoardingButton(
-                    icon: Icons.apple,
-                    label: 'Continue with Apple',
-                    backgroundColor: Colors.white,
-                    textColor: Colors.black,
-                    borderColor: Colors.black,
-                    onPressed: () async {
-                      final state = await AppState.create();
-                      await state.setHasOnboarded(true);
-                      if (!context.mounted) return;
-                      context.go('/signin?provider=apple');
-                    },
-                  ),
+                  // _BoardingButton(
+                  //   icon: Icons.apple,
+                  //   label: 'Continue with Apple',
+                  //   backgroundColor: Colors.white,
+                  //   textColor: Colors.black,
+                  //   borderColor: Colors.black,
+                  //   onPressed: () async {
+                  //     final state = await AppState.create();
+                  //     await state.setHasOnboarded(true);
+                  //     if (!context.mounted) return;
+                  //     context.go('/signin?provider=apple');
+                  //   },
+                  // ),
+                      _BoardingButton(
+                        icon: Icons.apple,
+                        label: 'Continue with Apple',
+                        backgroundColor: Colors.white,
+                        textColor: Colors.black,
+                        borderColor: Colors.black,
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                backgroundColor: Colors.black87,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                content: const Text(
+                                  'Apple Sign-In is coming soon!',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                duration: Duration(milliseconds: 1600),
+                              ),
+                            );
+                          },
+                      ),
                   const SizedBox(height: 14),
                   _BoardingButton(
                     svgAsset: 'assets/images/icon/google_logo_bw.svg',

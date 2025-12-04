@@ -27,6 +27,8 @@ class UserModel {
   final int daysActive;
   final String reminderTime;
   final String? desc;
+  final String? gender;
+  final DateTime? birthDate;
 
   UserModel({
     required this.uid,
@@ -40,6 +42,8 @@ class UserModel {
     required this.daysActive,
     required this.reminderTime,
     this.desc,
+    this.gender,
+    this.birthDate,
   });
 
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
@@ -56,6 +60,8 @@ class UserModel {
       daysActive: data['stats']?['daysActive'] ?? 0,
       reminderTime: data['reminder_time'] ?? '',
       desc: data['desc'],
+      gender: data['gender'],
+      birthDate: data['birth_date'] != null ? DateTime.parse(data['birth_date']) : null,
     );
   }
 
@@ -67,6 +73,8 @@ class UserModel {
       'joinedAt': Timestamp.fromDate(joinedAt),
       'routine': routine,
       'reminder_time': reminderTime,
+      if(gender != null) 'gender' : gender,
+      if (birthDate != null) 'birth_date': birthDate!.toIso8601String(),
       if (desc != null) 'desc': desc,
       'stats': {
         'journalCount': journalCount,

@@ -277,7 +277,7 @@ class _UploadReflectionPageState extends State<UploadReflectionPage> {
                       );
                     }
                   } else {
-                    if (context.mounted) context.go('/home');
+                    if (context.mounted) context.go('/success_upload');
                   }
                 } catch (e) {
                   if (context.mounted) setState(() => isUploading = false);

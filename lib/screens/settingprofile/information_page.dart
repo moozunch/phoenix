@@ -48,13 +48,13 @@ class InformationPage extends StatelessWidget {
               'Privacy Policy',
               '',
               cs,
-              onTap: () => _showDialog(context, 'Privacy Policy', 'This is the privacy policy placeholder.'),
+              onTap: () => _showDialog(context, 'Privacy Policy', 'We collect and use your information only to provide and improve our services. Your data is kept secure and will not be shared with third parties without your permission. By using this app, you agree to our data practices.'),
             ),
             _infoTile(
               'Terms & Conditions',
               '',
               cs,
-              onTap: () => _showDialog(context, 'Terms & Conditions', 'This is the terms & conditions placeholder.'),
+              onTap: () => _showDialog(context, 'Terms & Conditions', 'By creating and using an account, you agree to provide accurate information, keep your login details secure, and use the app responsibly. Uploading content, including face images, is allowed only at permitted times. Misuse of your account, attempts to bypass app features, or any activity that threatens system security may result in restricted access. Continued use of the app means you accept these terms.'),
             ),
 
             const SizedBox(height: 20),

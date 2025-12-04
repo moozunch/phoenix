@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:phoenix/styles/app_palette.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:phoenix/widgets/show_modern_snackbar.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AccountSettingPage extends StatefulWidget {
   const AccountSettingPage({super.key});
@@ -11,12 +13,13 @@ class AccountSettingPage extends StatefulWidget {
 }
 
 class _AccountSettingPageState extends State<AccountSettingPage> {
-  String gender = "Male";
+  String gender = "Female";
   DateTime? birthDate;
 
   final emailCtrl = TextEditingController();
   final passwordCtrl = TextEditingController();
   final currentPasswordCtrl = TextEditingController();
+  final deletePasswordCtrl = TextEditingController();
 
   late String originalEmail;
   bool loading = false;
@@ -39,6 +42,8 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
     emailCtrl.addListener(_updateButtonState);
     passwordCtrl.addListener(_updateButtonState);
     currentPasswordCtrl.addListener(_updateButtonState);
+
+    _loadUserData();
   }
 
   @override
@@ -49,6 +54,7 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
     emailCtrl.dispose();
     passwordCtrl.dispose();
     currentPasswordCtrl.dispose();
+    deletePasswordCtrl.dispose();
     super.dispose();
   }
 
@@ -167,7 +173,7 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
               const SizedBox(height: 20),
 
               GestureDetector(
-                onTap: () {},
+                onTap: () => _showDeleteDialog(context),
                 child: const Text(
                   "Delete Account",
                   style: TextStyle(
@@ -182,6 +188,200 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
       ),
     );
   }
+
+  //delete account dialog
+  void _showDeleteDialog(BuildContext context) {
+    deletePasswordCtrl.clear();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            final theme = Theme.of(context);
+            final isDark = theme.brightness == Brightness.dark;
+
+            final hasText = deletePasswordCtrl.text.isNotEmpty;
+            final primaryColor = theme.colorScheme.primary;
+
+            final borderColor = hasText
+                ? primaryColor
+                : (isDark ? Colors.grey[700]! : Colors.grey[400]!);
+
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              backgroundColor: theme.colorScheme.surface,
+
+              title: const Text("Delete Account"),
+
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    "To continue, please enter your current password:",
+                  ),
+                  const SizedBox(height: 12),
+
+                  TextField(
+                    controller: deletePasswordCtrl,
+                    obscureText: true,
+                    onChanged: (_) => setState(() {}),
+                    decoration: InputDecoration(
+                      hintText: "Current Password",
+                      filled: true,
+                      fillColor: isDark ? Colors.grey[850] : Colors.grey[200],
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 14,
+                        horizontal: 12,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: borderColor, width: 1.3),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: primaryColor, width: 1.5),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    "Cancel",
+                    style: TextStyle(
+                      color: primaryColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await _deleteAccount();
+                  },
+                  style: TextButton.styleFrom(
+                    padding:
+                    const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                    backgroundColor: Colors.red.shade700,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    "Delete",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  //delete account logic
+  Future<void> _deleteAccount() async {
+    final user = FirebaseAuth.instance.currentUser;
+    final email = user?.email;
+    final password = deletePasswordCtrl.text.trim();
+
+    if (user == null || email == null) {
+      if (!mounted) return;
+      showModernSnackbar(context, "User not found.");
+      return;
+    }
+
+    if (password.isEmpty) {
+      if (!mounted) return;
+      showModernSnackbar(context, "Password cannot be empty.");
+      return;
+    }
+
+    try {
+      final cred = EmailAuthProvider.credential(email: email, password: password);
+      await user.reauthenticateWithCredential(cred);
+      await user.delete();
+
+      if (!mounted) return;
+
+      showModernSnackbar(context, "Account deleted successfully.");
+      context.go('/signin');
+    } catch (e) {
+      if (!mounted) return;
+      showModernSnackbar(context, "Failed to delete account: $e");
+    }
+  }
+
+  //save profile
+  Future<void> _saveProfileData() async {
+    try {
+      final supabase = Supabase.instance.client;
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      final response = await supabase
+          .from('users')
+          .select()
+          .eq('uid', user.uid)
+          .maybeSingle();
+
+      if (response == null) {
+        await supabase.from('users').insert({
+          'uid': user.uid,
+          'gender': gender,
+          'birth_date': birthDate?.toIso8601String(),
+        });
+      } else {
+        await supabase.from('users').update({
+          'gender': gender,
+          'birth_date': birthDate?.toIso8601String(),
+        }).eq('uid', user.uid);
+      }
+      await _loadUserData();
+    } catch (e) {
+      if (!mounted) return;
+      showModernSnackbar(context, "Failed to save profile data: $e");
+    }
+  }
+
+  Future<void> _loadUserData() async{
+    try{
+      final supabase = Supabase.instance.client;
+      final user = FirebaseAuth.instance.currentUser;
+      if(user == null) return;
+
+      final response = await supabase
+      .from('users')
+      .select()
+      .eq('uid', user.uid)
+      .maybeSingle();
+
+      if(response != null){
+        setState(() {
+          gender = response['gender'] ?? 'Female';
+          birthDate = response['birth_date'] != null
+          ? DateTime.parse(response['birth_date'])
+              : null;
+
+          originalGender = gender;
+          originalBirthDate = birthDate;
+        });
+      }
+    } catch (e){
+      if(!mounted) return;
+      showModernSnackbar(context, "Failed to load profile: $e" );
+    }
+  }
+
 
   Widget _editableMenuItem({
     required String title,
@@ -399,5 +599,7 @@ class _AccountSettingPageState extends State<AccountSettingPage> {
     } finally {
       if (mounted) setState(() => loading = false);
     }
+    await _saveProfileData();
   }
+
 }

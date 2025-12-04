@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:phoenix/styles/app_palette.dart';
 
 class CalendarDayCell extends StatelessWidget {
   final DateTime date;
@@ -24,7 +23,7 @@ class CalendarDayCell extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    Color bg = cs.surfaceVariant;
+    Color bg = cs.surfaceContainerHighest;
     Color textColor = cs.onSurface;
     Border? border;
 

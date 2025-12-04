@@ -144,7 +144,33 @@ class _SignInPageState extends State<SignInPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Theme(
+        data: Theme.of(context).copyWith(
+          brightness: Brightness.light,
+          scaffoldBackgroundColor: Colors.white,
+          canvasColor: Colors.white,
+          colorScheme: const ColorScheme.light(),
+          iconTheme: const IconThemeData(color: Colors.black),
+          textTheme: Theme.of(context).textTheme.apply(
+            bodyColor: Colors.black,
+            displayColor: Colors.black,
+          ),
+          inputDecorationTheme: const InputDecorationTheme(
+            filled: true,
+            fillColor: Colors.white,
+            hintStyle: TextStyle(color: Colors.black54),
+            labelStyle: TextStyle(color: Colors.black),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.black26),
+              borderRadius: BorderRadius.all(Radius.circular(16)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.black87),
+              borderRadius: BorderRadius.all(Radius.circular(16)),
+            ),
+          ),
+        ),
+    child: Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Padding(
@@ -344,7 +370,27 @@ class _SignInPageState extends State<SignInPage> {
               const SizedBox(height: 12),
               _socialSignInButton(
                 label: 'Sign in with Apple',
-                onPressed: null, // UI only, no backend
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      backgroundColor: Colors.black87,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      content: const Text(
+                        'Apple Sign-In is coming soon!',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                      duration: Duration(milliseconds: 1600),
+                    ),
+                  );
+                },// UI only, no backend
                 icon: Icon(Icons.apple, size: 22, color: Colors.black),
               ),
               const SizedBox(height: 24),
@@ -362,6 +408,7 @@ class _SignInPageState extends State<SignInPage> {
           ),
         ),
       ),
+    )
     );
   }
 }
