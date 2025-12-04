@@ -81,19 +81,19 @@ assets/
 
 <table>
 	<tr>
-		<td><img src="docs/screenshots/onboarding.png" alt="onboarding" width="1204" /></td>
-        <td><img src="docs/screenshots/signin.png" alt="signin" width="1204" /></td>
-        <td><img src="docs/screenshots/signup.png" alt="signup" width="1204" /></td>
+		<td><img src="docs/screenshots/onboarding.png" alt="onboarding" width="200" /></td>
+        <td><img src="docs/screenshots/signin.png" alt="signin" width="200" /></td>
+        <td><img src="docs/screenshots/signup.png" alt="signup" width="200" /></td>
 	</tr>
 	<tr>
-		<td><img src="docs/screenshots/light/home.png" alt="home light mode" width="1204" /></td>
-        <td><img src="docs/screenshots/light/upload.png" alt="upload light mode" width="1204" /></td>
-        <td><img src="docs/screenshots/light/setting.png" alt="setting light mode" width="1204" /></td>
+		<td><img src="docs/screenshots/light/home.png" alt="home light mode" width="200" /></td>
+        <td><img src="docs/screenshots/light/upload.png" alt="upload light mode" width="200" /></td>
+        <td><img src="docs/screenshots/light/setting.png" alt="setting light mode" width="200" /></td>
 	</tr>
     <tr>
-		<td><img src="docs/screenshots/dark/home.png" alt="home dark mode" width="1204" /></td>
-        <td><img src="docs/screenshots/dark/upload.png" alt="upload dark mode" width="1204" /></td>
-        <td><img src="docs/screenshots/dark/setting.png" alt="setting dark mode" width="1204" /></td>
+		<td><img src="docs/screenshots/dark/home.png" alt="home dark mode" width="200" /></td>
+        <td><img src="docs/screenshots/dark/upload.png" alt="upload dark mode" width="200" /></td>
+        <td><img src="docs/screenshots/dark/setting.png" alt="setting dark mode" width="200" /></td>
 	</tr>
 </table>
 
