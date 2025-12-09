@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phoenix/styles/app_palette.dart';
 
 class CalendarDayCell extends StatelessWidget {
   final DateTime date;
@@ -31,18 +32,20 @@ class CalendarDayCell extends StatelessWidget {
       bg = cs.surface.withValues(alpha: 0.3);
       textColor = cs.onSurface.withValues(alpha: 0.3);
     } else if (hasPhoto) {
-      bg = cs.primary;
+      // bg = cs.primary;
+      bg = AppPalette.primary;
       textColor = cs.onPrimary;
     } else if (isLogged) {
-      bg = cs.secondary;
+      // bg = cs.secondary;
+      bg = AppPalette.secondary;
       textColor = cs.onSecondary;
     } else if (isToday) {
-      bg = cs.primary.withValues(alpha: 0.15);
-      border = Border.all(color: cs.primary, width: 1.4);
+      bg = AppPalette.primary.withValues(alpha: 0.15);
+      border = Border.all(color: AppPalette.primary, width: 1.4);
     }
 
     if (isSelected) {
-      border = Border.all(color: cs.primary, width: 2);
+      border = Border.all(color: AppPalette.primary, width: 2);
     }
 
     return GestureDetector(
