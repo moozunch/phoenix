@@ -64,6 +64,10 @@ firebase-debug.log
 # Crash / stack trace logs
 hs_err_pid*
 
+*.jks
+key.properties
+**/*.keystore
+**/*.jks
 
 # Firebase Admin SDK service accounts (downloaded from Firebase Console)
 **/serviceAccount*.json

@@ -20,13 +20,25 @@ class LabelSwitch extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label, style: TextStyle(fontSize: 16, color : labelColor ??  Colors.black87)),
-        Switch(
+ Switch(
           value: value,
           onChanged: onChanged,
-          activeThumbColor: Colors.white,
-          activeTrackColor: AppPalette.primary,
-          inactiveThumbColor: AppPalette.primary,
-          inactiveTrackColor: Colors.grey.shade300,
+          thumbColor: WidgetStateProperty.resolveWith<Color>(
+            (states) {
+              if (states.contains(WidgetState.selected)) {
+                return Colors.white;
+              }
+              return AppPalette.primary;
+            },
+          ),
+          trackColor: WidgetStateProperty.resolveWith<Color>(
+            (states) {
+              if (states.contains(WidgetState.selected)) {
+                return AppPalette.primary;
+              }
+              return Colors.grey.shade300;
+            },
+          ),
         ),
       ],
     );
