@@ -1,5 +1,5 @@
 name: phoenix
-description: "A new Flutter project."
+description: "Phoenix is a safe and supportive mobile app designed for individuals with face dysmorphia, helping them in the journey of self-acceptance, monitoring facial condition, and building daily habits to ease anxiety. Phoenix empowers users with a private journal platform, routine photo tracking, and smart reminders to consistently build positive habits. The app is built with Flutter and integrates Firebase, Supabase, and awesome_notifications for a secure, modern experience."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -52,7 +52,6 @@ dependencies:
   intl: ^0.20.0
   supabase_flutter: ^1.10.0
   awesome_notifications: ^0.10.1
-  sign_in_with_apple: ^5.0.0
   url_launcher: ^6.3.2
 
 dev_dependencies:

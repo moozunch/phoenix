@@ -112,14 +112,14 @@ jobs:
           body: |
             ## Phoenix v${{ needs.build.outputs.version }}
             
-            ### 📱 Download
+            ### Download
             Download the APK below and install on your Android device.
             
-            ### ✨ What's New
+            ### What's New
             - Automated build via GitHub Actions
             - Release signed with production keystore
             
-            ### 🔒 Security
+            ### Security
             - Signed with release keystore
             - Firebase configured for production
             - Firestore security rules enabled
