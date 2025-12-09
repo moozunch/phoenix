@@ -109,3 +109,6 @@ flutter_launcher_icons:
   ios: true
   image_path: assets/images/phoenix_logo.png
   remove_alpha_ios: true
+
+dependency_overrides:
+  sign_in_with_apple: ^6.1.0
