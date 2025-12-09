@@ -87,18 +87,17 @@ assets/
 
 ## Download
 
-- Latest APK: https://github.com/moozunch/phoenix/releases/latest
+- Go to the [Releases page](https://github.com/moozunch/phoenix/releases)
 - On the latest release page, download `app-release.apk` and install it on your Android device.
 - If installation is blocked, enable “Install unknown apps” for your browser or file manager.
 - Builds are created by GitHub Actions and signed with the release keystore.
 
 ## Changelog
 
-- All changes are documented in GitHub Releases: https://github.com/moozunch/phoenix/releases
+- All changes are documented in [GitHub Releases](https://github.com/moozunch/phoenix/releases)
 - Each tag (e.g., `v1.0.0`) contains:
   - What’s New: highlights of features and improvements
   - Security: signing and backend configuration notes
-- To view a specific version: `https://github.com/moozunch/phoenix/releases/tag/vX.Y.Z`.
 
 ## Routing
 
