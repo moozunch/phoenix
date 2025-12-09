@@ -1,8 +1,10 @@
 # Phoenix
 
+## Introduction
+
 Phoenix is a safe and supportive mobile app designed for individuals with face dysmorphia, helping them in the journey of self-acceptance, monitoring facial condition, and building daily habits to ease anxiety. Phoenix empowers users with a private journal platform, routine photo tracking, and smart reminders to consistently build positive habits. The app is built with Flutter and integrates Firebase, Supabase, and awesome_notifications for a secure, modern experience.
 
-## Key Features
+## Features
 
 - Secure onboarding and authentication (email, Google, Apple)
 - Private journal for daily reflections and self-acceptance
@@ -14,21 +16,7 @@ Phoenix is a safe and supportive mobile app designed for individuals with face d
 - Home tab with action tiles, mood history, and progress overview
 - App icon and native splash generated from a single PNG asset
 
-Planned / Optional:
-- Push notification settings
-- More mood options and analytics
-
-## Features
-
-- Onboarding and authentication (email, Google, Apple)
-- Mood picker dialog and photo upload sheet
-- Daily/weekly routine notifications
-- Supabase and Firebase integration
-- Responsive UI with custom theming (Plus Jakarta Sans)
-- Home tab with action tiles and mood history
-- App icon and native splash generated from a single PNG asset
-
-Planned / Optional:
+### Planned / Optional
 - Push notification settings
 - More mood options and analytics
 
