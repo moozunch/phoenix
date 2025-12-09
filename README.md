@@ -81,21 +81,36 @@ assets/
 
 <table>
 	<tr>
-		<td><img src="docs/screenshots/onboarding.png" alt="onboarding" width="200" /></td>
-        <td><img src="docs/screenshots/signin.png" alt="signin" width="200" /></td>
-        <td><img src="docs/screenshots/signup.png" alt="signup" width="200" /></td>
+		<td><img src="docs/screenshots/onboarding.jpg" alt="onboarding" width="200" /></td>
+        <td><img src="docs/screenshots/signin.jpg" alt="signin" width="200" /></td>
+        <td><img src="docs/screenshots/detail.jpg" alt="detail" width="200" /></td>
 	</tr>
 	<tr>
-		<td><img src="docs/screenshots/light/home.png" alt="home light mode" width="200" /></td>
-        <td><img src="docs/screenshots/light/upload.png" alt="upload light mode" width="200" /></td>
-        <td><img src="docs/screenshots/light/setting.png" alt="setting light mode" width="200" /></td>
+		<td><img src="docs/screenshots/light/home.jpg" alt="home light mode" width="200" /></td>
+        <td><img src="docs/screenshots/light/upload.jpg" alt="upload light mode" width="200" /></td>
+        <td><img src="docs/screenshots/light/setting.jpg" alt="setting light mode" width="200" /></td>
 	</tr>
     <tr>
-		<td><img src="docs/screenshots/dark/home.png" alt="home dark mode" width="200" /></td>
-        <td><img src="docs/screenshots/dark/upload.png" alt="upload dark mode" width="200" /></td>
-        <td><img src="docs/screenshots/dark/setting.png" alt="setting dark mode" width="200" /></td>
+		<td><img src="docs/screenshots/dark/home.jpg" alt="home dark mode" width="200" /></td>
+        <td><img src="docs/screenshots/dark/upload.jpg" alt="upload dark mode" width="200" /></td>
+        <td><img src="docs/screenshots/dark/setting.jpg" alt="setting dark mode" width="200" /></td>
 	</tr>
 </table>
+
+## Download
+
+- Latest APK: https://github.com/moozunch/phoenix/releases/latest
+- On the latest release page, download `app-release.apk` and install it on your Android device.
+- If installation is blocked, enable “Install unknown apps” for your browser or file manager.
+- Builds are created by GitHub Actions and signed with the release keystore.
+
+## Changelog
+
+- All changes are documented in GitHub Releases: https://github.com/moozunch/phoenix/releases
+- Each tag (e.g., `v1.0.0`) contains:
+  - What’s New: highlights of features and improvements
+  - Security: signing and backend configuration notes
+- To view a specific version: `https://github.com/moozunch/phoenix/releases/tag/vX.Y.Z`.
 
 ## Routing
 
