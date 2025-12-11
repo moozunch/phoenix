@@ -16,9 +16,11 @@ Phoenix is a safe and supportive mobile app designed for individuals with face d
 - Home tab with action tiles, mood history, and progress overview
 - App icon and native splash generated from a single PNG asset
 
-### Planned / Optional
-- Push notification settings
+### Planned / Future Consideration
+- Online Push notification settings
 - More mood options and analytics
+- MFA
+- Further settings implementation
 
 ## Tech Stack
 
