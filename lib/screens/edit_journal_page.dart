@@ -57,9 +57,11 @@ class _EditJournalPageState extends State<EditJournalPage> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final statusBarHeight = MediaQuery.of(context).padding.top;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: cs.surface,
       body: Stack(
         children: [
           Padding(
@@ -84,14 +86,14 @@ class _EditJournalPageState extends State<EditJournalPage> {
                   //headline
                   Row(
                     children: [
-                      const Text(
+                       Text(
                         "Your Day’s Headline",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: cs.onSurface),
                       ),
                       const Spacer(),
                       Text(
                         "${headlineCtrl.text.length}/25",
-                        style: const TextStyle(color: Colors.black54),
+                        style: TextStyle(color: cs.onSurfaceVariant),
                       ),
                     ],
                   ),
@@ -103,11 +105,11 @@ class _EditJournalPageState extends State<EditJournalPage> {
                     decoration: InputDecoration(
                       hintText: "Please insert your day’s headline…",
                       filled: true,
-                      fillColor: const Color(0xFFF8F8F8),
+                      fillColor: cs.surface,
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: Colors.grey.shade400,
+                          color: cs.onSurfaceVariant,
                           width: 1,
                         ),
                       ),
@@ -131,18 +133,18 @@ class _EditJournalPageState extends State<EditJournalPage> {
                         }),
                         child: CircleAvatar(
                           radius: 10,
-                          backgroundColor: selectedEmotion ?? Colors.grey.shade300,
+                          backgroundColor: selectedEmotion ??  cs.surfaceContainerHighest,
                         ),
                       ),
                       const SizedBox(width: 10),
-                      const Text(
+                       Text(
                         "Your Journal",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: cs.onSurface),
                       ),
                       const Spacer(),
                       Text(
                         "${journalCtrl.text.length}/3000",
-                        style: const TextStyle(color: Colors.black54),
+                        style: TextStyle(color: cs.onSurfaceVariant),
                       ),
                     ],
                   ),
@@ -152,15 +154,16 @@ class _EditJournalPageState extends State<EditJournalPage> {
                     maxLength: 3000,
                     maxLines: 10,
                     onChanged: (_) => setState(() {}),
+                    style: TextStyle(color: cs.onSurface),
                     decoration: InputDecoration(
                       hintText: "It’s okay to be honest, this space is for you…",
                       alignLabelWithHint: true,
                       filled: true,
-                      fillColor: const Color(0xFFF8F8F8),
+                      fillColor:cs.surface,
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: Colors.grey.shade400,
+                          color: cs.onSurfaceVariant,
                           width: 1,
                         ),
                       ),
@@ -186,13 +189,13 @@ class _EditJournalPageState extends State<EditJournalPage> {
             child: Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.arrow_back, size: 22),
+                  icon: Icon(Icons.arrow_back, size: 22, color: cs.onSurface),
                   onPressed: () => GoRouter.of(context).pop(),
                 ),
                 const Spacer(),
-                const Text(
+                 Text(
                   "Edit Journal",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: cs.onSurface),
                 ),
                 const Spacer(),
                 const SizedBox(width: 48),

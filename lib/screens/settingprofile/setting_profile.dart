@@ -221,7 +221,21 @@ class _SettingProfileState extends State<SettingProfile> {
                 _menuItem(Icons.notifications_none, 'Notification',
                     onTap: () => context.push('/notification_settings')),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 15),
+
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Manage Account',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: cs.onSurface,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 10),
 
                 _menuItem(Icons.person_outline, 'Account',
                     onTap: () => context.push('/account_setting')),

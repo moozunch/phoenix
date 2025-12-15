@@ -86,3 +86,6 @@ key.properties
 ios/Pods/
 macos/Pods/
 
+# Firebase Android config
+android/app/google-services.json
+
