@@ -38,6 +38,19 @@ class _SettingProfileState extends State<SettingProfile> {
             .length;
         final daysActive = DateTime.now().difference(fetched.joinedAt).inDays + 1;
 
+        // Persist latest counters back to Supabase for consistency
+        try {
+          await SupabaseUserService().updateUser(user.uid, {
+            'stats': {
+              'journalCount': journalCount,
+              'photoCount': photoCount,
+              'daysActive': daysActive,
+            }
+          });
+        } catch (_) {
+          // ignore persistence errors; UI will still show computed values
+        }
+
         userModel = UserModel(
           uid: fetched.uid,
           name: fetched.name,

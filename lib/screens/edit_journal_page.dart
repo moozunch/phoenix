@@ -44,10 +44,15 @@ class _EditJournalPageState extends State<EditJournalPage> {
     final parts = mood.split(',');
     if (parts.length == 3) {
       try {
+        final values = parts.map((p) => double.parse(p.trim())).toList();
+        final isNormalized = values.every((v) => v >= 0.0 && v <= 1.0);
+        final r = isNormalized ? (values[0] * 255).round() : values[0].round();
+        final g = isNormalized ? (values[1] * 255).round() : values[1].round();
+        final b = isNormalized ? (values[2] * 255).round() : values[2].round();
         return Color.fromRGBO(
-          (double.parse(parts[0]) * 255).toInt(),
-          (double.parse(parts[1]) * 255).toInt(),
-          (double.parse(parts[2]) * 255).toInt(),
+          r.clamp(0, 255),
+          g.clamp(0, 255),
+          b.clamp(0, 255),
           1,
         );
       } catch (_) {}
@@ -227,7 +232,7 @@ class _EditJournalPageState extends State<EditJournalPage> {
                     journalId: widget.journalId,
                     headline: headlineCtrl.text,
                     body: journalCtrl.text,
-                    mood: selectedEmotion == null ? '' : '${selectedEmotion!.r / 255},${selectedEmotion!.g / 255},${selectedEmotion!.b / 255}',
+                    mood: selectedEmotion == null ? '' : '${selectedEmotion!.r},${selectedEmotion!.g},${selectedEmotion!.b}',
                   );
                   setState(() => isUploading = false);
                   if (context.mounted) GoRouter.of(context).pop();
