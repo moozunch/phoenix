@@ -219,8 +219,8 @@ class AppRouter {
       // 2. LOGGED IN but Email Not Verified
       // ────────────────────────────────────────────────
       if (!user.emailVerified) {
-        // only allow verify email
-        if (loc != '/verify_email' || loc == 'signup') {
+        // only allow verify email page; redirect others to it
+        if (loc == '/verify_email') {
           return null;
         }
         return '/verify_email';

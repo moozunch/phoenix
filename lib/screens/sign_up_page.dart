@@ -211,13 +211,27 @@ class _SignUpPageState extends State<SignUpPage> {
                       final user = await AuthService.instance.signUpEmail(email, pass);
                       if (!mounted) return;
                       if (user != null) {
-                        // Kirim email verifikasi jika belum diverifikasi
+                        // Kirim email verifikasi (jangan gagalkan signup jika throttled)
                         if (!user.emailVerified) {
-                          await user.sendEmailVerification();
-                          if (!mounted) return;
-                          messenger.showSnackBar(
-                            const SnackBar(content: Text('Verification email sent. Please check your inbox.')),
-                          );
+                          try {
+                            await user.sendEmailVerification();
+                            if (!mounted) return;
+                            messenger.showSnackBar(
+                              const SnackBar(content: Text('Verification email sent. Please check your inbox.')),
+                            );
+                          } on FirebaseAuthException catch (e) {
+                            // Common: too-many-requests if email was just sent; tetap lanjut ke verify page
+                            if (!mounted) return;
+                            if (e.code != 'too-many-requests') {
+                              // For non-throttling errors, optionally inform user
+                              messenger.showSnackBar(
+                                SnackBar(content: Text('Couldn\'t send verification (${e.code}). You can resend from the next screen.')),
+                              );
+                            }
+                          } catch (_) {
+                            if (!mounted) return;
+                            // Silence generic errors; proceed to verify page
+                          }
                         }
                         final state = await AppState.create();
                         if (!mounted) return;

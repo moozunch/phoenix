@@ -16,6 +16,8 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
   DateTime? _lastSent;
 
   Future<void> _reloadAndCheck() async {
+    final router = GoRouter.of(context);
+    final messenger = ScaffoldMessenger.of(context);
     setState(() => _checking = true);
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -23,17 +25,28 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
       final refreshed = FirebaseAuth.instance.currentUser;
       if (refreshed != null && refreshed.emailVerified) {
         if (!mounted) return;
-        context.go('/routine_selection');
+        router.go('/routine_selection');
       } else {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           const SnackBar(content: Text('Email not verified yet. Please check again.')),
         );
       }
-    } catch (_) {
+    } on FirebaseAuthException catch (e) {
+      // If the account was deleted from Firebase Console, `reload` throws.
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to check verification status.')),
+      final code = e.code;
+      if (code == 'user-not-found' || code == 'user-disabled') {
+        // Sign out locally and send back to sign-in.
+        await FirebaseAuth.instance.signOut();
+        messenger.showSnackBar(
+          const SnackBar(content: Text('Your account no longer exists. Please sign in again.')),
+        );
+        router.go('/signin');
+        return;
+      }
+      messenger.showSnackBar(
+        SnackBar(content: Text('Failed to check verification: ${e.code}.')),
       );
     } finally {
       if (mounted) setState(() => _checking = false);
@@ -41,9 +54,11 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
   }
 
   Future<void> _resend() async {
+    final router = GoRouter.of(context);
+    final messenger = ScaffoldMessenger.of(context);
     final now = DateTime.now();
     if (_lastSent != null && now.difference(_lastSent!).inSeconds < 30) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         const SnackBar(content: Text('Please wait before resending.')),
       );
       return;
@@ -54,14 +69,25 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
       await user?.sendEmailVerification();
       _lastSent = DateTime.now();
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         const SnackBar(content: Text('Verification email resent.')),
       );
-    } catch (_) {
+    } on FirebaseAuthException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to resend email.')),
-      );
+      if (e.code == 'user-not-found' || e.code == 'user-disabled') {
+        await FirebaseAuth.instance.signOut();
+        messenger.showSnackBar(
+          const SnackBar(content: Text('Your account no longer exists. Please sign in again.')),
+        );
+        router.go('/signin');
+        return;
+      }
+      // Silence throttling message; show others
+      if (e.code != 'too-many-requests') {
+        messenger.showSnackBar(
+          SnackBar(content: Text('Failed to resend email: ${e.code}.')),
+        );
+      }
     } finally {
       if (mounted) setState(() => _resending = false);
     }
