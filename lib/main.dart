@@ -4,7 +4,7 @@ import 'package:phoenix/core/app_state.dart';
 import 'package:phoenix/router/app_router.dart';
 import 'package:phoenix/styles/app_palette.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+// firebase_options.dart is untracked; mobile will use native config.
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:phoenix/services/display_settings_controller.dart';
 
@@ -12,9 +12,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DisplaySettingsController.init();
   // Initialize Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp();
   // Initialize Supabase
   await Supabase.initialize(
     url: 'https://uvsqahwelajbwtclahzj.supabase.co',
