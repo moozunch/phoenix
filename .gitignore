@@ -88,4 +88,5 @@ macos/Pods/
 
 # Firebase Android config
 android/app/google-services.json
+lib/firebase_options.dart
 

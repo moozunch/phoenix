@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+// Firestore removed; using Supabase mapping
 
 class JournalModel {
     factory JournalModel.fromSupabase(Map<String, dynamic> data) {
@@ -33,29 +33,17 @@ class JournalModel {
     required this.createdAt,
   });
 
-  factory JournalModel.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
-    return JournalModel(
-      journalId: doc.id,
-      uid: data['uid'] ?? '',
-      date: (data['date'] as Timestamp).toDate(),
-      headline: data['headline'] ?? '',
-      body: data['body'] ?? '',
-      mood: data['mood'] ?? '',
-      photoUrl: data['photoUrl'],
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-    );
-  }
+  // Firestore factory removed
 
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
-      'date': Timestamp.fromDate(date),
+      'date': date.toIso8601String(),
       'headline': headline,
       'body': body,
       'mood': mood,
       'photoUrl': photoUrl,
-      'createdAt': Timestamp.fromDate(createdAt),
+      'createdAt': createdAt.toIso8601String(),
     };
   }
 }

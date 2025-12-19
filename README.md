@@ -4,6 +4,8 @@
 
 Phoenix is a safe and supportive mobile app designed for individuals with face dysmorphia, helping them in the journey of self-acceptance, monitoring facial condition, and building daily habits to ease anxiety. Phoenix empowers users with a private journal platform, routine photo tracking, and smart reminders to consistently build positive habits. The app is built with Flutter and integrates Firebase, Supabase, and awesome_notifications for a secure, modern experience.
 
+Read the SRS [Here](docs/Final%20Weesabi%20SRS.pdf) (Indonesia)
+
 ## Features
 
 - Secure onboarding and authentication (email, Google, Apple)

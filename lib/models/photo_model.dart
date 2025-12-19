@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+// Firestore removed; use plain mapping
 
 class PhotoModel {
   final String photoId;
@@ -17,25 +17,15 @@ class PhotoModel {
     required this.createdAt,
   });
 
-  factory PhotoModel.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
-    return PhotoModel(
-      photoId: doc.id,
-      uid: data['uid'] ?? '',
-      date: (data['date'] as Timestamp).toDate(),
-      caption: data['caption'],
-      photoUrl: data['photoUrl'] ?? '',
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-    );
-  }
+  // Firestore factory removed
 
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
-      'date': Timestamp.fromDate(date),
+      'date': date.toIso8601String(),
       'caption': caption,
       'photoUrl': photoUrl,
-      'createdAt': Timestamp.fromDate(createdAt),
+      'createdAt': createdAt.toIso8601String(),
     };
   }
 }

@@ -4,7 +4,6 @@ import 'package:phoenix/core/app_state.dart';
 import 'package:phoenix/router/app_router.dart';
 import 'package:phoenix/styles/app_palette.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
 import 'firebase_options.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:phoenix/services/display_settings_controller.dart';
@@ -21,12 +20,7 @@ void main() async {
     url: 'https://uvsqahwelajbwtclahzj.supabase.co',
     anonKey: 'sb_publishable_iueVZL8L2y2tIpzjriVEJw_raDjwSiR',
   );
-  // App Check activation (stub). Enable in console first for services you use.
-  FirebaseAppCheck.instance.activate(
-    webProvider: null,
-    androidProvider: AndroidProvider.debug, // ← disable strict check
-    appleProvider: AppleProvider.debug,
-  );
+  // Firebase App Check removed (not used). Re-enable if needed.
 
   final appState = await AppState.create();
   final appRouter = AppRouter(appState);

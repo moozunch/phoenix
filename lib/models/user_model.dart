@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+// Firestore removed; keep Supabase mapping only
 
 class UserModel {
     factory UserModel.fromSupabase(Map<String, dynamic> data) {
@@ -46,34 +46,17 @@ class UserModel {
     this.birthDate,
   });
 
-  factory UserModel.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
-    return UserModel(
-      uid: doc.id,
-      name: data['name'] ?? '',
-      username: data['username'] ?? '',
-      profilePicUrl: data['profilePicUrl'] ?? '',
-      joinedAt: (data['joinedAt'] as Timestamp).toDate(),
-      routine: data['routine'] ?? 'daily',
-      journalCount: data['stats']?['journalCount'] ?? 0,
-      photoCount: data['stats']?['photoCount'] ?? 0,
-      daysActive: data['stats']?['daysActive'] ?? 0,
-      reminderTime: data['reminder_time'] ?? '',
-      desc: data['desc'],
-      gender: data['gender'],
-      birthDate: data['birth_date'] != null ? DateTime.parse(data['birth_date']) : null,
-    );
-  }
+  // Firestore factory removed
 
   Map<String, dynamic> toMap() {
     return {
       'name': name,
       'username': username,
       'profilePicUrl': profilePicUrl,
-      'joinedAt': Timestamp.fromDate(joinedAt),
+      'joinedAt': joinedAt.toIso8601String(),
       'routine': routine,
       'reminder_time': reminderTime,
-      if(gender != null) 'gender' : gender,
+      if (gender != null) 'gender': gender,
       if (birthDate != null) 'birth_date': birthDate!.toIso8601String(),
       if (desc != null) 'desc': desc,
       'stats': {
